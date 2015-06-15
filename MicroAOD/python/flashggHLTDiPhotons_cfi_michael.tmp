@@ -1,0 +1,41 @@
+import FWCore.ParameterSet.Config as cms
+
+# FIXME INVERT ELECTRON VETO
+flashggHLTDiPhotons = cms.EDFilter("DiPhotonCandidateSelector",
+                                   src = cms.InputTag("flashggDiPhotons"),
+                                   #&& (!subLeadingPhoton.passElectronVeto)  abs(leadingPhoton.eta) < 2.55 && abs(subLeadingPhoton.eta) < 2.55) &&
+                                   cut = cms.string("""
+                             (leadingPhoton.pt > 30. && subLeadingPhoton.pt>20) &&  
+                             ( 
+                              ((leadingPhoton.r9 <= 0.9 )
+                                    && ( ((leadingPhoton.isEB && leadingPhoton.hadronicOverEm < 0.09 && leadingPhoton.sigmaIetaIeta < 0.014) 
+                                    || (leadingPhoton.isEE && leadingPhoton.hadronicOverEm < 0.09 && leadingPhoton.sigmaIetaIeta < 0.034)) 
+                                    && (leadingPhoton.trkSumPtHollowConeDR03 - 0.002 * leadingPhoton.pt < 5.0) 
+                                    && (leadingPhoton.pfChgIsoWrtChosenVtx02 < 5.0) 
+                                    && (leadingPhoton.passElectronVeto)
+                                    && (leadPhotonId>-0.1)
+                                    ))
+                               || ((leadingPhoton.r9 > 0.9 )
+                                    && ( ((leadingPhoton.isEB && leadingPhoton.hadronicOverEm < 0.09 && leadingPhoton.sigmaIetaIeta < 0.014) 
+                                    || (leadingPhoton.isEE && leadingPhoton.hadronicOverEm < 0.09 && leadingPhoton.sigmaIetaIeta < 0.034)) 
+                                    && (leadingPhoton.passElectronVeto)
+                                    && (leadPhotonId>-0.1)
+                                    )) 
+                             ) && ( 
+                              ((subLeadingPhoton.r9 <= 0.9)
+                                    && ( ((subLeadingPhoton.isEB && subLeadingPhoton.hadronicOverEm < 0.09 && subLeadingPhoton.sigmaIetaIeta < 0.014) 
+                                    || (subLeadingPhoton.isEE && subLeadingPhoton.hadronicOverEm < 0.09 && subLeadingPhoton.sigmaIetaIeta < 0.034)) 
+                                    && (subLeadingPhoton.trkSumPtHollowConeDR03 - 0.002 * subLeadingPhoton.pt < 5.0) 
+                                    && (subLeadingPhoton.pfChgIsoWrtChosenVtx02 < 5.0) 
+                                    && (subLeadingPhoton.passElectronVeto)
+                                    && (subLeadPhotonId>-0.1)
+                                    )) 
+                               || ((subLeadingPhoton.r9 <= 0.9)
+                                    && ( ((subLeadingPhoton.isEB && subLeadingPhoton.hadronicOverEm < 0.09 && subLeadingPhoton.sigmaIetaIeta < 0.014) 
+                                    || (subLeadingPhoton.isEE && subLeadingPhoton.hadronicOverEm < 0.09 && subLeadingPhoton.sigmaIetaIeta < 0.034)) 
+                                    && (subLeadingPhoton.passElectronVeto)
+                                    && (subLeadPhotonId>-0.1)
+                                    )) 
+                              )
+                            """)
+                                   )
