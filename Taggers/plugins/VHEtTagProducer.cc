@@ -106,7 +106,6 @@ namespace flashgg {
                 //calculate met
             }
             //std::cout << "Met: " << theMET->pt() << std::endl;
-            //std::cout << "tag met: " << tag_obj.met()->pt() << std::endl;
             if(theMET->pt()>metPtThreshold_)
                 {
                     //setdiphotonindex
