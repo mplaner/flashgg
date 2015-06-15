@@ -456,20 +456,17 @@ void HLTEfficiency::analyze( const edm::Event &iEvent, const edm::EventSetup &iS
             bool subLeadMatchedToProbe = onlineOfflineMatching( triggerNames, triggerObjects, diphoPtr->subLeadingPhoton()->p4(), probeFilterName_[f] );
 
             if( leadMatchedToTag and subLeadMatchedToProbe ) {
-                //    if( leadMatchedToTag ) {
                 diphotonIndex = i;
-                std::cout << "lead matched " << std::endl;
                 break;
-                }
-                if( leadMatchedToProbe and subLeadMatchedToTag ) {
-                    //if( subLeadMatchedToTag ) {
-                    diphotonIndex = i;
-                    isInverted = true;
-                    break;
-                }
+            }
+            if( leadMatchedToProbe and subLeadMatchedToTag ) {
+                diphotonIndex = i;
+                isInverted = true;
+                break;
+            }
         }
     }
-    
+
     if( diphotonIndex == -1 )
     { return; }
 
@@ -482,9 +479,9 @@ void HLTEfficiency::analyze( const edm::Event &iEvent, const edm::EventSetup &iS
         probe = theDiPhoton->leadingPhoton();
     }
     //change for hgg
-    //if( theDiPhoton->mass() < 100 or theDiPhoton->mass() > 180 )
-    if( theDiPhoton->mass() < 70 or theDiPhoton->mass() > 110 )
-        { return; }
+    if( theDiPhoton->mass() < 100 or theDiPhoton->mass() > 180 )
+        //if( theDiPhoton->mass() < 70 or theDiPhoton->mass() > 110 )
+    { return; }
 
     Zpeak->Fill( theDiPhoton->mass() );
     float probe_weight = 1;
