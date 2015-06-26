@@ -78,7 +78,7 @@ cd $CMSSW_BASE/src
 echo
 echo "Setting up pileupjetid..."
 git cms-addpkg RecoJets/JetProducers
-git cms-merge-topic -u ldcorpe:flashgg-new-vtxmap-pujetid-74X
+git cms-merge-topic -u yhaddad:topic-pujid-flashgg
 echo
 
 #echo "Setting up PUPPI..."
@@ -94,6 +94,9 @@ echo
 echo "Setting up Conversion tools for pat electron..."
 git cms-addpkg RecoEgamma/EgammaTools
 git cms-merge-topic -u sethzenz:topic-conversion-tools-for-pat-ele-74X
+
+echo "adding hook for indentation"
+ln -s $CMSSW_BASE/src/flashgg/Validation/scripts/flashgg_indent_check.sh $CMSSW_BASE/src/flashgg/.git/hooks/pre-commit
 
 echo
 echo "Done with setup script! You still need to build!"
