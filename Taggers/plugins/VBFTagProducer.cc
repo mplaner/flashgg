@@ -108,7 +108,7 @@ namespace flashgg {
         unsigned int index_leadq = std::numeric_limits<unsigned int>::max(), index_subleadq = std::numeric_limits<unsigned int>::max();
         float pt_leadq = 0., pt_subleadq = 0.;
         Point higgsVtx;
-        
+
         if( ! evt.isRealData() ) {
             for( unsigned int genLoop = 0 ; genLoop < genParticles->size(); genLoop++ ) {
                 int pdgid = genParticles->ptrAt( genLoop )->pdgId();
@@ -187,7 +187,7 @@ namespace flashgg {
                         }
                     }
                 }
-                
+
                 if( index_gp_leadjet < std::numeric_limits<unsigned int>::max() ) { truth_obj.setClosestParticleToLeadingJet( genParticles->ptrAt( index_gp_leadjet ) ); }
                 if( index_gp_subleadjet < std::numeric_limits<unsigned int>::max() ) { truth_obj.setClosestParticleToSubLeadingJet( genParticles->ptrAt( index_gp_subleadjet ) ); }
                 if( index_gp_leadphoton < std::numeric_limits<unsigned int>::max() ) { truth_obj.setClosestParticleToLeadingPhoton( genParticles->ptrAt( index_gp_leadphoton ) ); }
@@ -207,7 +207,7 @@ namespace flashgg {
                 }
                 if( index_gj_leadjet < std::numeric_limits<unsigned int>::max() ) { truth_obj.setClosestGenJetToLeadingJet( genJets->ptrAt( index_gj_leadjet ) ); }
                 if( index_gj_subleadjet < std::numeric_limits<unsigned int>::max() ) { truth_obj.setClosestGenJetToSubLeadingJet( genJets->ptrAt( index_gj_subleadjet ) ); }
-                
+
                 if( index_leadq < std::numeric_limits<unsigned int>::max() ) { truth_obj.setLeadingQuark( genParticles->ptrAt( index_leadq ) ); }
                 if( index_subleadq < std::numeric_limits<unsigned int>::max() ) { truth_obj.setSubLeadingQuark( genParticles->ptrAt( index_subleadq ) ); }
             }
@@ -220,10 +220,10 @@ namespace flashgg {
                 }
             }
         }
-        
+
         evt.put( tags );
-        if( ! evt.isRealData() ) 
-            evt.put( truths );
+        if( ! evt.isRealData() )
+        { evt.put( truths ); }
     }
 }
 

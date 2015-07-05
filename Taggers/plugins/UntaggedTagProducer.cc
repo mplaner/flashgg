@@ -89,7 +89,7 @@ namespace flashgg {
         std::auto_ptr<vector<TagTruthBase> > truths( new vector<TagTruthBase> );
 
         Point higgsVtx;
-        if( ! evt.isRealData() ) 
+        if( ! evt.isRealData() )
             for( unsigned int genLoop = 0 ; genLoop < genParticles->size(); genLoop++ ) {
                 int pdgid = genParticles->ptrAt( genLoop )->pdgId();
                 if( pdgid == 25 || pdgid == 22 ) {
@@ -97,7 +97,7 @@ namespace flashgg {
                     break;
                 }
             }
-        
+
         assert( diPhotons->size() == mvaResults->size() ); // We are relying on corresponding sets - update this to give an error/exception
 
         unsigned int idx = 0;
@@ -129,8 +129,8 @@ namespace flashgg {
             }
         }
         evt.put( tags );
-        if( ! evt.isRealData() ) 
-            evt.put( truths );
+        if( ! evt.isRealData() )
+        { evt.put( truths ); }
     }
 }
 

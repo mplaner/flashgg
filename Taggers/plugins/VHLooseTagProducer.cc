@@ -223,7 +223,7 @@ namespace flashgg {
         std::auto_ptr<vector<TagTruthBase> > truths( new vector<TagTruthBase> );
 
         Point higgsVtx;
-        if( ! evt.isRealData() ) 
+        if( ! evt.isRealData() )
             for( unsigned int genLoop = 0 ; genLoop < genParticles->size(); genLoop++ ) {
                 int pdgid = genParticles->ptrAt( genLoop )->pdgId();
                 if( pdgid == 25 || pdgid == 22 ) {
@@ -231,7 +231,7 @@ namespace flashgg {
                     break;
                 }
             }
-        
+
         edm::RefProd<vector<TagTruthBase> > rTagTruth = evt.getRefBeforePut<vector<TagTruthBase> >();
         unsigned int idx = 0;
 
@@ -379,17 +379,16 @@ namespace flashgg {
                 vhloosetags_obj.setDiPhotonIndex( diphoIndex );
                 vhloosetags->push_back( vhloosetags_obj );
                 TagTruthBase truth_obj;
-                if( ! evt.isRealData() ) 
-                    {
-                        truth_obj.setGenPV( higgsVtx );
-                        truths->push_back( truth_obj );
-                        vhloosetags->back().setTagTruth( edm::refToPtr( edm::Ref<vector<TagTruthBase> >( rTagTruth, idx++ ) ) );
-                    }
+                if( ! evt.isRealData() ) {
+                    truth_obj.setGenPV( higgsVtx );
+                    truths->push_back( truth_obj );
+                    vhloosetags->back().setTagTruth( edm::refToPtr( edm::Ref<vector<TagTruthBase> >( rTagTruth, idx++ ) ) );
+                }
             }
         }
         evt.put( vhloosetags );
-        if( ! evt.isRealData() ) 
-            evt.put( truths );
+        if( ! evt.isRealData() )
+        { evt.put( truths ); }
     }
 
 }
