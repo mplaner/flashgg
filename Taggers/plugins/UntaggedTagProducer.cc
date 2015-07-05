@@ -89,15 +89,15 @@ namespace flashgg {
         std::auto_ptr<vector<TagTruthBase> > truths( new vector<TagTruthBase> );
 
         Point higgsVtx;
-
-        for( unsigned int genLoop = 0 ; genLoop < genParticles->size(); genLoop++ ) {
-            int pdgid = genParticles->ptrAt( genLoop )->pdgId();
-            if( pdgid == 25 || pdgid == 22 ) {
-                higgsVtx = genParticles->ptrAt( genLoop )->vertex();
-                break;
+        if( ! evt.isRealData() ) 
+            for( unsigned int genLoop = 0 ; genLoop < genParticles->size(); genLoop++ ) {
+                int pdgid = genParticles->ptrAt( genLoop )->pdgId();
+                if( pdgid == 25 || pdgid == 22 ) {
+                    higgsVtx = genParticles->ptrAt( genLoop )->vertex();
+                    break;
+                }
             }
-        }
-
+        
         assert( diPhotons->size() == mvaResults->size() ); // We are relying on corresponding sets - update this to give an error/exception
 
         unsigned int idx = 0;
@@ -122,12 +122,15 @@ namespace flashgg {
             // std::cout << "[UNTAGGED] MVA is "<< mvares->result << " and category is " << tag_obj.categoryNumber() << std::endl;
             if( tag_obj.categoryNumber() >= 0 ) {
                 tags->push_back( tag_obj );
-                truths->push_back( truth_obj );
-                tags->back().setTagTruth( edm::refToPtr( edm::Ref<vector<TagTruthBase> >( rTagTruth, idx++ ) ) );
+                if( ! evt.isRealData() ) {
+                    truths->push_back( truth_obj );
+                    tags->back().setTagTruth( edm::refToPtr( edm::Ref<vector<TagTruthBase> >( rTagTruth, idx++ ) ) );
+                }
             }
         }
         evt.put( tags );
-        evt.put( truths );
+        if( ! evt.isRealData() ) 
+            evt.put( truths );
     }
 }
 

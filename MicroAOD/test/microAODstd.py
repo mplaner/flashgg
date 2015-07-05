@@ -13,7 +13,7 @@ process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 from Configuration.AlCa.GlobalTag import GlobalTag
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32( 1000) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32( -1) )
 process.MessageLogger.cerr.FwkReport.reportEvery = cms.untracked.int32( 1000 )
 
 # 2012 data
@@ -26,6 +26,10 @@ process.MessageLogger.cerr.FwkReport.reportEvery = cms.untracked.int32( 1000 )
 
 # PHYS14 Files
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc')
+#global tag for real data:
+#process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_data')
+
+
 #process.source = cms.Source("PoolSource",fileNames=cms.untracked.vstring(
 #"/store/mc/Phys14DR/DYToMuMu_M-50_Tune4C_13TeV-pythia8/MINIAODSIM/PU40bx25_tsg_castor_PHYS14_25_V1-v2/00000/622CAFBA-BD9A-E411-BE11-002481E14FFC.root",
 #"/store/mc/Phys14DR/DYToMuMu_M-50_Tune4C_13TeV-pythia8/MINIAODSIM/PU40bx25_tsg_castor_PHYS14_25_V1-v2/00000/FA4B46B9-8E9A-E411-A899-002590A3C954.root",
@@ -38,6 +42,13 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc')
 ### process.source = cms.Source("PoolSource",fileNames=cms.untracked.vstring("/store/mc/Phys14DR/GJet_Pt40_doubleEMEnriched_TuneZ2star_13TeV-pythia6/MINIAODSIM/PU20bx25_PHYS14_25_V1-v1/00000/101611CC-026E-E411-B8D7-00266CFFBF88.root"))
 ## process.source = cms.Source("PoolSource",fileNames=cms.untracked.vstring("/store/mc/Phys14DR/GJets_HT-100to200_Tune4C_13TeV-madgraph-tauola/MINIAODSIM/PU20bx25_PHYS14_25_V1-v1/00000/00D67F78-2873-E411-B3BB-0025907DC9C0.root"))
 
+
+#process.source = cms.Source("PoolSource",fileNames=cms.untracked.vstring(
+#        "file:/afs/cern.ch/work/m/mplaner/miniAOD-prod_PAT_1.root",
+#        "file:/afs/cern.ch/work/m/mplaner/miniAOD-prod_PAT_2.root",
+#        "file:/afs/cern.ch/work/m/mplaner/miniAOD-prod_PAT_3.root",
+#        )
+#                            )
 # 740 RelVal
 #process.source = cms.Source("PoolSource",fileNames=cms.untracked.vstring("/store/relval/CMSSW_7_4_0_pre9_ROOT6/RelValH130GGgluonfusion_13/MINIAODSIM/MCRUN2_74_V7-v1/00000/0A35F6D-DAD1-E411-A8CC-0026189438CC.root"))
 process.source = cms.Source("PoolSource",fileNames=cms.untracked.vstring("/store/relval/CMSSW_7_4_0_pre9/RelValH130GGgluonfusion_13/MINIAODSIM/PU25ns_MCRUN2_74_V7-v1/00000/5ABC049C-4CD4-E411-B28A-0025905A613C.root",
