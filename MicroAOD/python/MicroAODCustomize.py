@@ -79,19 +79,17 @@ class MicroAODCustomize(object):
     def customizeSignal(self,process):
         process.flashggGenPhotonsExtra.defaultType = 1
         process.GlobalTag.globaltag = "GR_R_74_V8::All"
-        #process.GlobalTag.globaltag = 'MCRUN2_74_V8'
         
     # background specific customization
     def customizeBackground(self,process):
         if "sherpa" in self.datasetName:
             process.flashggGenPhotonsExtra.defaultType = 1
             process.GlobalTag.globaltag = "GR_R_74_V8::All"
-#process.GlobalTag.globaltag = 'MCRUN2_74_V8'
+
             
     # data specific customization
     def customizeData(self,process):
         ## remove MC-specific modules
-        #process.GlobalTag.globaltag = 'GR_R_74_V13A::all'
         process.GlobalTag.globaltag = "GR_R_74_V13A::All"
         modules = process.flashggMicroAODGenSequence.moduleNames()
         for pathName in process.paths:
