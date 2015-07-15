@@ -396,7 +396,7 @@ bool HLTEfficiency::onlineOfflineMatching( const edm::TriggerNames &triggerNames
         if( obj.hasFilterLabel( filterLabel ) ) {
             //for (unsigned h = 0; h < obj.filterLabels().size(); ++h) std::cout << " " << obj.filterLabels()[h];
             float dR = deltaR( p4, obj.p4() );
-            std::cout << "dR: " << dR << std::endl;
+            //std::cout << "dR: " << dR << std::endl;
             if( dR < dRmin )
             { return true; }
         }
@@ -440,7 +440,7 @@ void HLTEfficiency::analyze( const edm::Event &iEvent, const edm::EventSetup &iS
 
     int diphotonIndex = -1;
     bool isInverted = false;
-    std::cout << "diphoton size: " << diphotons->size() << std::endl;
+    //std::cout << "diphoton size: " << diphotons->size() << std::endl;
     for( size_t i = 0; i < diphotons->size(); i++ ) {
 
         edm::Ptr<flashgg::DiPhotonCandidate> diphoPtr = diphotons->ptrAt( i );
