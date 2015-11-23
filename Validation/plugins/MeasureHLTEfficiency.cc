@@ -29,6 +29,7 @@
 #include <set>
 #include "TFile.h"
 #include "TH1F.h"
+#include "TH2F.h"
 #include "TGraphAsymmErrors.h"
 #include "TCanvas.h"
 #include "TLegend.h"
@@ -42,10 +43,12 @@ public:
     //bool hltEvent(edm::Handle<edm::TriggerResults> triggerBits);
     bool onlineOfflineMatching( const edm::TriggerNames &triggerNames, edm::Handle<pat::TriggerObjectStandAloneCollection> triggerObjects,
                                 math::XYZTLorentzVector p4, std::string filterLabel, float dRmin );
-
-    void makeEfficiencies();
-
+    int getPtBin(double pt);
+    float getWeights( double eta, double r9 );
+    float getWeights( double r9 );
+    int GetR9Bin( double r9 );
     //void endJob(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& c);
+    float bestL1Dr( edm::Handle<edm::View<l1extra::L1EmParticle>> l1H, math::XYZTLorentzVector cand, float ptThreshold, float bestDr );
     bool L1Matching( edm::Handle<edm::View<l1extra::L1EmParticle>> l1H, math::XYZTLorentzVector cand, float ptThreshold );
     std::vector<math::XYZTLorentzVector> hltP4( const edm::TriggerNames &triggerNames, edm::Handle<pat::TriggerObjectStandAloneCollection> triggerObjects,
             std::vector<std::string> filterLabels );
@@ -55,11 +58,14 @@ private:
 
     std::string outputFileName_;
     float diphoMVACut_;
+    bool useSingleEG_;
+    std::vector<std::string> tagSingleElectronFilterName_;
     std::vector<std::string> tagFilterName_;
     std::vector<std::string> probeFilterName_;
     std::vector<std::string> filterName_;
 
     edm::EDGetTokenT<edm::View<flashgg::DiPhotonCandidate>> diphotons_;
+    edm::EDGetTokenT<edm::View<flashgg::DiPhotonMVAResult> > diPhotonMVAToken_;
     edm::EDGetTokenT<edm::View<flashgg::Electron>> eles_;
     edm::EDGetTokenT<edm::View<l1extra::L1EmParticle>> l1iso_;
     edm::EDGetTokenT<edm::View<l1extra::L1EmParticle>> l1noniso_;
@@ -72,36 +78,49 @@ private:
     std::map<std::string, unsigned int> prescales;
     std::map<std::string, unsigned int> prescale_counter;
 
-    TH1F *TAG_L1_eta;
+    //cutBased working points from:  cmssw/RecoEgamma/PhotonIdentification/python/Identification/cutBasedPhotonID_Spring15_50ns_V1_cff.py
+    double preselected_diphotons =0;
+    double matched_to_tag        =0;
+    double probe_passed_IDMVA    =0;
+    double probe_passed_pt       =0;
+
+    TH1F *best_l1_dr[2];
+    TH1F *l1_dr[2];
+    TH2F *dr_vs_eta;
+    
+    TH1F *TAG_L1_35_eta;
+    TH1F *TAG_L1_15_eta;
+    TH1F *TAG_L1_10_eta;
     TH1F *PROBE_L1_15_eta;
     TH1F *PROBE_L1_10_eta;
     TH1F *PROBE_L1_35_eta;
-    TH1F *TAG_L1_pt;
+    TH1F *TAG_L1_35_pt;
+    TH1F *TAG_L1_15_pt;
+    TH1F *TAG_L1_10_pt;
     TH1F *PROBE_L1_15_pt;
     TH1F *PROBE_L1_10_pt;
     TH1F *PROBE_L1_35_pt;
-    TH1F *TAG_L1_nvtx;
+    TH1F *TAG_L1_35_ptoM;
+    TH1F *TAG_L1_15_ptoM;
+    TH1F *TAG_L1_10_ptoM;
+    TH1F *PROBE_L1_15_ptoM;
+    TH1F *PROBE_L1_10_ptoM;
+    TH1F *PROBE_L1_35_ptoM;
+    TH1F *TAG_L1_35_nvtx;
+    TH1F *TAG_L1_15_nvtx;
+    TH1F *TAG_L1_10_nvtx;
     TH1F *PROBE_L1_15_nvtx;
     TH1F *PROBE_L1_10_nvtx;
     TH1F *PROBE_L1_35_nvtx;
-    TH1F *Zpeak;
-
-    TH1F *PROBE_HLT_OR_eta_twosuite_high;
-    TH1F *PROBE_HLT_OR_pt_twosuite_high;
-    TH1F *PROBE_HLT_Iso_eta_twosuite_high;
-    TH1F *PROBE_HLT_Iso_pt_twosuite_high;
-    TH1F *PROBE_HLT_R9_eta_twosuite_high;
-    TH1F *PROBE_HLT_R9_pt_twosuite_high;
-    TH1F *PROBE_HLT_OR_nvtx_twosuite_high;
-    TH1F *PROBE_HLT_Iso_nvtx_twosuite_high;
-    TH1F *PROBE_HLT_R9_nvtx_twosuite_high;
-    TH1F *TAG_HLT_eta_twosuite_high;
-    TH1F *TAG_HLT_nvtx_twosuite_high;
-    TH1F *TAG_HLT_pt_twosuite_high;
+    TH1F *Zpeak[14][3];
+    //TH1F *Zpeak;
 
     TH1F *PROBE_HLT_OR_pt_seeded;
     TH1F *PROBE_HLT_Iso_pt_seeded;
     TH1F *PROBE_HLT_R9_pt_seeded;
+    TH1F *PROBE_HLT_OR_ptoM_seeded;
+    TH1F *PROBE_HLT_Iso_ptoM_seeded;
+    TH1F *PROBE_HLT_R9_ptoM_seeded;
     TH1F *PROBE_HLT_OR_eta_seeded;
     TH1F *PROBE_HLT_Iso_eta_seeded;
     TH1F *PROBE_HLT_R9_eta_seeded;
@@ -110,23 +129,34 @@ private:
     TH1F *PROBE_HLT_R9_nvtx_seeded;
     TH1F *TAG_HLT_eta_seeded;
     TH1F *TAG_HLT_pt_seeded;
+    TH1F *TAG_HLT_ptoM_seeded;
     TH1F *TAG_HLT_nvtx_seeded;
 
-
-
-    TH1F *PROBE_HLT_OR_eta_unseeded;
-    TH1F *PROBE_HLT_OR_pt_unseeded;
-    TH1F *PROBE_HLT_Iso_eta_unseeded;
-    TH1F *PROBE_HLT_Iso_pt_unseeded;
-    TH1F *PROBE_HLT_R9_eta_unseeded;
     TH1F *PROBE_HLT_R9_pt_unseeded;
+    TH1F *PROBE_HLT_OR_pt_unseeded;
+    TH1F *PROBE_HLT_Iso_pt_unseeded;
+    TH1F *PROBE_HLT_R9_ptoM_unseeded;
+    TH1F *PROBE_HLT_OR_ptoM_unseeded;
+    TH1F *PROBE_HLT_Iso_ptoM_unseeded;
+    TH1F *PROBE_HLT_Iso_eta_unseeded;
+    TH1F *PROBE_HLT_OR_eta_unseeded;
+    TH1F *PROBE_HLT_R9_eta_unseeded;
     TH1F *PROBE_HLT_OR_nvtx_unseeded;
     TH1F *PROBE_HLT_Iso_nvtx_unseeded;
     TH1F *PROBE_HLT_R9_nvtx_unseeded;
     TH1F *TAG_HLT_eta_unseeded;
     TH1F *TAG_HLT_pt_unseeded;
+    TH1F *TAG_HLT_ptoM_unseeded;
     TH1F *TAG_HLT_nvtx_unseeded;
+    float weights2d[8][120] = {{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.201031, 0.237288, 0.185792, 0.246377, 0.282051, 0.274112, 0.306122, 0.211712, 0.234742, 0.285047, 0.295652, 0.213992, 0.305785, 0.271552, 0.239819, 0.253165, 0.236162, 0.175573, 0.231441, 0.238636, 0.276018, 0.272085, 0.292181, 0.342742, 0.299242, 0.329457, 0.30566, 0.32197, 0.269231, 0.305556, 0.239437, 0.302239, 0.259786, 0.340741, 0.371324, 0.323944, 0.35, 0.400763, 0.452107, 0.330798, 0.389493, 0.378965, 0.397833, 0.40085, 0.507812, 0.794041, 1.24661, 2.25941, 3.09643, 3.5037, 2.13043, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.299882, 0.269333, 0.254846, 0.249695, 0.244496, 0.253102, 0.257659, 0.222795, 0.229061, 0.242062, 0.235556, 0.222461, 0.233763, 0.204858, 0.230786, 0.239385, 0.221424, 0.222539, 0.224543, 0.24514, 0.240581, 0.227478, 0.236597, 0.236358, 0.234492, 0.250657, 0.248488, 0.244914, 0.243453, 0.24445, 0.240084, 0.243663, 0.237026, 0.242305, 0.247476, 0.245392, 0.248212, 0.23235, 0.234457, 0.224393, 0.221186, 0.220652, 0.246175, 0.347522, 0.610506, 0.847925, 0.77073, 0.581148, 0.609492, 0.58871, 0.539683, 0.357143, 0.413793, 0.290909, 0.512821, 0.0588235, 0.236842, 0.0952381, 0.238095, 0.421053, 0.4, 0.555556, 0.3, 0, 0.285714, 0.375, 0.125, 0.25, 0.666667}, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.255605, 0.267684, 0.250301, 0.233918, 0.2369, 0.216008, 0.233205, 0.217117, 0.19846, 0.218775, 0.212211, 0.21736, 0.182796, 0.22449, 0.245449, 0.219438, 0.216595, 0.200448, 0.213933, 0.214249, 0.233679, 0.234336, 0.247934, 0.203292, 0.250891, 0.232905, 0.229955, 0.23774, 0.2297, 0.246068, 0.229153, 0.242604, 0.223228, 0.232759, 0.236916, 0.244728, 0.240829, 0.224359, 0.226677, 0.237584, 0.228889, 0.246466, 0.287596, 0.396658, 0.759791, 1.27109, 1.40326, 1.02342, 0.888889, 0.636364, 1.33333, 0.357143, 0.0625, 0.411765, 0.333333, 0.333333, 0.444444, 0.333333, 0.2, 0.166667, 0.333333, 0, 0, 0, 0.333333, 0, 0.5, 0, 0}, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.207386, 0.197722, 0.230893, 0.184211, 0.224964, 0.185734, 0.200394, 0.190418, 0.194064, 0.210762, 0.242627, 0.200828, 0.21726, 0.226809, 0.219118, 0.233706, 0.223283, 0.217373, 0.233718, 0.225542, 0.229191, 0.223412, 0.240795, 0.231915, 0.227102, 0.243684, 0.245035, 0.242887, 0.246608, 0.236171, 0.2513, 0.247696, 0.240093, 0.257992, 0.261465, 0.273043, 0.289978, 0.287282, 0.287864, 0.299237, 0.329556, 0.362031, 0.445851, 0.616647, 1.19141, 2.40091, 3.00281, 2.22642, 1.74468, 1.4375, 0.875, 0.5, 0.6, 1.25, 0.25, 0.75, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0}, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.225, 0.222938, 0.207729, 0.199148, 0.218679, 0.226115, 0.22591, 0.235294, 0.214286, 0.222635, 0.213533, 0.226009, 0.230035, 0.216795, 0.253441, 0.210084, 0.250971, 0.231338, 0.221318, 0.279273, 0.253776, 0.249482, 0.266994, 0.227781, 0.244025, 0.240099, 0.273482, 0.224378, 0.246082, 0.277059, 0.273629, 0.296076, 0.304692, 0.341216, 0.282548, 0.331576, 0.309316, 0.374621, 0.357686, 0.371399, 0.444022, 0.413442, 0.557335, 0.873897, 1.80888, 4.06884, 4.99662, 3.22857, 2, 1.16667, 1, 0.5, 0.25, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.209828, 0.216804, 0.217236, 0.196224, 0.220729, 0.195883, 0.215385, 0.211194, 0.227064, 0.231419, 0.224433, 0.2033, 0.215736, 0.228884, 0.226693, 0.228922, 0.235212, 0.237892, 0.237987, 0.251133, 0.227532, 0.251855, 0.250742, 0.255766, 0.251436, 0.256817, 0.270138, 0.270388, 0.300881, 0.298671, 0.301439, 0.292952, 0.318959, 0.332058, 0.319529, 0.372172, 0.359908, 0.368896, 0.384587, 0.385314, 0.43763, 0.470139, 0.537429, 0.720687, 1.28776, 3.15712, 4.24843, 3.23555, 3.39557, 2.98261, 1.1875, 0.375, 0.5, 0.333333, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.5, 0.5, 0, 0, 3, 0, 0.4, 0.333333, 0, 0.3, 0.28928, 0.319687, 0.332476, 0.360412, 0.425681, 0.617679, 1.11872, 2.32877, 2.90897, 2.3592, 1.89634, 1, 0.4, 0, 0.5, 0.5, 1, 0, 0, 0.5, 0, 0, 0.5, 0, 0, 1, 0, 0, 0}, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.232972, 0.250593, 0.277706, 0.292785, 0.367083, 0.549679, 1.04694, 2.04282, 2.77351, 2.30481, 1.03448, 0.285714, 0.166667, 0.2, 0, 0.5, 0, 0, 0.5, 0, 0.333333, 0, 0, 0.5, 0, 0, 0, 0.5, 0}};
 
+
+
+    double weights[100] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.514777, 0.515062, 0.533989, 0.466876, 0.486839, 0.469298, 0.478957, 0.441555, 0.487262, 0.461604, 0.442469, 0.45576, 0.476261, 0.475864, 0.476184, 0.452791, 0.498611, 0.476031, 0.483828, 0.486875, 0.484094, 0.490637, 0.520348, 0.503588, 0.519901, 0.526705, 0.519882, 0.535151, 0.560224, 0.547786, 0.566284, 0.558558, 0.562697, 0.548262, 0.516354, 0.537443, 0.641497, 1.06991, 1.80848, 1.92913, 2.59732, 3.96539, 3.17888, 0.885604, 0.875504, 0.62741, 0.70148, 0.542207, 0.731979, 0.292792, 1.3013, 2.92792, 0.487986, 0.609982, 0.731979, 0, 0.609982, 0.325324};
+    TCanvas *c_eff_L1_7_ptoM = new TCanvas( "c_eff_L1_7_ptoM", "c_eff_L1_7_ptoM" );
+    TGraphAsymmErrors *eff_L1_35_ptoM = new TGraphAsymmErrors();
+    TGraphAsymmErrors *eff_L1_15_ptoM = new TGraphAsymmErrors();
+    TGraphAsymmErrors *eff_L1_10_ptoM = new TGraphAsymmErrors();
     TCanvas *c_eff_L1_7_pt = new TCanvas( "c_eff_L1_7_pt", "c_eff_L1_7_pt" );
     TGraphAsymmErrors *eff_L1_35_pt = new TGraphAsymmErrors();
     TGraphAsymmErrors *eff_L1_15_pt = new TGraphAsymmErrors();
@@ -146,6 +176,10 @@ private:
     TGraphAsymmErrors *eff_HLT_OR_pt_seeded = new TGraphAsymmErrors();
     TGraphAsymmErrors *eff_HLT_Iso_pt_seeded = new TGraphAsymmErrors();
     TGraphAsymmErrors *eff_HLT_R9_pt_seeded = new TGraphAsymmErrors();
+    TCanvas *c_eff_HLT_OR_ptoM_seeded = new TCanvas( "c_eff_HLT_OR_ptoM_seeded", "c_eff_HLT_OR_ptoM_seeded" );
+    TGraphAsymmErrors *eff_HLT_OR_ptoM_seeded = new TGraphAsymmErrors();
+    TGraphAsymmErrors *eff_HLT_Iso_ptoM_seeded = new TGraphAsymmErrors();
+    TGraphAsymmErrors *eff_HLT_R9_ptoM_seeded = new TGraphAsymmErrors();
     TCanvas *c_eff_HLT_OR_eta_seeded = new TCanvas( "c_eff_HLT_OR_eta_seeded", "c_eff_HLT_OR_eta_seeded" );
     TGraphAsymmErrors *eff_HLT_OR_eta_seeded = new TGraphAsymmErrors();
     TGraphAsymmErrors *eff_HLT_Iso_eta_seeded = new TGraphAsymmErrors();
@@ -159,6 +193,10 @@ private:
     TGraphAsymmErrors *eff_HLT_OR_pt_unseeded = new TGraphAsymmErrors();
     TGraphAsymmErrors *eff_HLT_Iso_pt_unseeded = new TGraphAsymmErrors();
     TGraphAsymmErrors *eff_HLT_R9_pt_unseeded = new TGraphAsymmErrors();
+    TCanvas *c_eff_HLT_OR_ptoM_unseeded = new TCanvas( "c_eff_HLT_OR_ptoM_unseeded", "c_eff_HLT_OR_ptoM_unseeded" );
+    TGraphAsymmErrors *eff_HLT_OR_ptoM_unseeded = new TGraphAsymmErrors();
+    TGraphAsymmErrors *eff_HLT_Iso_ptoM_unseeded = new TGraphAsymmErrors();
+    TGraphAsymmErrors *eff_HLT_R9_ptoM_unseeded = new TGraphAsymmErrors();
     TCanvas *c_eff_HLT_OR_eta_unseeded = new TCanvas( "c_eff_HLT_OR_eta_unseeded", "c_eff_HLT_OR_eta_unseeded" );
     TGraphAsymmErrors *eff_HLT_OR_eta_unseeded = new TGraphAsymmErrors();
     TGraphAsymmErrors *eff_HLT_Iso_eta_unseeded = new TGraphAsymmErrors();
@@ -176,52 +214,48 @@ HLTEfficiency::~HLTEfficiency()
 
     TFile *file = new TFile( outputFileName_.c_str(), "recreate" );
 
-    c_eff_HLT_OR_pt_seeded->Write();
-    c_eff_HLT_OR_pt_unseeded->Write();
-    c_eff_L1_7_pt->Write();
-
-    c_eff_HLT_OR_eta_seeded->Write();
-    c_eff_HLT_OR_eta_unseeded->Write();
-    c_eff_L1_7_eta->Write();
-
-    c_eff_HLT_OR_nvtx_seeded->Write();
-    c_eff_HLT_OR_nvtx_unseeded->Write();
-    c_eff_L1_7_nvtx->Write();
-
-    eff_HLT_OR_pt_seeded->Write();
-    eff_HLT_Iso_pt_seeded->Write();
-    eff_HLT_R9_pt_seeded->Write();
-
-    eff_HLT_OR_pt_unseeded->Write();
-    eff_HLT_Iso_pt_unseeded->Write();
-    eff_HLT_R9_pt_unseeded->Write();
-
-    Zpeak->Write();
-    TAG_L1_eta->Write();
+    TH1F * Ecounters = new TH1F("counters","counters",6,0,6);
+    Ecounters->Fill(0.0,preselected_diphotons);
+    Ecounters->Fill(1.0,matched_to_tag);
+    Ecounters->Fill(2.0,probe_passed_IDMVA);
+    Ecounters->Fill(3.0,probe_passed_pt);
+    Ecounters->Write();
+    dr_vs_eta->Write();
+    best_l1_dr[0]->Write();
+    best_l1_dr[1]->Write();
+    l1_dr[0]->Write();
+    l1_dr[1]->Write();
+    
+    for(int i=0;i<14;i++)
+        {
+            Zpeak[i][0]->Write();
+            Zpeak[i][1]->Write();
+            Zpeak[i][2]->Write();
+        }
+    TAG_L1_35_eta->Write();
+    TAG_L1_15_eta->Write();
+    TAG_L1_10_eta->Write();
     PROBE_L1_35_eta->Write();
     PROBE_L1_15_eta->Write();
     PROBE_L1_10_eta->Write();
-    TAG_L1_nvtx->Write();
+    TAG_L1_35_ptoM->Write();
+    TAG_L1_15_ptoM->Write();
+    TAG_L1_10_ptoM->Write();
+    PROBE_L1_35_ptoM->Write();
+    PROBE_L1_15_ptoM->Write();
+    PROBE_L1_10_ptoM->Write();
+    TAG_L1_35_nvtx->Write();
+    TAG_L1_15_nvtx->Write();
+    TAG_L1_10_nvtx->Write();
     PROBE_L1_35_nvtx->Write();
     PROBE_L1_15_nvtx->Write();
     PROBE_L1_10_nvtx->Write();
-    TAG_L1_pt->Write();
+    TAG_L1_35_pt->Write();
+    TAG_L1_15_pt->Write();
+    TAG_L1_10_pt->Write();
     PROBE_L1_15_pt->Write();
     PROBE_L1_10_pt->Write();
     PROBE_L1_35_pt->Write();
-
-    PROBE_HLT_OR_pt_twosuite_high->Write();
-    PROBE_HLT_Iso_pt_twosuite_high->Write();
-    PROBE_HLT_R9_pt_twosuite_high->Write();
-    PROBE_HLT_OR_eta_twosuite_high->Write();
-    PROBE_HLT_Iso_eta_twosuite_high->Write();
-    PROBE_HLT_R9_eta_twosuite_high->Write();
-    PROBE_HLT_OR_nvtx_twosuite_high->Write();
-    PROBE_HLT_Iso_nvtx_twosuite_high->Write();
-    PROBE_HLT_R9_nvtx_twosuite_high->Write();
-    TAG_HLT_eta_twosuite_high->Write();
-    TAG_HLT_pt_twosuite_high->Write();
-    TAG_HLT_nvtx_twosuite_high->Write();
 
     PROBE_HLT_OR_pt_seeded->Write();
     PROBE_HLT_Iso_pt_seeded->Write();
@@ -229,11 +263,15 @@ HLTEfficiency::~HLTEfficiency()
     PROBE_HLT_OR_eta_seeded->Write();
     PROBE_HLT_Iso_eta_seeded->Write();
     PROBE_HLT_R9_eta_seeded->Write();
+    PROBE_HLT_OR_ptoM_seeded->Write();
+    PROBE_HLT_Iso_ptoM_seeded->Write();
+    PROBE_HLT_R9_ptoM_seeded->Write();
     PROBE_HLT_OR_nvtx_seeded->Write();
     PROBE_HLT_Iso_nvtx_seeded->Write();
     PROBE_HLT_R9_nvtx_seeded->Write();
     TAG_HLT_pt_seeded->Write();
     TAG_HLT_eta_seeded->Write();
+    TAG_HLT_ptoM_seeded->Write();
     TAG_HLT_nvtx_seeded->Write();
 
     PROBE_HLT_OR_pt_unseeded->Write();
@@ -242,21 +280,29 @@ HLTEfficiency::~HLTEfficiency()
     PROBE_HLT_OR_eta_unseeded->Write();
     PROBE_HLT_Iso_eta_unseeded->Write();
     PROBE_HLT_R9_eta_unseeded->Write();
+    PROBE_HLT_OR_ptoM_unseeded->Write();
+    PROBE_HLT_Iso_ptoM_unseeded->Write();
+    PROBE_HLT_R9_ptoM_unseeded->Write();
     PROBE_HLT_OR_nvtx_unseeded->Write();
     PROBE_HLT_Iso_nvtx_unseeded->Write();
     PROBE_HLT_R9_nvtx_unseeded->Write();
     TAG_HLT_pt_unseeded->Write();
     TAG_HLT_eta_unseeded->Write();
+    TAG_HLT_ptoM_unseeded->Write();
     TAG_HLT_nvtx_unseeded->Write();
     file->Close();
 }
 
 HLTEfficiency::HLTEfficiency( const edm::ParameterSet &iConfig ):
     outputFileName_( iConfig.getParameter<std::string>( "outputFileName" ) ),
+    diphoMVACut_( iConfig.getParameter<double>( "diphoMVACut" ) ),
+    useSingleEG_( iConfig.getParameter<bool>( "useSingleEG" ) ),
+    tagSingleElectronFilterName_( iConfig.getParameter<std::vector<std::string> >( "tagSingleElectronFilterName" ) ),
     tagFilterName_( iConfig.getParameter<std::vector<std::string> >( "tagFilterName" ) ),
     probeFilterName_( iConfig.getParameter<std::vector<std::string> >( "probeFilterName" ) ),
     filterName_( iConfig.getParameter<std::vector<std::string>>( "filterName" ) ),
     diphotons_( consumes<edm::View<flashgg::DiPhotonCandidate>>( iConfig.getParameter<edm::InputTag>( "diphotons" ) ) ),
+    diPhotonMVAToken_( consumes<edm::View<flashgg::DiPhotonMVAResult> >( iConfig.getParameter<edm::InputTag> ( "diPhotonMVATag" ) ) ),
     eles_( consumes<edm::View<flashgg::Electron>>( iConfig.getParameter<edm::InputTag>( "electrons" ) ) ),
     l1iso_( consumes<edm::View<l1extra::L1EmParticle>>( iConfig.getParameter<edm::InputTag>( "l1Iso" ) ) ),
     l1noniso_( consumes<edm::View<l1extra::L1EmParticle>>( iConfig.getParameter<edm::InputTag>( "l1NonIso" ) ) ),
@@ -272,38 +318,100 @@ HLTEfficiency::HLTEfficiency( const edm::ParameterSet &iConfig ):
 
     int etaBin = 30;
     int nvtxBin = 50;
-    int ptBin = 30;
-    Zpeak = new TH1F( "Zpeak", "", 120, 60, 120 );
-    TAG_L1_eta = new TH1F( "DEN_L1_eta", "", etaBin, -3, 3 );
+    int ptBin = 15; //33
+    double  ptBins[ptBin+1] = {20,22.5,25,27.5,30,33,35,40,45,50,60,70,90,130,180,250}; //{10,12,14,16,18,20,22,24,26,28,30,32,34,36,38,40,42,44,46,48,50,52,54,56,58,60,62,64,66,68,70,100,150,200};
+    
+    dr_vs_eta = new TH2F( "best dr vs eta", "", 30, 0, .6, 90,1.5,3 );
+    best_l1_dr[0] = new TH1F( "lowest matched l1 dr good eta", "", 100, 0, 2 );
+    best_l1_dr[1] = new TH1F( "lowest matched l1 dr 2.4>eta>2.05", "", 100, 0, 2 );
+    l1_dr[0] =      new TH1F( "all matched l1 dr good eta", "", 100, 0, 2 );
+    l1_dr[1] =      new TH1F( "all matched l1 dr 2.4>eta>2.05", "", 100, 0, 2 );
+    //    Zpeak = new TH1F( "Zpeak_all", "", 120, 60, 120 );
+    Zpeak[0][0] = new TH1F( "Zpeak_all_seeded", "", 120, 60, 120 );
+    Zpeak[0][1] = new TH1F( "Zpeak_pass_seeded", "", 120, 60, 120 );
+    Zpeak[0][2] = new TH1F( "Zpeak_fail_seeded", "", 120, 60, 120 );
+    Zpeak[1][0] = new TH1F( "Zpeak_all_unseeded", "", 120, 60, 120 );
+    Zpeak[1][1] = new TH1F( "Zpeak_pass_unseeded", "", 120, 60, 120 );
+    Zpeak[1][2] = new TH1F( "Zpeak_fail_unseeded", "", 120, 60, 120 );
+
+    Zpeak[2][0] = new TH1F( "Zpeak_all_25", "", 120, 60, 120 );  //( 25., 30., 35., 40., 45., 50., 60., 70., 90., 130., 180., 250. )
+    Zpeak[2][1] = new TH1F( "Zpeak_pass_25", "", 120, 60, 120 );
+    Zpeak[2][2] = new TH1F( "Zpeak_fail_25", "", 120, 60, 120 );
+    Zpeak[3][0] = new TH1F( "Zpeak_all_30", "", 120, 60, 120 );
+    Zpeak[3][1] = new TH1F( "Zpeak_pass_30", "", 120, 60, 120 );
+    Zpeak[3][2] = new TH1F( "Zpeak_fail_30", "", 120, 60, 120 );
+
+    Zpeak[4][0] = new TH1F( "Zpeak_all_35", "", 120, 60, 120 );  //( 25., 30., 35., 40., 45., 50., 60., 70., 90., 130., 180., 250. )
+    Zpeak[4][1] = new TH1F( "Zpeak_pass_35", "", 120, 60, 120 );
+    Zpeak[4][2] = new TH1F( "Zpeak_fail_35", "", 120, 60, 120 );
+    Zpeak[5][0] = new TH1F( "Zpeak_all_40", "", 120, 60, 120 );
+    Zpeak[5][1] = new TH1F( "Zpeak_pass_40", "", 120, 60, 120 );
+    Zpeak[5][2] = new TH1F( "Zpeak_fail_40", "", 120, 60, 120 );
+
+    Zpeak[6][0] = new TH1F( "Zpeak_all_45", "", 120, 60, 120 );  //( 25., 30., 35., 40., 45., 50., 60., 70., 90., 130., 180., 250. )
+    Zpeak[6][1] = new TH1F( "Zpeak_pass_45", "", 120, 60, 120 );
+    Zpeak[6][2] = new TH1F( "Zpeak_fail_45", "", 120, 60, 120 );
+    Zpeak[7][0] = new TH1F( "Zpeak_all_50", "", 120, 60, 120 );
+    Zpeak[7][1] = new TH1F( "Zpeak_pass_50", "", 120, 60, 120 );
+    Zpeak[7][2] = new TH1F( "Zpeak_fail_50", "", 120, 60, 120 );
+
+    Zpeak[8][0] = new TH1F( "Zpeak_all_60", "", 120, 60, 120 );  //( 25., 30., 35., 40., 45., 50., 60., 70., 90., 130., 180., 250. )
+    Zpeak[8][1] = new TH1F( "Zpeak_pass_60", "", 120, 60, 120 );
+    Zpeak[8][2] = new TH1F( "Zpeak_fail_60", "", 120, 60, 120 );
+    Zpeak[9][0] = new TH1F( "Zpeak_all_70", "", 120, 60, 120 );
+    Zpeak[9][1] = new TH1F( "Zpeak_pass_70", "", 120, 60, 120 );
+    Zpeak[9][2] = new TH1F( "Zpeak_fail_70", "", 120, 60, 120 );
+
+    Zpeak[10][0] = new TH1F( "Zpeak_all_90", "", 120, 60, 120 );  //( 25., 30., 35., 40., 45., 50., 60., 70., 90., 130., 180., 250. )
+    Zpeak[10][1] = new TH1F( "Zpeak_pass_90", "", 120, 60, 120 );
+    Zpeak[10][2] = new TH1F( "Zpeak_fail_90", "", 120, 60, 120 );
+    Zpeak[11][0] = new TH1F( "Zpeak_all_130", "", 120, 60, 120 );
+    Zpeak[11][1] = new TH1F( "Zpeak_pass_130", "", 120, 60, 120 );
+    Zpeak[11][2] = new TH1F( "Zpeak_fail_130", "", 120, 60, 120 );
+
+    Zpeak[12][0] = new TH1F( "Zpeak_all_180", "", 120, 60, 120 );  //( 25., 30., 35., 40., 45., 50., 60., 70., 90., 130., 180., 250. )
+    Zpeak[12][1] = new TH1F( "Zpeak_pass_180", "", 120, 60, 120 );
+    Zpeak[12][2] = new TH1F( "Zpeak_fail_180", "", 120, 60, 120 );
+    Zpeak[13][0] = new TH1F( "Zpeak_all_250", "", 120, 60, 120 );
+    Zpeak[13][1] = new TH1F( "Zpeak_pass_250", "", 120, 60, 120 );
+    Zpeak[13][2] = new TH1F( "Zpeak_fail_250", "", 120, 60, 120 );
+
+
+    TAG_L1_35_eta = new TH1F( "DEN_L1_35_eta", "", etaBin, -3, 3 );
+    TAG_L1_15_eta = new TH1F( "DEN_L1_15_eta", "", etaBin, -3, 3 );
+    TAG_L1_10_eta = new TH1F( "DEN_L1_10_eta", "", etaBin, -3, 3 );
     PROBE_L1_35_eta = new TH1F( "PROBE_L1_35_eta", "", etaBin, -3, 3 );
     PROBE_L1_15_eta = new TH1F( "PROBE_L1_15_eta", "", etaBin, -3, 3 );
     PROBE_L1_10_eta = new TH1F( "PROBE_L1_10_eta", "", etaBin, -3, 3 );
-    TAG_L1_pt = new TH1F( "DEN_L1_pt", "", ptBin, 10, 70 );
-    PROBE_L1_15_pt = new TH1F( "PROBE_L1_15_pt", "", ptBin, 10, 70 );
-    PROBE_L1_10_pt = new TH1F( "PROBE_L1_10_pt", "", ptBin, 10, 70 );
-    PROBE_L1_35_pt = new TH1F( "PROBE_L1_35_pt", "", ptBin, 10, 70 );
-    TAG_L1_nvtx = new TH1F( "DEN_L1_nvtx", "", nvtxBin, 0, 100 );
+    TAG_L1_35_pt = new TH1F( "DEN_L1_35_pt", "", ptBin, ptBins );
+    TAG_L1_15_pt = new TH1F( "DEN_L1_15_pt", "", ptBin, ptBins );
+    TAG_L1_10_pt = new TH1F( "DEN_L1_10_pt", "", ptBin, ptBins );
+    PROBE_L1_15_pt = new TH1F( "PROBE_L1_15_pt", "", ptBin, ptBins );
+    PROBE_L1_10_pt = new TH1F( "PROBE_L1_10_pt", "", ptBin, ptBins );
+    PROBE_L1_35_pt = new TH1F( "PROBE_L1_35_pt", "", ptBin, ptBins );
+    
+    TAG_L1_35_ptoM = new TH1F( "DEN_L1_35_ptoM", "", 20, -3.2, 3.2 );
+    TAG_L1_15_ptoM = new TH1F( "DEN_L1_15_ptoM", "", 20, -3.2, 3.2 );
+    TAG_L1_10_ptoM = new TH1F( "DEN_L1_10_ptoM", "", 20, -3.2, 3.2 );
+    PROBE_L1_15_ptoM = new TH1F( "PROBE_L1_15_ptoM", "", 20, -3.2, 3.2 );
+    PROBE_L1_10_ptoM = new TH1F( "PROBE_L1_10_ptoM", "", 20, -3.2, 3.2 );
+    PROBE_L1_35_ptoM = new TH1F( "PROBE_L1_35_ptoM", "", 20, -3.2, 3.2 );
+    
+    TAG_L1_15_nvtx = new TH1F( "DEN_L1_35_nvtx", "", nvtxBin, 0, 100 );
+    TAG_L1_35_nvtx = new TH1F( "DEN_L1_15_nvtx", "", nvtxBin, 0, 100 );
+    TAG_L1_10_nvtx = new TH1F( "DEN_L1_10_nvtx", "", nvtxBin, 0, 100 );
     PROBE_L1_35_nvtx = new TH1F( "PROBE_L1_35_nvtx", "", nvtxBin, 0, 100 );
     PROBE_L1_15_nvtx = new TH1F( "PROBE_L1_15_nvtx", "", nvtxBin, 0, 100 );
     PROBE_L1_10_nvtx = new TH1F( "PROBE_L1_10_nvtx", "", nvtxBin, 0, 100 );
 
 
-    PROBE_HLT_OR_pt_twosuite_high = new TH1F( "PROBE_HLT_OR_pt_twosuite_high", "", ptBin, 10, 70 );
-    PROBE_HLT_Iso_pt_twosuite_high = new TH1F( "PROBE_HLT_ISO_pt_twosuite_high", "", ptBin, 10, 70 );
-    PROBE_HLT_R9_pt_twosuite_high = new TH1F( "PROBE_HLT_R9_pt_twosuite_high", "", ptBin, 10, 70 );
-    PROBE_HLT_OR_eta_twosuite_high = new TH1F( "PROBE_HLT_OR_eta_twosuite_high", "", etaBin, -3, 3 );
-    PROBE_HLT_Iso_eta_twosuite_high = new TH1F( "PROBE_HLT_ISO_eta_twosuite_high", "", etaBin, -3, 3 );
-    PROBE_HLT_R9_eta_twosuite_high = new TH1F( "PROBE_HLT_R9_eta_twosuite_high", "", etaBin, -3, 3 );
-    PROBE_HLT_OR_nvtx_twosuite_high = new TH1F( "PROBE_HLT_OR_nvtx_twosuite_high", "", nvtxBin, 0, 100 );
-    PROBE_HLT_Iso_nvtx_twosuite_high = new TH1F( "PROBE_HLT_ISO_nvtx_twosuite_high", "", nvtxBin, 0, 100 );
-    PROBE_HLT_R9_nvtx_twosuite_high = new TH1F( "PROBE_HLT_R9_nvtx_twosuite_high", "", nvtxBin, 0, 100 );
-    TAG_HLT_eta_twosuite_high = new TH1F( "DEN_HLT_eta_twosuite_high", "", etaBin, -3, 3 );
-    TAG_HLT_pt_twosuite_high = new TH1F( "DEN_HLT_pt_twosuite_high", "", ptBin, 10, 70 );
-    TAG_HLT_nvtx_twosuite_high = new TH1F( "DEN_HLT_nvtx_twosuite_high", "", nvtxBin, 0, 100 );
 
-    PROBE_HLT_OR_pt_unseeded = new TH1F( "PROBE_HLT_OR_pt_unseeded", "", ptBin, 10, 70 );
-    PROBE_HLT_Iso_pt_unseeded = new TH1F( "PROBE_HLT_ISO_pt_unseeded", "", ptBin, 10, 70 );
-    PROBE_HLT_R9_pt_unseeded = new TH1F( "PROBE_HLT_R9_pt_unseeded", "", ptBin, 10, 70 );
+    PROBE_HLT_OR_pt_unseeded = new TH1F( "PROBE_HLT_OR_pt_unseeded", "", ptBin, ptBins );
+    PROBE_HLT_Iso_pt_unseeded = new TH1F( "PROBE_HLT_ISO_pt_unseeded", "", ptBin, ptBins );
+    PROBE_HLT_R9_pt_unseeded = new TH1F( "PROBE_HLT_R9_pt_unseeded", "", ptBin, ptBins );
+    PROBE_HLT_OR_ptoM_unseeded = new TH1F( "PROBE_HLT_OR_ptoM_unseeded", "", 20, -3.2, 3.2 );
+    PROBE_HLT_Iso_ptoM_unseeded = new TH1F( "PROBE_HLT_ISO_ptoM_unseeded", "", 20, -3.2, 3.2 );
+    PROBE_HLT_R9_ptoM_unseeded = new TH1F( "PROBE_HLT_R9_ptoM_unseeded", "", 20, -3.2, 3.2 );
     PROBE_HLT_OR_eta_unseeded = new TH1F( "PROBE_HLT_OR_eta_unseeded", "", etaBin, -3, 3 );
     PROBE_HLT_Iso_eta_unseeded = new TH1F( "PROBE_HLT_ISO_eta_unseeded", "", etaBin, -3, 3 );
     PROBE_HLT_R9_eta_unseeded = new TH1F( "PROBE_HLT_R9_eta_unseeded", "", etaBin, -3, 3 );
@@ -311,23 +419,101 @@ HLTEfficiency::HLTEfficiency( const edm::ParameterSet &iConfig ):
     PROBE_HLT_Iso_nvtx_unseeded = new TH1F( "PROBE_HLT_ISO_nvtx_unseeded", "", nvtxBin, 0, 100 );
     PROBE_HLT_R9_nvtx_unseeded = new TH1F( "PROBE_HLT_R9_nvtx_unseeded", "", nvtxBin, 0, 100 );
     TAG_HLT_eta_unseeded = new TH1F( "DEN_HLT_eta_unseeded", "", etaBin, -3, 3 );
-    TAG_HLT_pt_unseeded = new TH1F( "DEN_HLT_pt_unseeded", "", ptBin, 10, 70 );
+    TAG_HLT_pt_unseeded = new TH1F( "DEN_HLT_pt_unseeded", "", ptBin, ptBins );
+    TAG_HLT_ptoM_unseeded = new TH1F( "DEN_HLT_ptoM_unseeded", "", 20, -3.2, 3.2 );
     TAG_HLT_nvtx_unseeded = new TH1F( "DEN_HLT_nvtx_unseeded", "", nvtxBin, 0, 100 );
 
 
-    PROBE_HLT_OR_pt_seeded = new TH1F( "PROBE_HLT_OR_pt_seeded", "", ptBin, 10, 70 );
-    PROBE_HLT_Iso_pt_seeded = new TH1F( "PROBE_HLT_ISO_pt_seeded", "", ptBin, 10, 70 );
-    PROBE_HLT_R9_pt_seeded = new TH1F( "PROBE_HLT_R9_pt_seeded", "", ptBin, 10, 70 );
+    PROBE_HLT_OR_pt_seeded = new TH1F( "PROBE_HLT_OR_pt_seeded", "", ptBin, ptBins );
+    PROBE_HLT_Iso_pt_seeded = new TH1F( "PROBE_HLT_ISO_pt_seeded", "", ptBin, ptBins );
+    PROBE_HLT_R9_pt_seeded = new TH1F( "PROBE_HLT_R9_pt_seeded", "", ptBin, ptBins );
+    PROBE_HLT_OR_ptoM_seeded = new TH1F( "PROBE_HLT_OR_ptoM_seeded", "", 20, -3.2,3.2 );
+    PROBE_HLT_Iso_ptoM_seeded = new TH1F( "PROBE_HLT_ISO_ptoM_seeded", "", 20, -3.2, 3.2);
+    PROBE_HLT_R9_ptoM_seeded = new TH1F( "PROBE_HLT_R9_ptoM_seeded", "", 20, -3.2, 3.2 );
     PROBE_HLT_OR_eta_seeded = new TH1F( "PROBE_HLT_OR_eta_seeded", "", etaBin, -3, 3 );
     PROBE_HLT_Iso_eta_seeded = new TH1F( "PROBE_HLT_ISO_eta_seeded", "", etaBin, -3, 3 );
     PROBE_HLT_R9_eta_seeded = new TH1F( "PROBE_HLT_R9_eta_seeded", "", etaBin, -3, 3 );
     PROBE_HLT_OR_nvtx_seeded = new TH1F( "PROBE_HLT_OR_nvtx_seeded", "", nvtxBin, 0, 100 );
     PROBE_HLT_Iso_nvtx_seeded = new TH1F( "PROBE_HLT_ISO_nvtx_seeded", "", nvtxBin, 0, 100 );
     PROBE_HLT_R9_nvtx_seeded = new TH1F( "PROBE_HLT_R9_nvtx_seeded", "", nvtxBin, 0, 100 );
-    TAG_HLT_pt_seeded = new TH1F( "DEN_HLT_pt_seeded", "", ptBin, 10, 70 );
+    TAG_HLT_pt_seeded = new TH1F( "DEN_HLT_pt_seeded", "", ptBin, ptBins );
+    TAG_HLT_ptoM_seeded = new TH1F( "DEN_HLT_ptoM_seeded", "", 20, -3.2, 3.2 );
     TAG_HLT_eta_seeded = new TH1F( "DEN_HLT_eta_seeded", "", etaBin, -3, 3 );
     TAG_HLT_nvtx_seeded = new TH1F( "DEN_HLT_nvtx_seeded", "", nvtxBin, 0, 100 );
 }
+
+
+float HLTEfficiency::getWeights( double eta, double r9 )
+{
+    int r9Bin = GetR9Bin( r9 );
+    if( fabs( eta ) < 0.8 )
+    { return( weights2d[0][r9Bin] ); }
+    if( fabs( eta ) < 1.0 )
+    { return weights2d[1][r9Bin]; }
+    if( fabs( eta ) < 1.2 )
+    { return weights2d[2][r9Bin]; }
+    if( fabs( eta ) < 1.3 )
+    { return weights2d[3][r9Bin]; }
+    if( fabs( eta ) < 1.444 )
+    { return( weights2d[4][r9Bin] ); }
+    if( fabs( eta ) < 1.8 )
+    { return weights2d[5][r9Bin]; }
+    if( fabs( eta ) < 2.0 )
+    { return weights2d[6][r9Bin]; }
+    if( fabs( eta ) < 2.5 )
+    { return weights2d[7][r9Bin]; }
+    return 0;
+}
+
+
+float HLTEfficiency::getWeights( double r9 )
+{
+    return weights[GetR9Bin( r9 )];
+}
+
+
+int HLTEfficiency::GetR9Bin( double r9 )
+{
+    double binWidth = 0.01;
+    for( int i = 0; i < 1.2 / binWidth; i++ ) {
+        if( r9 < i * binWidth )
+        { return( i ); }
+    }
+    return( 0 );
+}
+
+
+
+int HLTEfficiency::getPtBin( double pt)
+{
+    if(pt<25)
+        return(2);
+    else if(pt<30)
+        return(3);
+    else if(pt<35)
+        return(4);
+    else if(pt<40)
+        return(5);
+    else if(pt<45)
+        return(6);
+    else if(pt<50)
+        return(7);
+    else if(pt<60)
+        return(8);
+    else if(pt<70)
+        return(9);
+    else if(pt<90)
+        return(10);
+    else if(pt<130)
+        return(11);
+    else if(pt<180)
+        return(12);
+    else if(pt<250)
+        return(13);
+    else
+        return(14);
+            //( 25., 30., 35., 40., 45., 50., 60., 70., 90., 130., 180., 250. )
+            }
 
 void HLTEfficiency::init( const edm::TriggerResults &result, const edm::TriggerNames &triggerNames )
 {
@@ -339,6 +525,7 @@ void HLTEfficiency::init( const edm::TriggerResults &result, const edm::TriggerN
         std::cout << triggerNames.triggerName( i ) << std::endl;
         trigger_indices[trimmedName] = triggerNames.triggerIndex( triggerNames.triggerName( i ) );
     }
+    srand( ( unsigned int ) time( NULL ) );
 }
 
 //bool HLTEfficiency::hltEvent(edm::Handle<edm::TriggerResults> triggerBits) {
@@ -362,20 +549,53 @@ bool HLTEfficiency::L1Matching( edm::Handle<edm::View<l1extra::L1EmParticle>> l1
 
 // for (edm::Ptr<l1extra::L1EmParticle> l1Ptr : l1H) {
         //dr < 0.2
+        
+        //if((l1H->ptrAt( i )->eta() < 2.4) && (l1H->ptrAt( i )->eta() > 2.2))
+
         float dR = deltaR( l1H->ptrAt( i )->p4(), cand );
-        if( dR < 0.3 and l1H->ptrAt( i )->et() > ptThreshold )
-        { return true; }
+        //if(ptThreshold==25 && fabs(cand.eta())<2.4 && fabs(cand.eta())>2.0)
+        //   std::cout << "                       TAG l1 eta " << l1H->ptrAt( i )->eta() << " -- reco eta " << cand.eta() << " DR " << dR << " l1 pT: " << l1H->ptrAt(i)->et() << " reco pT " << cand.pt()  << std::endl;
+        // if(ptThreshold==1 && fabs(cand.eta())<2.4 && fabs(cand.eta())>2.0)
+        //   std::cout << "                     PROBE l1 eta " << l1H->ptrAt( i )->eta() << " -- reco eta " << cand.eta() << " DR " << dR << " l1 pT: " << l1H->ptrAt(i)->et() << " reco pT " << cand.pt()  << std::endl;
+        if(fabs(cand.eta())<2.4&&fabs(cand.eta())>2.05)  //2.4>eta>2.05 (from 2d plot)
+            {
+                if( dR < 0.5 && l1H->ptrAt( i )->et() > ptThreshold )
+                    { return true; }
+            }
+        else
+            if( dR < 0.3 && l1H->ptrAt( i )->et() > ptThreshold )
+                { return true; }
     }
 
     return false;
 }
 
-std::vector<math::XYZTLorentzVector> HLTEfficiency::hltP4( const edm::TriggerNames &triggerNames,
-        edm::Handle<pat::TriggerObjectStandAloneCollection> triggerObjects, std::vector<std::string> filterLabels )
+float HLTEfficiency::bestL1Dr( edm::Handle<edm::View<l1extra::L1EmParticle>> l1H, math::XYZTLorentzVector cand, float ptThreshold, float bestDr = 2.0 )
 {
+// const edm::PtrVector<l1extra::L1EmParticle>& l1Pointers = l1H->ptrVector();
+    for( unsigned int i = 0; i < l1H->size(); i++ ) 
+        {
+            float dR = deltaR( l1H->ptrAt( i )->p4(), cand );
+            
+            if(fabs(cand.eta())<2.4&&fabs(cand.eta())>2.05)  //2.4>eta>2.05
+                l1_dr[1]->Fill(dR);
+            else
+                l1_dr[0]->Fill(dR);
+            
+            if( dR < bestDr && l1H->ptrAt( i )->et() > ptThreshold )
+                { 
+                    bestDr = dR;
+                }
+        }
+    return bestDr;
+}
 
+std::vector<math::XYZTLorentzVector> HLTEfficiency::hltP4( const edm::TriggerNames &triggerNames,
+                                                           edm::Handle<pat::TriggerObjectStandAloneCollection> triggerObjects, std::vector<std::string> filterLabels )
+{
+    
     std::vector< math::XYZTLorentzVector> triggerCandidates;
-
+    
     for( pat::TriggerObjectStandAlone obj : *triggerObjects ) {
         obj.unpackPathNames( triggerNames );
         for( std::string filter : filterLabels ) {
@@ -390,15 +610,17 @@ std::vector<math::XYZTLorentzVector> HLTEfficiency::hltP4( const edm::TriggerNam
 bool HLTEfficiency::onlineOfflineMatching( const edm::TriggerNames &triggerNames, edm::Handle<pat::TriggerObjectStandAloneCollection> triggerObjects,
         math::XYZTLorentzVector p4, std::string filterLabel, float dRmin = 0.15 )
 {
-
+    //    std::cout << "searching for filterLabel: " << filterLabel << std::endl;
+    
     for( pat::TriggerObjectStandAlone obj : *triggerObjects ) {
         obj.unpackPathNames( triggerNames );
         if( obj.hasFilterLabel( filterLabel ) ) {
             //for (unsigned h = 0; h < obj.filterLabels().size(); ++h) std::cout << " " << obj.filterLabels()[h];
+            //std::cout << "found filterLabel: " << filterLabel << std::endl;
             float dR = deltaR( p4, obj.p4() );
             //std::cout << "dR: " << dR << std::endl;
             if( dR < dRmin )
-            { return true; }
+                { return true; }
         }
     }
 
@@ -407,20 +629,24 @@ bool HLTEfficiency::onlineOfflineMatching( const edm::TriggerNames &triggerNames
 
 void HLTEfficiency::analyze( const edm::Event &iEvent, const edm::EventSetup &iSetup )
 {
-
     edm::Handle<edm::TriggerResults> triggerBits;
     edm::Handle<pat::TriggerObjectStandAloneCollection> triggerObjects;
     edm::Handle<pat::PackedTriggerPrescales> triggerPrescales;
     edm::Handle<edm::View<flashgg::DiPhotonCandidate>> diphotons;
     edm::Handle<edm::View<flashgg::Electron>> eles;
-
+    edm::Handle<edm::View<flashgg::DiPhotonMVAResult> > mvaResults;
+    
+    
     iEvent.getByToken( triggerBits_, triggerBits );
     iEvent.getByToken( triggerObjects_, triggerObjects );
     iEvent.getByToken( triggerPrescales_, triggerPrescales );
     iEvent.getByToken( diphotons_, diphotons );
+    iEvent.getByToken(diPhotonMVAToken_, mvaResults);
+           
     iEvent.getByToken( eles_, eles );
-    if( eles.failedToGet() )
-    { return; }
+    //if( eles.failedToGet() )
+    //{ return; }
+
 
     if( !triggerBits.isValid() ) {
         LogDebug( "" ) << "TriggerResults product not found - returning result=false!";
@@ -429,10 +655,11 @@ void HLTEfficiency::analyze( const edm::Event &iEvent, const edm::EventSetup &iS
 
     // Apply event selection
     const edm::TriggerNames &triggerNames = iEvent.triggerNames( *triggerBits );
-
+    
     //temp
-    //std::cout << "testing--------------------------------------------------------" << std::endl;
+    //    std::cout << "testing--------------------------------------------------------" << std::endl;
     //endtemp
+    
     if( triggerNamesID_ != triggerNames.parameterSetID() ) {
         triggerNamesID_ = triggerNames.parameterSetID();
         init( *triggerBits, triggerNames );
@@ -440,622 +667,326 @@ void HLTEfficiency::analyze( const edm::Event &iEvent, const edm::EventSetup &iS
 
     int diphotonIndex = -1;
     bool isInverted = false;
+    bool isMatched  = false;
+    preselected_diphotons ++;
     //std::cout << "diphoton size: " << diphotons->size() << std::endl;
     for( size_t i = 0; i < diphotons->size(); i++ ) {
-
+        
         edm::Ptr<flashgg::DiPhotonCandidate> diphoPtr = diphotons->ptrAt( i );
+        edm::Ptr<flashgg::DiPhotonMVAResult> mvares = mvaResults->ptrAt( i );
+        if( mvares->mvaValue() < diphoMVACut_ )
+            { continue; }
         // FIXME add check same size filter collections
         //        std::cout << "tag filter size : " << tagFilterName_.size() << std::endl;
-        for( size_t f = 0; f < tagFilterName_.size(); f++ ) {
-            bool leadMatchedToTag = onlineOfflineMatching( triggerNames, triggerObjects, diphoPtr->leadingPhoton()->p4(), tagFilterName_[f] );
-            bool leadMatchedToProbe = onlineOfflineMatching( triggerNames, triggerObjects, diphoPtr->leadingPhoton()->p4(), probeFilterName_[f] );
-            bool subLeadMatchedToTag = onlineOfflineMatching( triggerNames, triggerObjects, diphoPtr->subLeadingPhoton()->p4(), tagFilterName_[f] );
-            bool subLeadMatchedToProbe = onlineOfflineMatching( triggerNames, triggerObjects, diphoPtr->subLeadingPhoton()->p4(), probeFilterName_[f] );
+        if(useSingleEG_)
+            {
+                for( size_t f = 0; f < tagSingleElectronFilterName_.size(); f++)
+                    {
+                        isInverted = false;
+                        isMatched = false;
+                        diphotonIndex =-1;
+                        bool leadMatchedToTag = onlineOfflineMatching( triggerNames, triggerObjects, diphoPtr->leadingPhoton()->p4(), tagSingleElectronFilterName_[f] );
+                        bool subLeadMatchedToTag = onlineOfflineMatching( triggerNames, triggerObjects, diphoPtr->subLeadingPhoton()->p4(), tagSingleElectronFilterName_[f] );
 
-            if( leadMatchedToTag and subLeadMatchedToProbe ) {
-                diphotonIndex = i;
-                break;
-            }
-            if( leadMatchedToProbe and subLeadMatchedToTag ) {
-                diphotonIndex = i;
-                isInverted = true;
-                break;
-            }
-        }
-    }
+                         if(fabs(diphoPtr->leadingPhoton()->eta())>2.1)
+                             leadMatchedToTag = false;
+                         if(fabs(diphoPtr->subLeadingPhoton()->eta())>2.1)
+                             subLeadMatchedToTag = false;
+                         const flashgg::SinglePhotonView leading = *(diphoPtr->leadingView()); 
+                         const flashgg::SinglePhotonView subLeading = *(diphoPtr->subLeadingView()); 
+                         if(leading.phoIdMvaWrtChosenVtx()<-0.5||subLeading.phoIdMvaWrtChosenVtx()<-0.8)
+                             leadMatchedToTag=false; 
+                         if(subLeading.phoIdMvaWrtChosenVtx()<-0.5||leading.phoIdMvaWrtChosenVtx()<-0.8)
+                             subLeadMatchedToTag=false;
+                         if(diphoPtr->leadingPhoton()->pt()<30||diphoPtr->subLeadingPhoton()->pt()<20) //tag pt cut; probe pt cut
+                             leadMatchedToTag=false;
+                         if(diphoPtr->subLeadingPhoton()->pt()<30||diphoPtr->leadingPhoton()->pt()<20) //tag pt cut; probe pt cut
+                             subLeadMatchedToTag=false;
+                         if( diphoPtr->mass() < 60 || diphoPtr->mass() > 120 ) //mass cut
+                             {
+                                 leadMatchedToTag=false;
+                                 subLeadMatchedToTag=false;
+                             }
 
-    if( diphotonIndex == -1 )
-    { return; }
+                         if( subLeadMatchedToTag ) {
+                             diphotonIndex = i;
+                             isInverted = true;
+                         }
+                         if( leadMatchedToTag ) {
+                             diphotonIndex = i;
+                             isMatched = true;
+                             break;
+                         }
+                         if( isInverted )
+                             { break; }
+                     }
+             }
+     }
+     if(!isMatched&&!isInverted)
+         return;
+     if( diphotonIndex == -1 )
+         { return; }
+     matched_to_tag ++;
+     edm::Ptr<flashgg::DiPhotonCandidate> theDiPhoton = diphotons->ptrAt( diphotonIndex );
+     const flashgg::Photon *tag = theDiPhoton->leadingPhoton();
+     const flashgg::Photon *probe = theDiPhoton->subLeadingPhoton();
 
-    edm::Ptr<flashgg::DiPhotonCandidate> theDiPhoton = diphotons->ptrAt( diphotonIndex );
-    const flashgg::Photon *tag = theDiPhoton->leadingPhoton();
-    const flashgg::Photon *probe = theDiPhoton->subLeadingPhoton();
+     if( isInverted && isMatched ) 
+         {
+             probe_passed_IDMVA ++;
+             if( ( rand() ) / ( RAND_MAX / 2 ) )
+                 {    
+                     probe = theDiPhoton->subLeadingPhoton();
+                     tag = theDiPhoton->leadingPhoton();
+                 }
+         }
 
-    if( isInverted ) {
-        tag = theDiPhoton->subLeadingPhoton();
-        probe = theDiPhoton->leadingPhoton();
-    }
-    if( theDiPhoton->mass() < 70 or theDiPhoton->mass() > 110 )
-    { return; }
+     edm::Handle<edm::View<l1extra::L1EmParticle>> l1iso;
+     edm::Handle<edm::View<l1extra::L1EmParticle>> l1noniso;
+     iEvent.getByToken( l1iso_, l1iso );
+     iEvent.getByToken( l1noniso_, l1noniso );
 
-    Zpeak->Fill( theDiPhoton->mass() );
-    float probe_weight = 1;
+     float probe_weight = 1;
+     //     if(probe_weight==1)
+     //   {}
+     float probe_nvtx = theDiPhoton->nVert();
+     //////////need to apply reweighting for R9 for photons vs electrons/////////////////
+     //probe_weight = weights[GetR9Bin( probe->full5x5_r9() )];                          
+     probe_weight = getWeights( probe->eta(), probe->full5x5_r9() );
 
-    //////////need to apply reweighting for R9 for photons vs electrons/////////////////
-    //  if (pho_r9[PROBE] < 0.8) probe_weight = weights_low[GetR9Bin_low(pho_r9[PROBE])];
-    //  else if (pho_r9[PROBE] < 1.2) probe_weight = weights_high[GetR9Bin_high(pho_r9[PROBE])];
-    //  if (probe_weight <=0) continue;
+     bool taggedHLTlead = false;
+     //mark event if TAG is matched to HLT seeded leg 
+     if( onlineOfflineMatching( triggerNames, triggerObjects, tag->p4(), filterName_[0] ) ||
+         onlineOfflineMatching( triggerNames, triggerObjects, tag->p4(), filterName_[1] ) )
+         { taggedHLTlead = true; }
 
-    edm::Handle<edm::View<l1extra::L1EmParticle>> l1iso;
-    edm::Handle<edm::View<l1extra::L1EmParticle>> l1noniso;
+     
+     /////////////////////L1 efficiency denominators///////////////////////
+     if(probe->pt()>15)
+         {
+             TAG_L1_10_eta->Fill( probe->eta(), probe_weight );
+             TAG_L1_10_ptoM->Fill( probe->phi(), probe_weight );
+             TAG_L1_10_nvtx->Fill( probe_nvtx, probe_weight );
+         }
+     if(probe->pt()>20)
+         {
+             TAG_L1_15_eta->Fill( probe->eta(), probe_weight );
+             TAG_L1_15_ptoM->Fill( probe->phi(), probe_weight );
+             TAG_L1_15_nvtx->Fill( probe_nvtx, probe_weight );
+         }
+     if(probe->pt()>45)
+         {
+             TAG_L1_35_eta->Fill( probe->eta(), probe_weight );
+             TAG_L1_35_ptoM->Fill( probe->phi(), probe_weight );
+             TAG_L1_35_nvtx->Fill( probe_nvtx, probe_weight );
+         }
+     TAG_L1_10_pt->Fill( probe->pt(), probe_weight );
+     TAG_L1_15_pt->Fill( probe->pt(), probe_weight );
+     TAG_L1_35_pt->Fill( probe->pt(), probe_weight );
 
-    iEvent.getByToken( l1iso_, l1iso );
-    iEvent.getByToken( l1noniso_, l1noniso );
+     bool flag_L1_probe10 = false;
+     bool flag_L1_probe15 = false;
+     bool flag_L1_probe35 = false;
+     bool flag_L1_probe22 = false;
 
-    //TAG is matched to L1 iso 20 object, is it absolute requirement ????
-    //Match the Tag to an L1, means the probe is not biased to need an L1 seed
-    if( not L1Matching( l1iso, tag->p4(), 22. ) )
-    { return; }
+     if( L1Matching( l1iso, probe->p4(), 40 ) )
+         {
+             if(probe->pt()>45)
+                 {
+                     PROBE_L1_35_eta->Fill( probe->eta(), probe_weight );
+                     PROBE_L1_35_ptoM->Fill( probe->phi(), probe_weight );
+                     PROBE_L1_35_nvtx->Fill( probe_nvtx, probe_weight );
+                     PROBE_L1_35_pt->Fill( probe->pt(), probe_weight );
+                 }
+             flag_L1_probe35 = true;
+         }
 
-    //TAG is matched to HLT seeded leg
-    if( !onlineOfflineMatching( triggerNames, triggerObjects, tag->p4(), filterName_[0] ) and
-            !onlineOfflineMatching( triggerNames, triggerObjects, tag->p4(), filterName_[1] ) )
-    { return; }
+     if( !flag_L1_probe35 && L1Matching( l1noniso, probe->p4(), 40 ) )
+         {
+             if(probe->pt()>45)
+                 {
+                     PROBE_L1_35_eta->Fill( probe->eta(), probe_weight );
+                     PROBE_L1_35_ptoM->Fill( probe->phi(), probe_weight );
+                     PROBE_L1_35_nvtx->Fill( probe_nvtx, probe_weight );
+                     PROBE_L1_35_pt->Fill( probe->pt(), probe_weight );
+                 }
+             flag_L1_probe35 = true;
+         }
 
-    float probe_nvtx = theDiPhoton->nVert();
-    TAG_L1_eta->Fill( probe->eta(), probe_weight );
-    TAG_L1_pt->Fill( probe->pt(), probe_weight );
-    TAG_L1_nvtx->Fill( probe_nvtx, probe_weight );
+     if( L1Matching( l1iso, probe->p4(), 22 ) )
+         {
+             flag_L1_probe22 = true;
+         }
 
-    bool flag_L1_probe10 = false;
-    bool flag_L1_probe15 = false;
-    bool flag_L1_probe35 = false;
-    bool flag_L1_probe22 = false;
-    //=========L1===========
-    //see if there's another L1 object > 22 or 15 ??? Controllare il Seed di L1
-    if( L1Matching( l1iso, probe->p4(), 40 ) ) {
-        PROBE_L1_35_eta->Fill( probe->eta(), probe_weight );
-        PROBE_L1_35_pt->Fill( probe->pt(), probe_weight );
-        PROBE_L1_35_nvtx->Fill( probe_nvtx, probe_weight );
-        flag_L1_probe35 = true;
-    }
+     if( !flag_L1_probe22 and L1Matching( l1noniso, probe->p4(), 22 ) )
+         {
+             flag_L1_probe22 = true;
+         }
 
-    if( !flag_L1_probe35 and L1Matching( l1noniso, probe->p4(), 40 ) ) {
-        PROBE_L1_35_eta->Fill( probe->eta(), probe_weight );
-        PROBE_L1_35_pt->Fill( probe->pt(), probe_weight );
-        PROBE_L1_35_nvtx->Fill( probe_nvtx, probe_weight );
-        flag_L1_probe35 = true;
-    }
+     if( L1Matching( l1iso, probe->p4(), 15 ) )
+         {
+             PROBE_L1_15_eta->Fill( probe->eta(), probe_weight );
+             PROBE_L1_15_ptoM->Fill( probe->phi(), probe_weight );
+             PROBE_L1_15_pt->Fill( probe->pt(), probe_weight );
+             PROBE_L1_15_nvtx->Fill( probe_nvtx, probe_weight );
+             flag_L1_probe15 = true;
+         }
 
-    if( L1Matching( l1iso, probe->p4(), 22 ) ) {
-        flag_L1_probe22 = true;
-    }
+     if( !flag_L1_probe15 and L1Matching( l1noniso, probe->p4(), 15 ) )
+         {
+             PROBE_L1_15_eta->Fill( probe->eta(), probe_weight );
+             PROBE_L1_15_ptoM->Fill( probe->phi(), probe_weight );
+             PROBE_L1_15_pt->Fill( probe->pt(), probe_weight );
+             PROBE_L1_15_nvtx->Fill( probe_nvtx, probe_weight );
+             flag_L1_probe15 = true;
+         }
 
-    if( !flag_L1_probe22 and L1Matching( l1noniso, probe->p4(), 22 ) ) {
-        flag_L1_probe22 = true;
-    }
+     if( L1Matching( l1iso, probe->p4(), 10 ) )
+         {
+             PROBE_L1_10_eta->Fill( probe->eta(), probe_weight );
+             PROBE_L1_10_ptoM->Fill( probe->phi(), probe_weight );
+             PROBE_L1_10_pt->Fill( probe->pt(), probe_weight );
+             PROBE_L1_10_nvtx->Fill( probe_nvtx, probe_weight );
+             flag_L1_probe10 = true;
+         }
 
-    if( L1Matching( l1iso, probe->p4(), 15 ) ) {
-        PROBE_L1_15_eta->Fill( probe->eta(), probe_weight );
-        PROBE_L1_15_pt->Fill( probe->pt(), probe_weight );
-        PROBE_L1_15_nvtx->Fill( probe_nvtx, probe_weight );
-        flag_L1_probe15 = true;
-    }
+     if( !flag_L1_probe10 and L1Matching( l1noniso, probe->p4(), 10 ) )
+         {
+             PROBE_L1_10_eta->Fill( probe->eta(), probe_weight );
+             PROBE_L1_10_ptoM->Fill( probe->phi(), probe_weight );
+             PROBE_L1_10_pt->Fill( probe->pt(), probe_weight );
+             PROBE_L1_10_nvtx->Fill( probe_nvtx, probe_weight );
+             flag_L1_probe10 = true;
+         }
 
-    if( !flag_L1_probe15 and L1Matching( l1noniso, probe->p4(), 15 ) ) {
-        PROBE_L1_15_eta->Fill( probe->eta(), probe_weight );
-        PROBE_L1_15_pt->Fill( probe->pt(), probe_weight );
-        PROBE_L1_15_nvtx->Fill( probe_nvtx, probe_weight );
-        flag_L1_probe15 = true;
-    }
-
-    if( L1Matching( l1iso, probe->p4(), 10 ) ) {
-        PROBE_L1_10_eta->Fill( probe->eta(), probe_weight );
-        PROBE_L1_10_pt->Fill( probe->pt(), probe_weight );
-        PROBE_L1_10_nvtx->Fill( probe_nvtx, probe_weight );
-        flag_L1_probe10 = true;
-    }
-
-    if( !flag_L1_probe10 and L1Matching( l1noniso, probe->p4(), 10 ) ) {
-        PROBE_L1_10_eta->Fill( probe->eta(), probe_weight );
-        PROBE_L1_10_pt->Fill( probe->pt(), probe_weight );
-        PROBE_L1_10_nvtx->Fill( probe_nvtx, probe_weight );
-        flag_L1_probe10 = true;
-    }
-
-    //=======HLT===========
-    //PART 0: 42/22
-    //if no L1 matches at all, label:
-
-    //PART I: PROBE leg passed L1 EG 10, see if it matches to L1 non-seeded/seeded HLT object
-    //if( !flag_L1_probe10 )
-    //{ return; }
-
-    //Part I: PROBE leg doesn't have an L1 seed associated with it
-    //modified to require a low pT l1 seed and to only look at the subleading leg
-    if( flag_L1_probe10 ) {
-        TAG_HLT_eta_unseeded->Fill( probe->eta(), probe_weight );
-        TAG_HLT_pt_unseeded->Fill( probe->pt(), probe_weight );
-        TAG_HLT_nvtx_unseeded->Fill( probe_nvtx, probe_weight );
-
-        bool isoflag = 0;
-        bool r9flag = 0;
-        //sublead HLT only
-
-        if( onlineOfflineMatching( triggerNames, triggerObjects, probe->p4(), filterName_[2] ) ) {
-            r9flag = 1;
-            PROBE_HLT_R9_eta_unseeded->Fill( probe->eta(), probe_weight );
-            PROBE_HLT_R9_pt_unseeded->Fill( probe->pt(), probe_weight );
-            PROBE_HLT_R9_nvtx_unseeded->Fill( probe_nvtx, probe_weight );
-        }
-
-        if( onlineOfflineMatching( triggerNames, triggerObjects, probe->p4(), filterName_[3] ) ) {
-            isoflag = 1;
-            PROBE_HLT_Iso_eta_unseeded->Fill( probe->eta(), probe_weight );
-            PROBE_HLT_Iso_pt_unseeded->Fill( probe->pt(), probe_weight );
-            PROBE_HLT_Iso_nvtx_unseeded->Fill( probe_nvtx, probe_weight );
-        }
-        if( isoflag or r9flag ) {
-            PROBE_HLT_OR_eta_unseeded->Fill( probe->eta(), probe_weight );
-            PROBE_HLT_OR_pt_unseeded->Fill( probe->pt(), probe_weight );
-            PROBE_HLT_OR_nvtx_unseeded->Fill( probe_nvtx, probe_weight );
-        }
-    }
-    //Step II: if Probe has a lead L1 seed matched to it
-    if( !flag_L1_probe22 )
-    { return; }
-
-    TAG_HLT_eta_seeded->Fill( probe->eta(), probe_weight );
-    TAG_HLT_pt_seeded->Fill( probe->pt(), probe_weight );
-    TAG_HLT_nvtx_seeded->Fill( probe_nvtx, probe_weight );
-
-    bool tempflag = 0;
-    if( onlineOfflineMatching( triggerNames, triggerObjects, probe->p4(), filterName_[1] ) ) {
-        tempflag = 1;
-        PROBE_HLT_R9_eta_seeded->Fill( probe->eta(), probe_weight );
-        PROBE_HLT_R9_pt_seeded->Fill( probe->pt(), probe_weight );
-        PROBE_HLT_R9_nvtx_seeded->Fill( probe_nvtx, probe_weight );
-    }
-
-    if( onlineOfflineMatching( triggerNames, triggerObjects, probe->p4(), filterName_[0] ) ) {
-        tempflag = 1;
-        PROBE_HLT_Iso_eta_seeded->Fill( probe->eta(), probe_weight );
-        PROBE_HLT_Iso_pt_seeded->Fill( probe->pt(), probe_weight );
-        PROBE_HLT_Iso_nvtx_seeded->Fill( probe_nvtx, probe_weight );
-    }
-
-    if( tempflag ) {
-        PROBE_HLT_OR_eta_seeded->Fill( probe->eta(), probe_weight );
-        PROBE_HLT_OR_pt_seeded->Fill( probe->pt(), probe_weight );
-        PROBE_HLT_OR_nvtx_seeded->Fill( probe_nvtx, probe_weight );
-    }
-
-    // SingleEG seeded only
-    if( !flag_L1_probe35 )
-    { return; }
-
-    TAG_HLT_eta_twosuite_high->Fill( probe->eta(), probe_weight );
-    TAG_HLT_pt_twosuite_high->Fill( probe->pt(), probe_weight );
-    TAG_HLT_nvtx_twosuite_high->Fill( probe_nvtx, probe_weight );
-
-    bool tempflag1 = 0;
-    if( onlineOfflineMatching( triggerNames, triggerObjects, probe->p4(), filterName_[1] ) ) {
-        tempflag1 = 1;
-        PROBE_HLT_R9_eta_twosuite_high->Fill( probe->eta(), probe_weight );
-        PROBE_HLT_R9_pt_twosuite_high->Fill( probe->pt(), probe_weight );
-        PROBE_HLT_R9_nvtx_twosuite_high->Fill( probe_nvtx, probe_weight );
-    }
-
-    if( onlineOfflineMatching( triggerNames, triggerObjects, probe->p4(), filterName_[0] ) ) {
-        tempflag1 = 1;
-        PROBE_HLT_Iso_eta_twosuite_high->Fill( probe->eta(), probe_weight );
-        PROBE_HLT_Iso_pt_twosuite_high->Fill( probe->pt(), probe_weight );
-        PROBE_HLT_Iso_nvtx_twosuite_high->Fill( probe_nvtx, probe_weight );
-    }
-
-    if( tempflag1 ) {
-        PROBE_HLT_OR_eta_twosuite_high->Fill( probe->eta(), probe_weight );
-        PROBE_HLT_OR_pt_twosuite_high->Fill( probe->pt(), probe_weight );
-        PROBE_HLT_OR_nvtx_twosuite_high->Fill( probe_nvtx, probe_weight );
-    }
-
-
-    //making efficiency graphs
-    makeEfficiencies();
+     if( flag_L1_probe10 && taggedHLTlead)
+         //    if(probe->pt()>25.0) //minimum scaling pT cut
+         {
+             TAG_HLT_pt_unseeded->Fill( probe->pt(), probe_weight );
+             if(probe->pt()>25.0)
+                 {
+                     TAG_HLT_eta_unseeded->Fill( probe->eta(), probe_weight );
+                     TAG_HLT_ptoM_unseeded->Fill( probe->phi(), probe_weight );
+                     TAG_HLT_nvtx_unseeded->Fill( probe_nvtx, probe_weight );
+                     Zpeak[1][0]->Fill( theDiPhoton->mass(), probe_weight ); //fill unseeded all zpeak plot
+                 }
+             bool isoflag = 0;
+             bool r9flag = 0;
+             //sublead HLT only                                                                                                     
+             
+             if( onlineOfflineMatching( triggerNames, triggerObjects, probe->p4(), filterName_[2] ) )
+                 {
+                     r9flag = 1;
+                     PROBE_HLT_R9_pt_unseeded->Fill( probe->pt(), probe_weight );
+                     
+                     if(probe->pt()>25.0)
+                         {
+                             PROBE_HLT_R9_eta_unseeded->Fill( probe->eta(), probe_weight );
+                             PROBE_HLT_R9_ptoM_unseeded->Fill( probe->phi(), probe_weight );
+                             PROBE_HLT_R9_nvtx_unseeded->Fill( probe_nvtx, probe_weight );
+                         }
+                 }
+             
+             if( onlineOfflineMatching( triggerNames, triggerObjects, probe->p4(), filterName_[3] ) ) 
+                 {
+                     isoflag = 1;
+                     PROBE_HLT_Iso_pt_unseeded->Fill( probe->pt(), probe_weight );
+                     if(probe->pt()>25.0)
+                         {                     
+                             PROBE_HLT_Iso_eta_unseeded->Fill( probe->eta(), probe_weight );
+                             PROBE_HLT_Iso_ptoM_unseeded->Fill( probe->phi(), probe_weight );
+                             PROBE_HLT_Iso_nvtx_unseeded->Fill( probe_nvtx, probe_weight );
+                         }
+                 }
+             if( isoflag or r9flag ) 
+                 {
+                     PROBE_HLT_OR_pt_unseeded->Fill( probe->pt(), probe_weight );
+                     
+                     if(probe->pt()>25.0)
+                         {
+                             PROBE_HLT_OR_eta_unseeded->Fill( probe->eta(), probe_weight );
+                             PROBE_HLT_OR_ptoM_unseeded->Fill( probe->phi(), probe_weight );
+                             PROBE_HLT_OR_nvtx_unseeded->Fill( probe_nvtx, probe_weight );
+                             Zpeak[1][1]->Fill( theDiPhoton->mass(), probe_weight ); //fill unseeded pass zpeak plot 
+                             //Zpeak[getPtBin(probe->pt())][1]->Fill( theDiPhoton->mass(), probe_weight ); //fill unseeded pass zpeak plot
+                         }
+                 }
+             else
+                 {
+                     if(probe->pt()>25.0)
+                         Zpeak[1][2]->Fill( theDiPhoton->mass(), probe_weight ); //fill unseeded fail zpeak plot                              //Zpeak[getPtBin(probe->pt())][2]->Fill( theDiPhoton->mass(), probe_weight ); //fill seeded fail zpeak plot  
+                 }
+         }
+     
+     //Step II: seeded leg efficiency                                                                                           
+     //  if Probe has a lead L1 seed matched to it                                                                              
+     //  no HLT requirement on tag (tag==unseeded leg of HLT)                                                                   
+     //if( !flag_L1_probe22 )
+     //    { return; }
+     //only include events which could pass the trigger                                                                         
+     //if( probe->pt() < 30.00 )
+     //    {return;}
+     probe_passed_pt  ++;
+     
+     //     probe_weight=1;
+     if( flag_L1_probe22 && probe->pt()>30) 
+         //if(probe->pt()>33.3334) //minimum scaling pT cut
+             {
+                 TAG_HLT_pt_seeded->Fill( probe->pt(), probe_weight );
+                 
+                 if(probe->pt()>33.3334) 
+                     {
+                         TAG_HLT_eta_seeded->Fill( probe->eta(), probe_weight );
+                         TAG_HLT_ptoM_seeded->Fill( probe->phi(), probe_weight );
+                         TAG_HLT_nvtx_seeded->Fill( probe_nvtx, probe_weight );
+                         Zpeak[0][0]->Fill( theDiPhoton->mass(), probe_weight ); //fill seeded all zpeak plot                                        
+                         Zpeak[getPtBin(probe->pt())][0]->Fill( theDiPhoton->mass(), probe_weight ); //fill seeded all zpeak plot                    
+                     }
+                 bool isoflag = 0;
+                 bool r9flag =0;
+                 if( onlineOfflineMatching( triggerNames, triggerObjects, probe->p4(), filterName_[1] ) ) {
+                     r9flag = 1;
+                     PROBE_HLT_R9_pt_seeded->Fill( probe->pt(), probe_weight );
+                     if(probe->pt()>33.3334) 
+                         {
+                             PROBE_HLT_R9_eta_seeded->Fill( probe->eta(), probe_weight );
+                             PROBE_HLT_R9_ptoM_seeded->Fill( probe->phi(), probe_weight );
+                             PROBE_HLT_R9_nvtx_seeded->Fill( probe_nvtx, probe_weight );
+                         }
+                 }
+                 if( onlineOfflineMatching( triggerNames, triggerObjects, probe->p4(), filterName_[0] ) ) {
+                     isoflag = 1;
+                     PROBE_HLT_Iso_pt_seeded->Fill( probe->pt(), probe_weight );
+                     if(probe->pt()>33.3334) 
+                         {
+                             PROBE_HLT_Iso_eta_seeded->Fill( probe->eta(), probe_weight );
+                             PROBE_HLT_Iso_ptoM_seeded->Fill( probe->phi(), probe_weight );
+                             PROBE_HLT_Iso_nvtx_seeded->Fill( probe_nvtx, probe_weight );
+                         }
+                 }
+                 if( isoflag || r9flag ) 
+                     {
+                         PROBE_HLT_OR_pt_seeded->Fill( probe->pt(), probe_weight );
+                         if(probe->pt()>33.3334) 
+                             {
+                                 PROBE_HLT_OR_eta_seeded->Fill( probe->eta(), probe_weight );
+                                 PROBE_HLT_OR_ptoM_seeded->Fill( probe->phi(), probe_weight );
+                                 PROBE_HLT_OR_nvtx_seeded->Fill( probe_nvtx, probe_weight );
+                                 Zpeak[0][1]->Fill( theDiPhoton->mass(), probe_weight ); //fill seeded pass zpeak plot                                   
+                                 Zpeak[getPtBin(probe->pt())][1]->Fill( theDiPhoton->mass(), probe_weight ); //fill seeded pass zpeak plot 
+                             }
+                     }
+                 else
+                     {
+                         if(probe->pt()>33.3334) 
+                             {
+                                 Zpeak[0][2]->Fill( theDiPhoton->mass(), probe_weight ); //fill seeded fail zpeak plot 
+                                 Zpeak[getPtBin(probe->pt())][2]->Fill( theDiPhoton->mass(), probe_weight ); //fill seeded fail zpeak plot 
+                             }
+                     }
+             }
 }
-void HLTEfficiency::makeEfficiencies()
-{
-    c_eff_L1_7_pt->cd();
-    eff_L1_10_pt ->BayesDivide( PROBE_L1_10_pt, TAG_L1_pt );
-    eff_L1_10_pt->SetMinimum( 0.0 );
-    eff_L1_10_pt->SetMaximum( 1.1 );
-    eff_L1_10_pt->SetTitle( "RelVal z->ee, #sqrt{s} = 13 TeV" );
-    eff_L1_10_pt->GetXaxis()->SetTitle( "p_{T} (GeV)" );
-    eff_L1_10_pt->GetYaxis()->SetTitle( "L1 Efficiency" );
-    eff_L1_10_pt->SetLineColor( 2 );
-    eff_L1_10_pt->SetLineWidth( 2 );
-    eff_L1_10_pt->SetMarkerStyle( 7 );
-    eff_L1_10_pt->SetMarkerColor( 2 );
 
-    eff_L1_10_pt->Draw( "AP" );
-    eff_L1_15_pt ->BayesDivide( PROBE_L1_15_pt, TAG_L1_pt );
-    eff_L1_15_pt->SetMinimum( 0.0 );
-    eff_L1_15_pt->SetMaximum( 1.1 );
-    eff_L1_15_pt->SetLineColor( 4 );
-    eff_L1_15_pt->SetLineWidth( 2 );
-    eff_L1_15_pt->SetMarkerStyle( 7 );
-    eff_L1_15_pt->SetMarkerColor( 4 );
-    eff_L1_15_pt->Draw( "SAMEP" );
-
-    eff_L1_35_pt ->BayesDivide( PROBE_L1_35_pt, TAG_L1_pt );
-    eff_L1_35_pt->SetMinimum( 0.0 );
-    eff_L1_35_pt->SetMaximum( 1.1 );
-    eff_L1_35_pt->SetLineColor( 6 );
-    eff_L1_35_pt->SetMarkerColor( 6 );
-    eff_L1_35_pt->SetLineWidth( 2 );
-    eff_L1_35_pt->SetMarkerStyle( 7 );
-    eff_L1_35_pt->Draw( "SAMEP" );
-
-    TLegend *l_eff_L1_7_pt = new TLegend( 0.45, 0.15, 0.55, 0.32 );
-    l_eff_L1_7_pt->SetShadowColor( 0 );
-    l_eff_L1_7_pt->SetFillColor( 0 );
-    l_eff_L1_7_pt->SetLineColor( 0 );
-    l_eff_L1_7_pt->SetTextSize( 0.03 );
-    l_eff_L1_7_pt->AddEntry( eff_L1_10_pt, "L1_EG10", "l" );
-    l_eff_L1_7_pt->AddEntry( eff_L1_15_pt, "L1_EG15", "l" );
-    l_eff_L1_7_pt->AddEntry( eff_L1_35_pt, "L1_EG40", "l" );
-    l_eff_L1_7_pt->SetTextSize( 0.03 );
-    l_eff_L1_7_pt->Draw();
-
-    //HLT seeded pt efficiencies
-    c_eff_HLT_OR_pt_seeded->cd();
-    eff_HLT_OR_pt_seeded->BayesDivide( PROBE_HLT_OR_pt_seeded, TAG_HLT_pt_seeded );
-    eff_HLT_OR_pt_seeded->SetMinimum( 0.0 );
-    eff_HLT_OR_pt_seeded->SetMaximum( 1.1 );
-    eff_HLT_OR_pt_seeded->SetTitle( "RelVal Z->ee, #sqrt{s} = 13 TeV" );
-    eff_HLT_OR_pt_seeded->GetXaxis()->SetTitle( "p_{T} (GeV)" );
-    eff_HLT_OR_pt_seeded->GetYaxis()->SetTitle( "HLT-Only Efficiency" );
-    eff_HLT_OR_pt_seeded->SetLineColor( 1 );
-    eff_HLT_OR_pt_seeded->SetMarkerColor( 1 );
-
-    eff_HLT_OR_pt_seeded->SetLineWidth( 2 );
-    eff_HLT_OR_pt_seeded->SetMarkerStyle( 7 );
-    eff_HLT_OR_pt_seeded->Draw( "AP" );
-    eff_HLT_Iso_pt_seeded ->BayesDivide( PROBE_HLT_Iso_pt_seeded, TAG_HLT_pt_seeded );
-    eff_HLT_Iso_pt_seeded->SetMinimum( 0.0 );
-    eff_HLT_Iso_pt_seeded->SetMaximum( 1.1 );
-    eff_HLT_Iso_pt_seeded->SetLineColor( 2 );
-    eff_HLT_Iso_pt_seeded->SetMarkerColor( 2 );
-
-    eff_HLT_Iso_pt_seeded->SetLineWidth( 2 );
-    eff_HLT_Iso_pt_seeded->SetMarkerStyle( 7 );
-    eff_HLT_Iso_pt_seeded->Draw( "SAMEP" );
-    eff_HLT_R9_pt_seeded ->BayesDivide( PROBE_HLT_R9_pt_seeded, TAG_HLT_pt_seeded );
-    eff_HLT_R9_pt_seeded->SetMinimum( 0.0 );
-    eff_HLT_R9_pt_seeded->SetMaximum( 1.1 );
-    eff_HLT_R9_pt_seeded->SetLineColor( 4 );
-    eff_HLT_R9_pt_seeded->SetMarkerColor( 4 );
-
-    eff_HLT_R9_pt_seeded->SetLineWidth( 2 );
-    eff_HLT_R9_pt_seeded->SetMarkerStyle( 7 );
-    eff_HLT_R9_pt_seeded->Draw( "SAMEP" );
-    TLegend *l_eff_HLT_OR_pt_seeded = new TLegend( 0.45, 0.15, 0.55, 0.32 );
-    l_eff_HLT_OR_pt_seeded->SetShadowColor( 0 );
-    l_eff_HLT_OR_pt_seeded->SetFillColor( 0 );
-    l_eff_HLT_OR_pt_seeded->SetLineColor( 0 );
-    l_eff_HLT_OR_pt_seeded->SetTextSize( 0.03 );
-    l_eff_HLT_OR_pt_seeded->AddEntry( eff_HLT_OR_pt_seeded, "HLT_Photon30_Iso60CaloId_OR_R9Id", "l" );
-    l_eff_HLT_OR_pt_seeded->AddEntry( eff_HLT_Iso_pt_seeded, "HLT_Photon30_Iso60CaloId", "l" );
-    l_eff_HLT_OR_pt_seeded->AddEntry( eff_HLT_R9_pt_seeded, "HLT_Photon30_R9Id", "l" );
-    l_eff_HLT_OR_pt_seeded->SetTextSize( 0.03 );
-    l_eff_HLT_OR_pt_seeded->Draw();
-
-    //HLT unseeded pt efficiencies
-    c_eff_HLT_OR_pt_unseeded->cd();
-    eff_HLT_OR_pt_unseeded->BayesDivide( PROBE_HLT_OR_pt_unseeded, TAG_HLT_pt_unseeded );
-    eff_HLT_OR_pt_unseeded->SetMinimum( 0.0 );
-    eff_HLT_OR_pt_unseeded->SetMaximum( 1.1 );
-    eff_HLT_OR_pt_unseeded->SetTitle( "RelVal Z->ee, #sqrt{s} = 13 TeV" );
-    eff_HLT_OR_pt_unseeded->GetXaxis()->SetTitle( "p_{T} (GeV)" );
-    eff_HLT_OR_pt_unseeded->GetYaxis()->SetTitle( "HLT-Only Efficiency" );
-    eff_HLT_OR_pt_unseeded->SetLineColor( 1 );
-    eff_HLT_OR_pt_unseeded->SetMarkerColor( 1 );
-
-    eff_HLT_OR_pt_unseeded->SetLineWidth( 2 );
-    eff_HLT_OR_pt_unseeded->SetMarkerStyle( 7 );
-    eff_HLT_OR_pt_unseeded->Draw( "AP" );
-    eff_HLT_Iso_pt_unseeded ->BayesDivide( PROBE_HLT_Iso_pt_unseeded, TAG_HLT_pt_unseeded );
-    eff_HLT_Iso_pt_unseeded->SetMinimum( 0.0 );
-    eff_HLT_Iso_pt_unseeded->SetMaximum( 1.1 );
-    eff_HLT_Iso_pt_unseeded->SetLineColor( 2 );
-    eff_HLT_Iso_pt_unseeded->SetMarkerColor( 2 );
-
-    eff_HLT_Iso_pt_unseeded->SetLineWidth( 2 );
-    eff_HLT_Iso_pt_unseeded->SetMarkerStyle( 7 );
-    eff_HLT_Iso_pt_unseeded->Draw( "SAMEP" );
-    eff_HLT_R9_pt_unseeded ->BayesDivide( PROBE_HLT_R9_pt_unseeded, TAG_HLT_pt_unseeded );
-    eff_HLT_R9_pt_unseeded->SetMinimum( 0.0 );
-    eff_HLT_R9_pt_unseeded->SetMaximum( 1.1 );
-    eff_HLT_R9_pt_unseeded->SetLineColor( 4 );
-    eff_HLT_R9_pt_unseeded->SetMarkerColor( 4 );
-
-    eff_HLT_R9_pt_unseeded->SetLineWidth( 2 );
-    eff_HLT_R9_pt_unseeded->SetMarkerStyle( 7 );
-    eff_HLT_R9_pt_unseeded->Draw( "SAMEP" );
-    TLegend *l_eff_HLT_OR_pt_unseeded = new TLegend( 0.45, 0.15, 0.55, 0.32 );
-    l_eff_HLT_OR_pt_unseeded->SetShadowColor( 0 );
-    l_eff_HLT_OR_pt_unseeded->SetFillColor( 0 );
-    l_eff_HLT_OR_pt_unseeded->SetLineColor( 0 );
-    l_eff_HLT_OR_pt_unseeded->SetTextSize( 0.03 );
-    l_eff_HLT_OR_pt_unseeded->AddEntry( eff_HLT_OR_pt_unseeded, "HLT_Photon18_Iso60CaloId_OR_R9ID", "l" );
-    l_eff_HLT_OR_pt_unseeded->AddEntry( eff_HLT_Iso_pt_unseeded, "HLT_Photon18_Iso60CaloId", "l" );
-    l_eff_HLT_OR_pt_unseeded->AddEntry( eff_HLT_R9_pt_unseeded, "HLT_Photon18_R9Id", "l" );
-    l_eff_HLT_OR_pt_unseeded->SetTextSize( 0.03 );
-    l_eff_HLT_OR_pt_unseeded->Draw();
-
-
-    //eta efficiencies
-    c_eff_L1_7_eta->cd();
-    eff_L1_10_eta ->BayesDivide( PROBE_L1_10_eta, TAG_L1_eta );
-    eff_L1_10_eta->SetMinimum( 0.0 );
-    eff_L1_10_eta->SetMaximum( 1.1 );
-    eff_L1_10_eta->SetTitle( "RelVal Z->ee, #sqrt{s} = 13 TeV" );
-    eff_L1_10_eta->GetXaxis()->SetTitle( "Eta" );
-    eff_L1_10_eta->GetYaxis()->SetTitle( "L1 Efficiency" );
-    eff_L1_10_eta->SetLineColor( 2 );
-    eff_L1_10_eta->SetLineWidth( 2 );
-    eff_L1_10_eta->SetMarkerStyle( 7 );
-    eff_L1_10_eta->SetMarkerColor( 2 );
-
-    eff_L1_10_eta->Draw( "AP" );
-    eff_L1_15_eta ->BayesDivide( PROBE_L1_15_eta, TAG_L1_eta );
-    eff_L1_15_eta->SetMinimum( 0.0 );
-    eff_L1_15_eta->SetMaximum( 1.1 );
-    eff_L1_15_eta->SetLineColor( 4 );
-    eff_L1_15_eta->SetLineWidth( 2 );
-    eff_L1_15_eta->SetMarkerStyle( 7 );
-    eff_L1_15_eta->SetMarkerColor( 4 );
-    eff_L1_15_eta->Draw( "SAMEP" );
-
-    eff_L1_35_eta ->BayesDivide( PROBE_L1_35_eta, TAG_L1_eta );
-    eff_L1_35_eta->SetMinimum( 0.0 );
-    eff_L1_35_eta->SetMaximum( 1.1 );
-    eff_L1_35_eta->SetLineColor( 6 );
-    eff_L1_35_eta->SetMarkerColor( 6 );
-    eff_L1_35_eta->SetLineWidth( 2 );
-    eff_L1_35_eta->SetMarkerStyle( 7 );
-    eff_L1_35_eta->Draw( "SAMEP" );
-
-    TLegend *l_eff_L1_7_eta = new TLegend( 0.45, 0.15, 0.55, 0.32 );
-    l_eff_L1_7_eta->SetShadowColor( 0 );
-    l_eff_L1_7_eta->SetFillColor( 0 );
-    l_eff_L1_7_eta->SetLineColor( 0 );
-    l_eff_L1_7_eta->SetTextSize( 0.03 );
-    l_eff_L1_7_eta->AddEntry( eff_L1_10_eta, "L1_EG10", "l" );
-    l_eff_L1_7_eta->AddEntry( eff_L1_15_eta, "L1_EG15", "l" );
-    l_eff_L1_7_eta->AddEntry( eff_L1_35_eta, "L1_EG40", "l" );
-    l_eff_L1_7_eta->SetTextSize( 0.03 );
-    l_eff_L1_7_eta->Draw();
-
-    //HLT seeded eta efficiencies
-    c_eff_HLT_OR_eta_seeded->cd();
-    eff_HLT_OR_eta_seeded->BayesDivide( PROBE_HLT_OR_eta_seeded, TAG_HLT_eta_seeded );
-    eff_HLT_OR_eta_seeded->SetMinimum( 0.0 );
-    eff_HLT_OR_eta_seeded->SetMaximum( 1.1 );
-    eff_HLT_OR_eta_seeded->SetTitle( "RelVal Z->ee, #sqrt{s} = 13 TeV" );
-    eff_HLT_OR_eta_seeded->GetXaxis()->SetTitle( "Eta" );
-    eff_HLT_OR_eta_seeded->GetYaxis()->SetTitle( "HLT-Only Efficiency" );
-    eff_HLT_OR_eta_seeded->SetLineColor( 1 );
-    eff_HLT_OR_eta_seeded->SetMarkerColor( 1 );
-
-    eff_HLT_OR_eta_seeded->SetLineWidth( 2 );
-    eff_HLT_OR_eta_seeded->SetMarkerStyle( 7 );
-    eff_HLT_OR_eta_seeded->Draw( "AP" );
-    eff_HLT_Iso_eta_seeded ->BayesDivide( PROBE_HLT_Iso_eta_seeded, TAG_HLT_eta_seeded );
-    eff_HLT_Iso_eta_seeded->SetMinimum( 0.0 );
-    eff_HLT_Iso_eta_seeded->SetMaximum( 1.1 );
-    eff_HLT_Iso_eta_seeded->SetLineColor( 2 );
-    eff_HLT_Iso_eta_seeded->SetMarkerColor( 2 );
-
-    eff_HLT_Iso_eta_seeded->SetLineWidth( 2 );
-    eff_HLT_Iso_eta_seeded->SetMarkerStyle( 7 );
-    eff_HLT_Iso_eta_seeded->Draw( "SAMEP" );
-    eff_HLT_R9_eta_seeded ->BayesDivide( PROBE_HLT_R9_eta_seeded, TAG_HLT_eta_seeded );
-    eff_HLT_R9_eta_seeded->SetMinimum( 0.0 );
-    eff_HLT_R9_eta_seeded->SetMaximum( 1.1 );
-    eff_HLT_R9_eta_seeded->SetLineColor( 4 );
-    eff_HLT_R9_eta_seeded->SetMarkerColor( 4 );
-
-    eff_HLT_R9_eta_seeded->SetLineWidth( 2 );
-    eff_HLT_R9_eta_seeded->SetMarkerStyle( 7 );
-    eff_HLT_R9_eta_seeded->Draw( "SAMEP" );
-    TLegend *l_eff_HLT_OR_eta_seeded = new TLegend( 0.45, 0.15, 0.55, 0.32 );
-    l_eff_HLT_OR_eta_seeded->SetShadowColor( 0 );
-    l_eff_HLT_OR_eta_seeded->SetFillColor( 0 );
-    l_eff_HLT_OR_eta_seeded->SetLineColor( 0 );
-    l_eff_HLT_OR_eta_seeded->SetTextSize( 0.03 );
-    l_eff_HLT_OR_eta_seeded->AddEntry( eff_HLT_OR_eta_seeded, "HLT_Photon30_Iso60CaloId_OR_R9Id", "l" );
-    l_eff_HLT_OR_eta_seeded->AddEntry( eff_HLT_Iso_eta_seeded, "HLT_Photon30_Iso60CaloId", "l" );
-    l_eff_HLT_OR_eta_seeded->AddEntry( eff_HLT_R9_eta_seeded, "HLT_Photon30_R9Id", "l" );
-    l_eff_HLT_OR_eta_seeded->SetTextSize( 0.03 );
-    l_eff_HLT_OR_eta_seeded->Draw();
-
-    //HLT unseeded eta efficiencies
-    c_eff_HLT_OR_eta_unseeded->cd();
-    eff_HLT_OR_eta_unseeded->BayesDivide( PROBE_HLT_OR_eta_unseeded, TAG_HLT_eta_unseeded );
-    eff_HLT_OR_eta_unseeded->SetMinimum( 0.0 );
-    eff_HLT_OR_eta_unseeded->SetMaximum( 1.1 );
-    eff_HLT_OR_eta_unseeded->SetTitle( "RelVal Z->ee, #sqrt{s} = 13 TeV" );
-    eff_HLT_OR_eta_unseeded->GetXaxis()->SetTitle( "eta " );
-    eff_HLT_OR_eta_unseeded->GetYaxis()->SetTitle( "HLT-Only Efficiency" );
-    eff_HLT_OR_eta_unseeded->SetLineColor( 1 );
-    eff_HLT_OR_eta_unseeded->SetMarkerColor( 1 );
-
-    eff_HLT_OR_eta_unseeded->SetLineWidth( 2 );
-    eff_HLT_OR_eta_unseeded->SetMarkerStyle( 7 );
-    eff_HLT_OR_eta_unseeded->Draw( "AP" );
-    eff_HLT_Iso_eta_unseeded ->BayesDivide( PROBE_HLT_Iso_eta_unseeded, TAG_HLT_eta_unseeded );
-    eff_HLT_Iso_eta_unseeded->SetMinimum( 0.0 );
-    eff_HLT_Iso_eta_unseeded->SetMaximum( 1.1 );
-    eff_HLT_Iso_eta_unseeded->SetLineColor( 2 );
-    eff_HLT_Iso_eta_unseeded->SetMarkerColor( 2 );
-
-    eff_HLT_Iso_eta_unseeded->SetLineWidth( 2 );
-    eff_HLT_Iso_eta_unseeded->SetMarkerStyle( 7 );
-    eff_HLT_Iso_eta_unseeded->Draw( "SAMEP" );
-    eff_HLT_R9_eta_unseeded ->BayesDivide( PROBE_HLT_R9_eta_unseeded, TAG_HLT_eta_unseeded );
-    eff_HLT_R9_eta_unseeded->SetMinimum( 0.0 );
-    eff_HLT_R9_eta_unseeded->SetMaximum( 1.1 );
-    eff_HLT_R9_eta_unseeded->SetLineColor( 4 );
-    eff_HLT_R9_eta_unseeded->SetMarkerColor( 4 );
-
-    eff_HLT_R9_eta_unseeded->SetLineWidth( 2 );
-    eff_HLT_R9_eta_unseeded->SetMarkerStyle( 7 );
-    eff_HLT_R9_eta_unseeded->Draw( "SAMEP" );
-    TLegend *l_eff_HLT_OR_eta_unseeded = new TLegend( 0.45, 0.15, 0.55, 0.32 );
-    l_eff_HLT_OR_eta_unseeded->SetShadowColor( 0 );
-    l_eff_HLT_OR_eta_unseeded->SetFillColor( 0 );
-    l_eff_HLT_OR_eta_unseeded->SetLineColor( 0 );
-    l_eff_HLT_OR_eta_unseeded->SetTextSize( 0.03 );
-    l_eff_HLT_OR_eta_unseeded->AddEntry( eff_HLT_OR_eta_unseeded, "HLT_Photon18_Iso60CaloId_OR_R9ID", "l" );
-    l_eff_HLT_OR_eta_unseeded->AddEntry( eff_HLT_Iso_eta_unseeded, "HLT_Photon18_Iso60CaloId", "l" );
-    l_eff_HLT_OR_eta_unseeded->AddEntry( eff_HLT_R9_eta_unseeded, "HLT_Photon18_R9Id", "l" );
-    l_eff_HLT_OR_eta_unseeded->SetTextSize( 0.03 );
-    l_eff_HLT_OR_eta_unseeded->Draw();
-
-
-    //nvtx efficiencies
-    c_eff_L1_7_nvtx->cd();
-    eff_L1_10_nvtx ->BayesDivide( PROBE_L1_10_nvtx, TAG_L1_nvtx );
-    eff_L1_10_nvtx->SetMinimum( 0.0 );
-    eff_L1_10_nvtx->SetMaximum( 1.1 );
-    eff_L1_10_nvtx->SetTitle( "RelVal Z->ee, #sqrt{s} = 13 TeV" );
-    eff_L1_10_nvtx->GetXaxis()->SetTitle( "Nvtx" );
-    eff_L1_10_nvtx->GetYaxis()->SetTitle( "L1 Efficiency" );
-    eff_L1_10_nvtx->SetLineColor( 2 );
-    eff_L1_10_nvtx->SetLineWidth( 2 );
-    eff_L1_10_nvtx->SetMarkerStyle( 7 );
-    eff_L1_10_nvtx->SetMarkerColor( 2 );
-
-    eff_L1_10_nvtx->Draw( "AP" );
-    eff_L1_15_nvtx ->BayesDivide( PROBE_L1_15_nvtx, TAG_L1_nvtx );
-    eff_L1_15_nvtx->SetMinimum( 0.0 );
-    eff_L1_15_nvtx->SetMaximum( 1.1 );
-    eff_L1_15_nvtx->SetLineColor( 4 );
-    eff_L1_15_nvtx->SetLineWidth( 2 );
-    eff_L1_15_nvtx->SetMarkerStyle( 7 );
-    eff_L1_15_nvtx->SetMarkerColor( 4 );
-    eff_L1_15_nvtx->Draw( "SAMEP" );
-
-    eff_L1_35_nvtx ->BayesDivide( PROBE_L1_35_nvtx, TAG_L1_nvtx );
-    eff_L1_35_nvtx->SetMinimum( 0.0 );
-    eff_L1_35_nvtx->SetMaximum( 1.1 );
-    eff_L1_35_nvtx->SetLineColor( 6 );
-    eff_L1_35_nvtx->SetMarkerColor( 6 );
-    eff_L1_35_nvtx->SetLineWidth( 2 );
-    eff_L1_35_nvtx->SetMarkerStyle( 7 );
-    eff_L1_35_nvtx->Draw( "SAMEP" );
-
-    TLegend *l_eff_L1_7_nvtx = new TLegend( 0.45, 0.15, 0.55, 0.32 );
-    l_eff_L1_7_nvtx->SetShadowColor( 0 );
-    l_eff_L1_7_nvtx->SetFillColor( 0 );
-    l_eff_L1_7_nvtx->SetLineColor( 0 );
-    l_eff_L1_7_nvtx->SetTextSize( 0.03 );
-    l_eff_L1_7_nvtx->AddEntry( eff_L1_10_nvtx, "L1_EG10", "l" );
-    l_eff_L1_7_nvtx->AddEntry( eff_L1_15_nvtx, "L1_EG15", "l" );
-    l_eff_L1_7_nvtx->AddEntry( eff_L1_35_nvtx, "L1_EG40", "l" );
-    l_eff_L1_7_nvtx->SetTextSize( 0.03 );
-    l_eff_L1_7_nvtx->Draw();
-
-    //HLT seeded nvtx efficiencies
-    c_eff_HLT_OR_nvtx_seeded->cd();
-    eff_HLT_OR_nvtx_seeded->BayesDivide( PROBE_HLT_OR_nvtx_seeded, TAG_HLT_nvtx_seeded );
-    eff_HLT_OR_nvtx_seeded->SetMinimum( 0.0 );
-    eff_HLT_OR_nvtx_seeded->SetMaximum( 1.1 );
-    eff_HLT_OR_nvtx_seeded->SetTitle( "RelVal Z->ee, #sqrt{s} = 13 TeV" );
-    eff_HLT_OR_nvtx_seeded->GetXaxis()->SetTitle( "Nvtx" );
-    eff_HLT_OR_nvtx_seeded->GetYaxis()->SetTitle( "HLT-Only Efficiency" );
-    eff_HLT_OR_nvtx_seeded->SetLineColor( 1 );
-    eff_HLT_OR_nvtx_seeded->SetMarkerColor( 1 );
-
-    eff_HLT_OR_nvtx_seeded->SetLineWidth( 2 );
-    eff_HLT_OR_nvtx_seeded->SetMarkerStyle( 7 );
-    eff_HLT_OR_nvtx_seeded->Draw( "AP" );
-    eff_HLT_Iso_nvtx_seeded ->BayesDivide( PROBE_HLT_Iso_nvtx_seeded, TAG_HLT_nvtx_seeded );
-    eff_HLT_Iso_nvtx_seeded->SetMinimum( 0.0 );
-    eff_HLT_Iso_nvtx_seeded->SetMaximum( 1.1 );
-    eff_HLT_Iso_nvtx_seeded->SetLineColor( 2 );
-    eff_HLT_Iso_nvtx_seeded->SetMarkerColor( 2 );
-
-    eff_HLT_Iso_nvtx_seeded->SetLineWidth( 2 );
-    eff_HLT_Iso_nvtx_seeded->SetMarkerStyle( 7 );
-    eff_HLT_Iso_nvtx_seeded->Draw( "SAMEP" );
-    eff_HLT_R9_nvtx_seeded ->BayesDivide( PROBE_HLT_R9_nvtx_seeded, TAG_HLT_nvtx_seeded );
-    eff_HLT_R9_nvtx_seeded->SetMinimum( 0.0 );
-    eff_HLT_R9_nvtx_seeded->SetMaximum( 1.1 );
-    eff_HLT_R9_nvtx_seeded->SetLineColor( 4 );
-    eff_HLT_R9_nvtx_seeded->SetMarkerColor( 4 );
-
-    eff_HLT_R9_nvtx_seeded->SetLineWidth( 2 );
-    eff_HLT_R9_nvtx_seeded->SetMarkerStyle( 7 );
-    eff_HLT_R9_nvtx_seeded->Draw( "SAMEP" );
-    TLegend *l_eff_HLT_OR_nvtx_seeded = new TLegend( 0.45, 0.15, 0.55, 0.32 );
-    l_eff_HLT_OR_nvtx_seeded->SetShadowColor( 0 );
-    l_eff_HLT_OR_nvtx_seeded->SetFillColor( 0 );
-    l_eff_HLT_OR_nvtx_seeded->SetLineColor( 0 );
-    l_eff_HLT_OR_nvtx_seeded->SetTextSize( 0.03 );
-    l_eff_HLT_OR_nvtx_seeded->AddEntry( eff_HLT_OR_nvtx_seeded, "HLT_Photon30_Iso60CaloId_OR_R9Id", "l" );
-    l_eff_HLT_OR_nvtx_seeded->AddEntry( eff_HLT_Iso_nvtx_seeded, "HLT_Photon30_Iso60CaloId", "l" );
-    l_eff_HLT_OR_nvtx_seeded->AddEntry( eff_HLT_R9_nvtx_seeded, "HLT_Photon30_R9Id", "l" );
-    l_eff_HLT_OR_nvtx_seeded->SetTextSize( 0.03 );
-    l_eff_HLT_OR_nvtx_seeded->Draw();
-
-    //HLT unseeded nvtx efficiencies
-    c_eff_HLT_OR_nvtx_unseeded->cd();
-    eff_HLT_OR_nvtx_unseeded->BayesDivide( PROBE_HLT_OR_nvtx_unseeded, TAG_HLT_nvtx_unseeded );
-    eff_HLT_OR_nvtx_unseeded->SetMinimum( 0.0 );
-    eff_HLT_OR_nvtx_unseeded->SetMaximum( 1.1 );
-    eff_HLT_OR_nvtx_unseeded->SetTitle( "RelVal Z->ee, #sqrt{s} = 13 TeV" );
-    eff_HLT_OR_nvtx_unseeded->GetXaxis()->SetTitle( "nvtx " );
-    eff_HLT_OR_nvtx_unseeded->GetYaxis()->SetTitle( "HLT-Only Efficiency" );
-    eff_HLT_OR_nvtx_unseeded->SetLineColor( 1 );
-    eff_HLT_OR_nvtx_unseeded->SetMarkerColor( 1 );
-
-    eff_HLT_OR_nvtx_unseeded->SetLineWidth( 2 );
-    eff_HLT_OR_nvtx_unseeded->SetMarkerStyle( 7 );
-    eff_HLT_OR_nvtx_unseeded->Draw( "AP" );
-    eff_HLT_Iso_nvtx_unseeded ->BayesDivide( PROBE_HLT_Iso_nvtx_unseeded, TAG_HLT_nvtx_unseeded );
-    eff_HLT_Iso_nvtx_unseeded->SetMinimum( 0.0 );
-    eff_HLT_Iso_nvtx_unseeded->SetMaximum( 1.1 );
-    eff_HLT_Iso_nvtx_unseeded->SetLineColor( 2 );
-    eff_HLT_Iso_nvtx_unseeded->SetMarkerColor( 2 );
-
-    eff_HLT_Iso_nvtx_unseeded->SetLineWidth( 2 );
-    eff_HLT_Iso_nvtx_unseeded->SetMarkerStyle( 7 );
-    eff_HLT_Iso_nvtx_unseeded->Draw( "SAMEP" );
-    eff_HLT_R9_nvtx_unseeded ->BayesDivide( PROBE_HLT_R9_nvtx_unseeded, TAG_HLT_nvtx_unseeded );
-    eff_HLT_R9_nvtx_unseeded->SetMinimum( 0.0 );
-    eff_HLT_R9_nvtx_unseeded->SetMaximum( 1.1 );
-    eff_HLT_R9_nvtx_unseeded->SetLineColor( 4 );
-    eff_HLT_R9_nvtx_unseeded->SetMarkerColor( 4 );
-
-    eff_HLT_R9_nvtx_unseeded->SetLineWidth( 2 );
-    eff_HLT_R9_nvtx_unseeded->SetMarkerStyle( 7 );
-    eff_HLT_R9_nvtx_unseeded->Draw( "SAMEP" );
-    TLegend *l_eff_HLT_OR_nvtx_unseeded = new TLegend( 0.45, 0.15, 0.55, 0.32 );
-    l_eff_HLT_OR_nvtx_unseeded->SetShadowColor( 0 );
-    l_eff_HLT_OR_nvtx_unseeded->SetFillColor( 0 );
-    l_eff_HLT_OR_nvtx_unseeded->SetLineColor( 0 );
-    l_eff_HLT_OR_nvtx_unseeded->SetTextSize( 0.03 );
-    l_eff_HLT_OR_nvtx_unseeded->AddEntry( eff_HLT_OR_nvtx_unseeded, "HLT_Photon18_Iso60CaloId_OR_R9ID", "l" );
-    l_eff_HLT_OR_nvtx_unseeded->AddEntry( eff_HLT_Iso_nvtx_unseeded, "HLT_Photon18_Iso60CaloId", "l" );
-    l_eff_HLT_OR_nvtx_unseeded->AddEntry( eff_HLT_R9_nvtx_unseeded, "HLT_Photon18_R9Id", "l" );
-    l_eff_HLT_OR_nvtx_unseeded->SetTextSize( 0.03 );
-    l_eff_HLT_OR_nvtx_unseeded->Draw();
-
-
-
-}
 DEFINE_FWK_MODULE( HLTEfficiency );
 // Local Variables:
 // mode:c++
