@@ -79,6 +79,8 @@ private:
     std::map<std::string, unsigned int> prescale_counter;
 
     //cutBased working points from:  cmssw/RecoEgamma/PhotonIdentification/python/Identification/cutBasedPhotonID_Spring15_50ns_V1_cff.py
+    double lead_ptCut = 33.333;
+    double sub_ptCut =25.0;
     double preselected_diphotons =0;
     double matched_to_tag        =0;
     double probe_passed_IDMVA    =0;
@@ -547,16 +549,8 @@ bool HLTEfficiency::L1Matching( edm::Handle<edm::View<l1extra::L1EmParticle>> l1
 // const edm::PtrVector<l1extra::L1EmParticle>& l1Pointers = l1H->ptrVector();
     for( unsigned int i = 0; i < l1H->size(); i++ ) {
 
-// for (edm::Ptr<l1extra::L1EmParticle> l1Ptr : l1H) {
-        //dr < 0.2
-        
-        //if((l1H->ptrAt( i )->eta() < 2.4) && (l1H->ptrAt( i )->eta() > 2.2))
 
         float dR = deltaR( l1H->ptrAt( i )->p4(), cand );
-        //if(ptThreshold==25 && fabs(cand.eta())<2.4 && fabs(cand.eta())>2.0)
-        //   std::cout << "                       TAG l1 eta " << l1H->ptrAt( i )->eta() << " -- reco eta " << cand.eta() << " DR " << dR << " l1 pT: " << l1H->ptrAt(i)->et() << " reco pT " << cand.pt()  << std::endl;
-        // if(ptThreshold==1 && fabs(cand.eta())<2.4 && fabs(cand.eta())>2.0)
-        //   std::cout << "                     PROBE l1 eta " << l1H->ptrAt( i )->eta() << " -- reco eta " << cand.eta() << " DR " << dR << " l1 pT: " << l1H->ptrAt(i)->et() << " reco pT " << cand.pt()  << std::endl;
         if(fabs(cand.eta())<2.4&&fabs(cand.eta())>2.05)  //2.4>eta>2.05 (from 2d plot)
             {
                 if( dR < 0.5 && l1H->ptrAt( i )->et() > ptThreshold )
@@ -665,81 +659,92 @@ void HLTEfficiency::analyze( const edm::Event &iEvent, const edm::EventSetup &iS
         init( *triggerBits, triggerNames );
     }
 
-    int diphotonIndex = -1;
+    uint diphotonIndex = -1;
     bool isInverted = false;
     bool isMatched  = false;
     preselected_diphotons ++;
     //std::cout << "diphoton size: " << diphotons->size() << std::endl;
-    for( size_t i = 0; i < diphotons->size(); i++ ) {
-        
-        edm::Ptr<flashgg::DiPhotonCandidate> diphoPtr = diphotons->ptrAt( i );
-        edm::Ptr<flashgg::DiPhotonMVAResult> mvares = mvaResults->ptrAt( i );
-        if( mvares->mvaValue() < diphoMVACut_ )
-            { continue; }
-        // FIXME add check same size filter collections
-        //        std::cout << "tag filter size : " << tagFilterName_.size() << std::endl;
-        if(useSingleEG_)
-            {
-                for( size_t f = 0; f < tagSingleElectronFilterName_.size(); f++)
-                    {
-                        isInverted = false;
-                        isMatched = false;
-                        diphotonIndex =-1;
-                        bool leadMatchedToTag = onlineOfflineMatching( triggerNames, triggerObjects, diphoPtr->leadingPhoton()->p4(), tagSingleElectronFilterName_[f] );
-                        bool subLeadMatchedToTag = onlineOfflineMatching( triggerNames, triggerObjects, diphoPtr->subLeadingPhoton()->p4(), tagSingleElectronFilterName_[f] );
+    if( ( rand() ) / ( RAND_MAX / 2 ) ) //choose which photon to try for tag
+        {    
+            isInverted=true;
+        }
+    if(diphotons->size()==0)
+        return;
+    
+    diphotonIndex = rand()/(RAND_MAX/(diphotons->size()));  //choose random diphoton
+    
+    if(diphotonIndex > diphotons->size())
+        return;
+    edm::Ptr<flashgg::DiPhotonCandidate> theDiPhoton = diphotons->ptrAt( diphotonIndex );
+    edm::Ptr<flashgg::DiPhotonMVAResult> mvares = mvaResults->ptrAt(diphotonIndex);
+    
+    const flashgg::Photon *tag;
+    const flashgg::Photon *probe;
+    if(isInverted)
+        {
+            tag = theDiPhoton->subLeadingPhoton();
+            probe = theDiPhoton->leadingPhoton();
+        }
+    else
+        {
+            tag = theDiPhoton->leadingPhoton();
+            probe = theDiPhoton->subLeadingPhoton();
+        }
+    
+    if( mvares->mvaValue() < diphoMVACut_ )
+        { return; }
+    // FIXME add check same size filter collections
+    //        std::cout << "tag filter size : " << tagFilterName_.size() << std::endl;
+    const flashgg::SinglePhotonView pLead = *(theDiPhoton->leadingView()); 
+    const flashgg::SinglePhotonView pSub = *(theDiPhoton->subLeadingView()); 
 
-                         if(fabs(diphoPtr->leadingPhoton()->eta())>2.1)
-                             leadMatchedToTag = false;
-                         if(fabs(diphoPtr->subLeadingPhoton()->eta())>2.1)
-                             subLeadMatchedToTag = false;
-                         const flashgg::SinglePhotonView leading = *(diphoPtr->leadingView()); 
-                         const flashgg::SinglePhotonView subLeading = *(diphoPtr->subLeadingView()); 
-                         if(leading.phoIdMvaWrtChosenVtx()<-0.5||subLeading.phoIdMvaWrtChosenVtx()<-0.8)
-                             leadMatchedToTag=false; 
-                         if(subLeading.phoIdMvaWrtChosenVtx()<-0.5||leading.phoIdMvaWrtChosenVtx()<-0.8)
-                             subLeadMatchedToTag=false;
-                         if(diphoPtr->leadingPhoton()->pt()<30||diphoPtr->subLeadingPhoton()->pt()<20) //tag pt cut; probe pt cut
-                             leadMatchedToTag=false;
-                         if(diphoPtr->subLeadingPhoton()->pt()<30||diphoPtr->leadingPhoton()->pt()<20) //tag pt cut; probe pt cut
-                             subLeadMatchedToTag=false;
-                         if( diphoPtr->mass() < 60 || diphoPtr->mass() > 120 ) //mass cut
-                             {
-                                 leadMatchedToTag=false;
-                                 subLeadMatchedToTag=false;
-                             }
-
-                         if( subLeadMatchedToTag ) {
-                             diphotonIndex = i;
-                             isInverted = true;
-                         }
-                         if( leadMatchedToTag ) {
-                             diphotonIndex = i;
-                             isMatched = true;
-                             break;
-                         }
-                         if( isInverted )
-                             { break; }
-                     }
-             }
-     }
-     if(!isMatched&&!isInverted)
-         return;
-     if( diphotonIndex == -1 )
-         { return; }
-     matched_to_tag ++;
-     edm::Ptr<flashgg::DiPhotonCandidate> theDiPhoton = diphotons->ptrAt( diphotonIndex );
-     const flashgg::Photon *tag = theDiPhoton->leadingPhoton();
-     const flashgg::Photon *probe = theDiPhoton->subLeadingPhoton();
-
-     if( isInverted && isMatched ) 
-         {
-             probe_passed_IDMVA ++;
-             if( ( rand() ) / ( RAND_MAX / 2 ) )
-                 {    
-                     probe = theDiPhoton->subLeadingPhoton();
-                     tag = theDiPhoton->leadingPhoton();
-                 }
-         }
+    if(useSingleEG_)
+        {
+            for( size_t f = 0; f < tagSingleElectronFilterName_.size(); f++)
+                {
+                    if(isInverted) //sublead==tag
+                        {  
+                            if(onlineOfflineMatching( triggerNames, triggerObjects, theDiPhoton->subLeadingPhoton()->p4(), tagSingleElectronFilterName_[f] ))
+                                {
+                                    
+                                    if(pSub.phoIdMvaWrtChosenVtx()<-0.5||pLead.phoIdMvaWrtChosenVtx()<-0.8)  //skip event based on photon IDMVA
+                                        return; 
+                                    isMatched=true;
+                                }
+                            else
+                                return;
+                        }
+                    
+                    else //lead==tab
+                        if(onlineOfflineMatching( triggerNames, triggerObjects, theDiPhoton->leadingPhoton()->p4(), tagSingleElectronFilterName_[f] ))
+                            {
+                                if(pLead.phoIdMvaWrtChosenVtx()<-0.5||pSub.phoIdMvaWrtChosenVtx()<-0.8)  //skip event based on photon IDMVA
+                                    return; 
+                                isMatched=true;
+                            }
+                        else
+                            return;
+                    if(fabs(tag->eta())>2.1) //skip event where tag is high eta
+                        return;
+                    if(fabs(tag->eta())>1.444&&fabs(tag->eta())<1.566)  //skip tag in gap
+                        return;
+                    if(fabs(probe->eta())>1.444&&fabs(probe->eta())<1.566)  //skip probe in gap
+                       return;
+                    
+                    if(theDiPhoton->leadingPhoton()->pt()<30||theDiPhoton->subLeadingPhoton()->pt()<20) //apply again the preselection pT cuts
+                        return;
+                    
+                    if( theDiPhoton->mass() < 60 || theDiPhoton->mass() > 120 ) //mass cut
+                        {
+                            return;
+                        }
+                    
+                }
+            
+        }
+    if(!isMatched)
+        return;
+    matched_to_tag ++;
 
      edm::Handle<edm::View<l1extra::L1EmParticle>> l1iso;
      edm::Handle<edm::View<l1extra::L1EmParticle>> l1noniso;
@@ -759,7 +764,6 @@ void HLTEfficiency::analyze( const edm::Event &iEvent, const edm::EventSetup &iS
      if( onlineOfflineMatching( triggerNames, triggerObjects, tag->p4(), filterName_[0] ) ||
          onlineOfflineMatching( triggerNames, triggerObjects, tag->p4(), filterName_[1] ) )
          { taggedHLTlead = true; }
-
      
      /////////////////////L1 efficiency denominators///////////////////////
      if(probe->pt()>15)
@@ -793,10 +797,6 @@ void HLTEfficiency::analyze( const edm::Event &iEvent, const edm::EventSetup &iS
          {
              if(probe->pt()>45)
                  {
-                     PROBE_L1_35_eta->Fill( probe->eta(), probe_weight );
-                     PROBE_L1_35_ptoM->Fill( probe->phi(), probe_weight );
-                     PROBE_L1_35_nvtx->Fill( probe_nvtx, probe_weight );
-                     PROBE_L1_35_pt->Fill( probe->pt(), probe_weight );
                  }
              flag_L1_probe35 = true;
          }
@@ -805,57 +805,79 @@ void HLTEfficiency::analyze( const edm::Event &iEvent, const edm::EventSetup &iS
          {
              if(probe->pt()>45)
                  {
-                     PROBE_L1_35_eta->Fill( probe->eta(), probe_weight );
-                     PROBE_L1_35_ptoM->Fill( probe->phi(), probe_weight );
-                     PROBE_L1_35_nvtx->Fill( probe_nvtx, probe_weight );
-                     PROBE_L1_35_pt->Fill( probe->pt(), probe_weight );
                  }
              flag_L1_probe35 = true;
          }
-
+     
      if( L1Matching( l1iso, probe->p4(), 22 ) )
          {
              flag_L1_probe22 = true;
+             if(probe->pt()>27)
+                 {
+                     PROBE_L1_35_eta->Fill( probe->eta(), probe_weight );
+                     PROBE_L1_35_ptoM->Fill( probe->phi(), probe_weight );
+                     PROBE_L1_35_nvtx->Fill( probe_nvtx, probe_weight );
+                 }
+             PROBE_L1_35_pt->Fill( probe->pt(), probe_weight );
          }
 
      if( !flag_L1_probe22 and L1Matching( l1noniso, probe->p4(), 22 ) )
          {
+             if(probe->pt()>27)
+                 {
+                     PROBE_L1_35_eta->Fill( probe->eta(), probe_weight );
+                     PROBE_L1_35_ptoM->Fill( probe->phi(), probe_weight );
+                     PROBE_L1_35_nvtx->Fill( probe_nvtx, probe_weight );
+                 }
+             PROBE_L1_35_pt->Fill( probe->pt(), probe_weight );
              flag_L1_probe22 = true;
          }
 
      if( L1Matching( l1iso, probe->p4(), 15 ) )
          {
-             PROBE_L1_15_eta->Fill( probe->eta(), probe_weight );
-             PROBE_L1_15_ptoM->Fill( probe->phi(), probe_weight );
+             if(probe->pt()>20)
+                 {
+                     PROBE_L1_15_eta->Fill( probe->eta(), probe_weight );
+                     PROBE_L1_15_ptoM->Fill( probe->phi(), probe_weight );
+                     PROBE_L1_15_nvtx->Fill( probe_nvtx, probe_weight );
+                 }
              PROBE_L1_15_pt->Fill( probe->pt(), probe_weight );
-             PROBE_L1_15_nvtx->Fill( probe_nvtx, probe_weight );
              flag_L1_probe15 = true;
          }
 
      if( !flag_L1_probe15 and L1Matching( l1noniso, probe->p4(), 15 ) )
          {
-             PROBE_L1_15_eta->Fill( probe->eta(), probe_weight );
-             PROBE_L1_15_ptoM->Fill( probe->phi(), probe_weight );
+             if(probe->pt()>20)
+                 {
+                     PROBE_L1_15_eta->Fill( probe->eta(), probe_weight );
+                     PROBE_L1_15_ptoM->Fill( probe->phi(), probe_weight );
+                     PROBE_L1_15_nvtx->Fill( probe_nvtx, probe_weight );
+                 }
              PROBE_L1_15_pt->Fill( probe->pt(), probe_weight );
-             PROBE_L1_15_nvtx->Fill( probe_nvtx, probe_weight );
              flag_L1_probe15 = true;
          }
 
      if( L1Matching( l1iso, probe->p4(), 10 ) )
          {
-             PROBE_L1_10_eta->Fill( probe->eta(), probe_weight );
-             PROBE_L1_10_ptoM->Fill( probe->phi(), probe_weight );
+             if(probe->pt()>15)
+                 {
+                     PROBE_L1_10_eta->Fill( probe->eta(), probe_weight );
+                     PROBE_L1_10_ptoM->Fill( probe->phi(), probe_weight );
+                     PROBE_L1_10_nvtx->Fill( probe_nvtx, probe_weight );
+                 }
              PROBE_L1_10_pt->Fill( probe->pt(), probe_weight );
-             PROBE_L1_10_nvtx->Fill( probe_nvtx, probe_weight );
              flag_L1_probe10 = true;
          }
 
      if( !flag_L1_probe10 and L1Matching( l1noniso, probe->p4(), 10 ) )
          {
-             PROBE_L1_10_eta->Fill( probe->eta(), probe_weight );
-             PROBE_L1_10_ptoM->Fill( probe->phi(), probe_weight );
+             if(probe->pt()>15)
+                 {
+                     PROBE_L1_10_eta->Fill( probe->eta(), probe_weight );
+                     PROBE_L1_10_ptoM->Fill( probe->phi(), probe_weight );
+                     PROBE_L1_10_nvtx->Fill( probe_nvtx, probe_weight );
+                 }
              PROBE_L1_10_pt->Fill( probe->pt(), probe_weight );
-             PROBE_L1_10_nvtx->Fill( probe_nvtx, probe_weight );
              flag_L1_probe10 = true;
          }
 
@@ -863,7 +885,7 @@ void HLTEfficiency::analyze( const edm::Event &iEvent, const edm::EventSetup &iS
          //    if(probe->pt()>25.0) //minimum scaling pT cut
          {
              TAG_HLT_pt_unseeded->Fill( probe->pt(), probe_weight );
-             if(probe->pt()>25.0)
+             if(probe->pt()>sub_ptCut)
                  {
                      TAG_HLT_eta_unseeded->Fill( probe->eta(), probe_weight );
                      TAG_HLT_ptoM_unseeded->Fill( probe->phi(), probe_weight );
@@ -879,7 +901,7 @@ void HLTEfficiency::analyze( const edm::Event &iEvent, const edm::EventSetup &iS
                      r9flag = 1;
                      PROBE_HLT_R9_pt_unseeded->Fill( probe->pt(), probe_weight );
                      
-                     if(probe->pt()>25.0)
+                     if(probe->pt()>sub_ptCut)
                          {
                              PROBE_HLT_R9_eta_unseeded->Fill( probe->eta(), probe_weight );
                              PROBE_HLT_R9_ptoM_unseeded->Fill( probe->phi(), probe_weight );
@@ -891,7 +913,7 @@ void HLTEfficiency::analyze( const edm::Event &iEvent, const edm::EventSetup &iS
                  {
                      isoflag = 1;
                      PROBE_HLT_Iso_pt_unseeded->Fill( probe->pt(), probe_weight );
-                     if(probe->pt()>25.0)
+                     if(probe->pt()>sub_ptCut)
                          {                     
                              PROBE_HLT_Iso_eta_unseeded->Fill( probe->eta(), probe_weight );
                              PROBE_HLT_Iso_ptoM_unseeded->Fill( probe->phi(), probe_weight );
@@ -902,7 +924,7 @@ void HLTEfficiency::analyze( const edm::Event &iEvent, const edm::EventSetup &iS
                  {
                      PROBE_HLT_OR_pt_unseeded->Fill( probe->pt(), probe_weight );
                      
-                     if(probe->pt()>25.0)
+                     if(probe->pt()>sub_ptCut)
                          {
                              PROBE_HLT_OR_eta_unseeded->Fill( probe->eta(), probe_weight );
                              PROBE_HLT_OR_ptoM_unseeded->Fill( probe->phi(), probe_weight );
@@ -913,7 +935,7 @@ void HLTEfficiency::analyze( const edm::Event &iEvent, const edm::EventSetup &iS
                  }
              else
                  {
-                     if(probe->pt()>25.0)
+                     if(probe->pt()>sub_ptCut)
                          Zpeak[1][2]->Fill( theDiPhoton->mass(), probe_weight ); //fill unseeded fail zpeak plot                              //Zpeak[getPtBin(probe->pt())][2]->Fill( theDiPhoton->mass(), probe_weight ); //fill seeded fail zpeak plot  
                  }
          }
@@ -934,7 +956,7 @@ void HLTEfficiency::analyze( const edm::Event &iEvent, const edm::EventSetup &iS
              {
                  TAG_HLT_pt_seeded->Fill( probe->pt(), probe_weight );
                  
-                 if(probe->pt()>33.3334) 
+                 if(probe->pt()>lead_ptCut) 
                      {
                          TAG_HLT_eta_seeded->Fill( probe->eta(), probe_weight );
                          TAG_HLT_ptoM_seeded->Fill( probe->phi(), probe_weight );
@@ -947,7 +969,7 @@ void HLTEfficiency::analyze( const edm::Event &iEvent, const edm::EventSetup &iS
                  if( onlineOfflineMatching( triggerNames, triggerObjects, probe->p4(), filterName_[1] ) ) {
                      r9flag = 1;
                      PROBE_HLT_R9_pt_seeded->Fill( probe->pt(), probe_weight );
-                     if(probe->pt()>33.3334) 
+                     if(probe->pt()>lead_ptCut) 
                          {
                              PROBE_HLT_R9_eta_seeded->Fill( probe->eta(), probe_weight );
                              PROBE_HLT_R9_ptoM_seeded->Fill( probe->phi(), probe_weight );
@@ -957,7 +979,7 @@ void HLTEfficiency::analyze( const edm::Event &iEvent, const edm::EventSetup &iS
                  if( onlineOfflineMatching( triggerNames, triggerObjects, probe->p4(), filterName_[0] ) ) {
                      isoflag = 1;
                      PROBE_HLT_Iso_pt_seeded->Fill( probe->pt(), probe_weight );
-                     if(probe->pt()>33.3334) 
+                     if(probe->pt()>lead_ptCut) 
                          {
                              PROBE_HLT_Iso_eta_seeded->Fill( probe->eta(), probe_weight );
                              PROBE_HLT_Iso_ptoM_seeded->Fill( probe->phi(), probe_weight );
@@ -967,7 +989,7 @@ void HLTEfficiency::analyze( const edm::Event &iEvent, const edm::EventSetup &iS
                  if( isoflag || r9flag ) 
                      {
                          PROBE_HLT_OR_pt_seeded->Fill( probe->pt(), probe_weight );
-                         if(probe->pt()>33.3334) 
+                         if(probe->pt()>lead_ptCut) 
                              {
                                  PROBE_HLT_OR_eta_seeded->Fill( probe->eta(), probe_weight );
                                  PROBE_HLT_OR_ptoM_seeded->Fill( probe->phi(), probe_weight );
@@ -978,7 +1000,7 @@ void HLTEfficiency::analyze( const edm::Event &iEvent, const edm::EventSetup &iS
                      }
                  else
                      {
-                         if(probe->pt()>33.3334) 
+                         if(probe->pt()>lead_ptCut) 
                              {
                                  Zpeak[0][2]->Fill( theDiPhoton->mass(), probe_weight ); //fill seeded fail zpeak plot 
                                  Zpeak[getPtBin(probe->pt())][2]->Fill( theDiPhoton->mass(), probe_weight ); //fill seeded fail zpeak plot 
