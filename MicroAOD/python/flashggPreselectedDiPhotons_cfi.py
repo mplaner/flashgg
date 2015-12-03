@@ -85,7 +85,7 @@ flashggHLTPreselectedDiPhotons = cms.EDFilter(
         " && (abs(leadingPhoton.superCluster.eta) < 2.5 && abs(subLeadingPhoton.superCluster.eta) < 2.5)"
         " && (abs(leadingPhoton.superCluster.eta) < 1.4442 || abs(leadingPhoton.superCluster.eta) > 1.566)"
         " && (abs(subLeadingPhoton.superCluster.eta) < 1.4442 || abs(subLeadingPhoton.superCluster.eta) > 1.566)"
-        " && (!leadingPhoton.passElectronVeto) && (!subLeadingPhoton.passElectronVeto)" 
+        " && (!leadingPhoton.passElectronVeto) && (!subLeadingPhoton.passElectronVeto)" ##require electrons for tag-probe
         ),
     variables = rediscoveryHLTvariables,
     categories = rediscoveryHLTcutsV1
