@@ -58,8 +58,8 @@ private:
     TH1F *eta;
     TH1F *eta_bins;
     TH1F *normalized_eta;
-    edm::EDGetTokenT<edm::View<flashgg::DiPhotonCandidate>> diphotons_;
     edm::EDGetTokenT<edm::View<flashgg::DiPhotonMVAResult> > diPhotonMVAToken_;
+    edm::EDGetTokenT<edm::View<flashgg::DiPhotonCandidate>> diphotons_;
     edm::EDGetTokenT<edm::View<flashgg::Electron>> eles_;
     edm::EDGetTokenT<edm::View<reco::GenParticle>> genphotons_;
 };
@@ -86,26 +86,26 @@ r9Weights::~r9Weights()
 r9Weights::r9Weights( const edm::ParameterSet &iConfig ):
     outputFileName_( iConfig.getParameter<std::string>( "outputFileName" ) ),
     diphoMVACut_( iConfig.getParameter<double>( "diphoMVACut" ) ),
-    diphotons_( consumes<edm::View<flashgg::DiPhotonCandidate>>( iConfig.getParameter<edm::InputTag>( "diphotons" ) ) ),
     diPhotonMVAToken_( consumes<edm::View<flashgg::DiPhotonMVAResult> >( iConfig.getParameter<edm::InputTag> ( "diPhotonMVATag" ) ) ),
+    diphotons_( consumes<edm::View<flashgg::DiPhotonCandidate>>( iConfig.getParameter<edm::InputTag>( "diphotons" ) ) ),
     eles_( consumes<edm::View<flashgg::Electron>>( iConfig.getParameter<edm::InputTag>( "electrons" ) ) ),
     genphotons_( consumes<edm::View<reco::GenParticle>>( iConfig.getParameter<edm::InputTag>( "genphotons" ) ) )
 {
     ////////// bins /////////////////
-    const double x[26] = {0.0, 0.5, 0.55, 0.60, 0.65, 0.7, 0.74, 0.76, 0.78, 0.80, 0.82, 0.84, 0.86, 0.88, 0.90, 0.91, 0.92, 0.93, 0.94, 0.95, 0.96, 0.97, 0.98, 0.99, 1.0, 2.0};
-    const double y[9] = {0.0, 0.8, 1.0, 1.2, 1.3, 1.444, 1.566,  2.0,  2.5};
+    const double r9Bins[26] = {0.0, 0.5, 0.55, 0.60, 0.65, 0.7, 0.74, 0.76, 0.78, 0.80, 0.82, 0.84, 0.86, 0.88, 0.90, 0.91, 0.92, 0.93, 0.94, 0.95, 0.96, 0.97, 0.98, 0.99, 1.0, 2.0};
+    const double etaBins[9] = {0.0, 0.8, 1.0, 1.2, 1.3, 1.444, 1.566,  2.0,  2.5};
     //const double yWidth[8]=  {0.8, 0.2, 0.2, 0.1, 0.144, 0.122, 0.433, 0.5};
     ///////////// initialize plots ///////////////////
-    eta_r9 = new TH2F( "eta_vs_r9", "", 25, x, 8, y );
-    eta_r9_norm = new TH2F( "eta_vs_r9_norm", "", 25, x, 8, y );
+    eta_r9 = new TH2F( "eta_vs_r9", "", 25, r9Bins, 8, etaBins );
+    eta_r9_norm = new TH2F( "eta_vs_r9_norm", "", 25, r9Bins, 8, etaBins );
     lead_pT = new TH1F( "lead_pt", "", 100, 0, 100 );
     sublead_pT = new TH1F( "sublead_pt", "", 100, 0, 100 );
-    lead_r9 = new TH1F( "lead_r9", "", 25, x );
-    sublead_r9 = new TH1F( "sublead_r9", "", 25, x );
+    lead_r9 = new TH1F( "lead_r9", "", 25, r9Bins );
+    sublead_r9 = new TH1F( "sublead_r9", "", 25, r9Bins );
     eta_r9_std = new TH2F( "eta_vs_r9_std", "", 120, 0, 1.2, 25, 0, 2.5);
-    normalized_eta = new TH1F( "eta_normalized_bin_width", "", 8, y);
+    normalized_eta = new TH1F( "eta_normalized_bin_width", "", 8, etaBins);
     eta = new TH1F( "eta", "", 25,0,2.5);
-    eta_bins = new TH1F( "eta_distribution", "", 8, y);
+    eta_bins = new TH1F( "eta_distribution", "", 8, etaBins);
     eta_r9_scat = new TGraph();
     count=0;
 }
@@ -126,8 +126,8 @@ void r9Weights::analyze( const edm::Event &iEvent, const edm::EventSetup &iSetup
     iEvent.getByToken(diPhotonMVAToken_, mvaResults);
     iEvent.getByToken( eles_, eles );
     iEvent.getByToken( genphotons_, genPhotons );
-    if( eles.failedToGet() )
-    { return; }
+    //if( eles.failedToGet() )
+    //{ return; }
 
     int diphotonIndex = -1;
     for( size_t i = 0; i < diphotons->size(); i++ ) {
@@ -136,7 +136,6 @@ void r9Weights::analyze( const edm::Event &iEvent, const edm::EventSetup &iSetup
         edm::Ptr<flashgg::DiPhotonMVAResult> mvares = mvaResults->ptrAt( i );
         if( mvares->mvaValue() < diphoMVACut_ )
             { continue; }
-
         for( size_t f = 0; f < genPhotons->size(); f++ ) {
             edm::Ptr<reco::GenParticle> genphoPtr = genPhotons->ptrAt( f );
             if( minDr[0] < deltaR( diphoPtr->leadingPhoton()->p4(), genphoPtr->p4() ) ) {
@@ -153,6 +152,8 @@ void r9Weights::analyze( const edm::Event &iEvent, const edm::EventSetup &iSetup
 
     if( diphotonIndex == -1 )
         { return; }
+    //  std::cout << "leadpT " << diphotons->ptrAt(diphotonIndex)->leadingPhoton()->pt() << std::endl;
+    std::cout << "diphotons matched to gen" << std::endl;
     
     edm::Ptr<flashgg::DiPhotonCandidate> theDiPhoton = diphotons->ptrAt( diphotonIndex );
     const flashgg::Photon *tag = theDiPhoton->leadingPhoton();
@@ -164,8 +165,8 @@ void r9Weights::analyze( const edm::Event &iEvent, const edm::EventSetup &iSetup
     if(leading.phoIdMvaWrtChosenVtx()<-0.8||subLeading.phoIdMvaWrtChosenVtx()<-0.8)
         return;
     if(tag->pt()<30||probe->pt()<20) //preselection pT cut applied again                           
-        
-
+        return;
+    std::cout << "diphotons passed selection cuts" << std::endl;
     //////// fill distributions //////////////
     lead_pT->Fill( tag->pt() );
     sublead_pT->Fill( probe->pt() );
