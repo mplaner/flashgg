@@ -24,10 +24,10 @@ process.source = cms.Source("PoolSource",
 
 process.hltTest = cms.EDAnalyzer('HLTEfficiency',
                                  outputFileName  = cms.string("outputAAA.root"),
-                                 weightsFileName = cms.string("r9_eta_weights.root"), #put in data directory
+                                 weightsFileName = cms.string("../data/r9_eta_weights.root"), #put in data directory
                                  diphoMVACut     = cms.double(-0.6),                                
                                  diPhotonMVATag     = cms.InputTag("flashggDiPhotonMVA"),
-                                 diphotons       = cms.InputTag("flashggPreselectedDiPhotons"),
+                                 diphotons       = cms.InputTag("flashggHLTPreselectedDiPhotons"),
                                  #diphotons       = cms.InputTag("flashggDiPhotons"),
                                  electrons       = cms.InputTag("flashggElectrons"),
                                  #25ns tag and probe filters
@@ -55,7 +55,7 @@ process.load("flashgg/MicroAOD/flashggPreselectedDiPhotons_cfi")
 process.flashggDiPhotonMVA.DiPhotonTag = cms.InputTag('flashggDiPhotons')
 
 #process.p = cms.Path( process.flashggDiPhotonMVA + process.hltTest)
-process.p = cms.Path(process.flashggPreselectedDiPhotons + process.flashggDiPhotonMVA + process.hltTest)
+process.p = cms.Path(process.flashggHLTPreselectedDiPhotons + process.flashggDiPhotonMVA + process.hltTest)
 
 ## import flashgg customization
 from flashgg.MetaData.JobConfig import customize

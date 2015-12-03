@@ -35,7 +35,6 @@ process.load("flashgg/MicroAOD/flashggPreselectedDiPhotons_cfi")
 process.flashggDiPhotonMVA.DiPhotonTag = cms.InputTag('flashggDiPhotons')
 
 process.p = cms.Path( flashggPreselectedDiPhotons + process.flashggDiPhotonMVA + process.hltTest)
-#process.p = cms.Path(  process.flashggDiPhotonMVA + process.hltTest)
 
 ## import flashgg customization
 from flashgg.MetaData.JobConfig import customize
