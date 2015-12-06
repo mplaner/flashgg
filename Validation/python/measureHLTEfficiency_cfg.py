@@ -24,7 +24,7 @@ process.source = cms.Source("PoolSource",
 
 process.hltTest = cms.EDAnalyzer('HLTEfficiency',
                                  outputFileName  = cms.string("outputAAA.root"),
-                                 weightsFileName = cms.string("../data/r9_eta_weights.root"), #put in data directory
+                                 weightsFileName = cms.string("$CMSSW_BASE/src/flashgg/Validation/data/r9_eta_weights.root"),
                                  diphoMVACut     = cms.double(-0.6),                                
                                  diPhotonMVATag     = cms.InputTag("flashggDiPhotonMVA"),
                                  diphotons       = cms.InputTag("flashggHLTPreselectedDiPhotons"),
@@ -54,7 +54,6 @@ process.load("flashgg/Taggers/flashggDiPhotonMVA_cfi")
 process.load("flashgg/MicroAOD/flashggPreselectedDiPhotons_cfi")
 process.flashggDiPhotonMVA.DiPhotonTag = cms.InputTag('flashggDiPhotons')
 
-#process.p = cms.Path( process.flashggDiPhotonMVA + process.hltTest)
 process.p = cms.Path(process.flashggHLTPreselectedDiPhotons + process.flashggDiPhotonMVA + process.hltTest)
 
 ## import flashgg customization

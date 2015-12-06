@@ -44,7 +44,7 @@ public:
     bool onlineOfflineMatching( const edm::TriggerNames &triggerNames, edm::Handle<pat::TriggerObjectStandAloneCollection> triggerObjects,
                                 math::XYZTLorentzVector p4, std::string filterLabel, float dRmin );
     int getPtBin(double pt);
-    float getWeights( double eta, double r9 );
+    double getWeights( float eta, float r9 );
     //void endJob(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& c);
     float bestL1Dr( edm::Handle<edm::View<l1extra::L1EmParticle>> l1H, math::XYZTLorentzVector cand, float ptThreshold, float bestDr );
     bool L1Matching( edm::Handle<edm::View<l1extra::L1EmParticle>> l1H, math::XYZTLorentzVector cand, float ptThreshold );
@@ -444,9 +444,9 @@ HLTEfficiency::HLTEfficiency( const edm::ParameterSet &iConfig ):
 }
 
 
-float HLTEfficiency::getWeights( double eta, double r9 )
+double HLTEfficiency::getWeights( float eta, float r9 )
 {
-    return( (float)Weights2D->GetBinContent(Weights2D->FindBin(fabs(eta), r9)));
+    return( (double)Weights2D->GetBinContent(Weights2D->FindBin(r9, fabs(eta))));
 }
 
 
@@ -720,7 +720,7 @@ void HLTEfficiency::analyze( const edm::Event &iEvent, const edm::EventSetup &iS
      iEvent.getByToken( l1iso_, l1iso );
      iEvent.getByToken( l1noniso_, l1noniso );
 
-     float probe_weight = 1;
+     double probe_weight = 1;
      //     if(probe_weight==1)
      //   {}
      float probe_nvtx = theDiPhoton->nVert();
