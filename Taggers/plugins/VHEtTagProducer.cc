@@ -34,11 +34,13 @@ namespace flashgg {
     private:
         void produce( Event &, const EventSetup & ) override;
 
+
         EDGetTokenT<View<DiPhotonCandidate> > diPhotonToken_;
         EDGetTokenT<View<DiPhotonMVAResult> > mvaResultToken_;
         EDGetTokenT<View<pat::MET> > METToken_;
         EDGetTokenT<View<reco::GenParticle> > genParticleToken_;
         string systLabel_;
+        edm::InputTag photonCollection_;
 
         //configurable selection variables
         double leadPhoOverMassThreshold_;
@@ -63,6 +65,8 @@ namespace flashgg {
 
         produces<vector<VHEtTag> >();
         produces<vector<TagTruthBase> >();
+        photonCollection_=iConfig.getParameter<InputTag> ( "DiPhotonTag" );
+
     }
 
     void VHEtTagProducer::produce( Event &evt, const EventSetup & )
@@ -70,6 +74,10 @@ namespace flashgg {
         //        std::cout << "starting met tagger" << std::endl;
         Handle<View<flashgg::DiPhotonCandidate> > diPhotons;
         evt.getByToken( diPhotonToken_, diPhotons );
+
+
+
+        //        std::cout << " diphoton collection " <<  photonCollection_.label() << std::endl;
 
         Handle<View<flashgg::DiPhotonMVAResult> > mvaResults;
         evt.getByToken( mvaResultToken_, mvaResults );
@@ -101,6 +109,7 @@ namespace flashgg {
 
         edm::RefProd<vector<TagTruthBase> > rTagTruth = evt.getRefBeforePut<vector<TagTruthBase> >();
         unsigned int idx = 0;
+
 
         assert( diPhotons->size() ==
                 mvaResults->size() ); // We are relying on corresponding sets - update this to give an error/exception

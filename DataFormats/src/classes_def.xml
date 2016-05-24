@@ -191,7 +191,7 @@
 <class name="std::vector<std::vector<flashgg::Jet> >"/>
 <class name="edm::Wrapper<std::vector<std::vector<flashgg::Jet> > >"/>
 <class name="flashgg::Electron" ClassVersion="12">
- <version ClassVersion="12" checksum="1018193332"/>
+  <version ClassVersion="12" checksum="1018193332"/>
   <version ClassVersion="11" checksum="2620301447"/>
   <version ClassVersion="10" checksum="3162935784"/>
 </class>
@@ -199,7 +199,6 @@
 <class name="std::vector<flashgg::Electron>"/>
 <class name="edm::Wrapper<std::vector<flashgg::Electron> >"/>
 <class name="flashgg::Muon" ClassVersion="11">
- <version ClassVersion="11" checksum="3269337733"/>
  <version ClassVersion="11" checksum="3269337733"/>
   <version ClassVersion="10" checksum="1803852641"/>
 </class>
