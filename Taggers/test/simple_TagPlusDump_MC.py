@@ -24,21 +24,13 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 
 process.source = cms.Source ("PoolSource",fileNames = cms.untracked.vstring(
 
-"/store/group/phys_higgs/cmshgg/sethzenz/flashgg/RunIISpring15-50ns/Spring15BetaV5/VHToGG_M125_13TeV_amcatnloFXFX_madspin_pythia8/RunIISpring15-50ns-Spring15BetaV5-v0-RunIISpring15DR74-Asympt50ns_MCRUN2_74_V9A-v1/150925_095732/0000/myMicroAODOutputFile_1.root",
-"/store/group/phys_higgs/cmshgg/sethzenz/flashgg/RunIISpring15-50ns/Spring15BetaV5/VHToGG_M125_13TeV_amcatnloFXFX_madspin_pythia8/RunIISpring15-50ns-Spring15BetaV5-v0-RunIISpring15DR74-Asympt50ns_MCRUN2_74_V9A-v1/150925_095732/0000/myMicroAODOutputFile_2.root",
-"/store/group/phys_higgs/cmshgg/sethzenz/flashgg/RunIISpring15-50ns/Spring15BetaV5/VHToGG_M125_13TeV_amcatnloFXFX_madspin_pythia8/RunIISpring15-50ns-Spring15BetaV5-v0-RunIISpring15DR74-Asympt50ns_MCRUN2_74_V9A-v1/150925_095732/0000/myMicroAODOutputFile_3.root",
-"/store/group/phys_higgs/cmshgg/sethzenz/flashgg/RunIISpring15-50ns/Spring15BetaV5/VHToGG_M125_13TeV_amcatnloFXFX_madspin_pythia8/RunIISpring15-50ns-Spring15BetaV5-v0-RunIISpring15DR74-Asympt50ns_MCRUN2_74_V9A-v1/150925_095732/0000/myMicroAODOutputFile_4.root",
-"/store/group/phys_higgs/cmshgg/sethzenz/flashgg/RunIISpring15-50ns/Spring15BetaV5/VHToGG_M125_13TeV_amcatnloFXFX_madspin_pythia8/RunIISpring15-50ns-Spring15BetaV5-v0-RunIISpring15DR74-Asympt50ns_MCRUN2_74_V9A-v1/150925_095732/0000/myMicroAODOutputFile_5.root",
-"/store/group/phys_higgs/cmshgg/sethzenz/flashgg/RunIISpring15-50ns/Spring15BetaV5/VHToGG_M125_13TeV_amcatnloFXFX_madspin_pythia8/RunIISpring15-50ns-Spring15BetaV5-v0-RunIISpring15DR74-Asympt50ns_MCRUN2_74_V9A-v1/150925_095732/0000/myMicroAODOutputFile_6.root",
-"/store/group/phys_higgs/cmshgg/sethzenz/flashgg/RunIISpring15-50ns/Spring15BetaV5/VHToGG_M125_13TeV_amcatnloFXFX_madspin_pythia8/RunIISpring15-50ns-Spring15BetaV5-v0-RunIISpring15DR74-Asympt50ns_MCRUN2_74_V9A-v1/150925_095732/0000/myMicroAODOutputFile_7.root",
-"/store/group/phys_higgs/cmshgg/sethzenz/flashgg/RunIISpring15-50ns/Spring15BetaV5/VHToGG_M125_13TeV_amcatnloFXFX_madspin_pythia8/RunIISpring15-50ns-Spring15BetaV5-v0-RunIISpring15DR74-Asympt50ns_MCRUN2_74_V9A-v1/150925_095732/0000/myMicroAODOutputFile_8.root",
-"/store/group/phys_higgs/cmshgg/sethzenz/flashgg/RunIISpring15-50ns/Spring15BetaV5/VHToGG_M125_13TeV_amcatnloFXFX_madspin_pythia8/RunIISpring15-50ns-Spring15BetaV5-v0-RunIISpring15DR74-Asympt50ns_MCRUN2_74_V9A-v1/150925_095732/0000/myMicroAODOutputFile_9.root",
-"/store/group/phys_higgs/cmshgg/sethzenz/flashgg/RunIISpring15-50ns/Spring15BetaV5/VHToGG_M125_13TeV_amcatnloFXFX_madspin_pythia8/RunIISpring15-50ns-Spring15BetaV5-v0-RunIISpring15DR74-Asympt50ns_MCRUN2_74_V9A-v1/150925_095732/0000/myMicroAODOutputFile_10.root",
-"/store/group/phys_higgs/cmshgg/sethzenz/flashgg/RunIISpring15-50ns/Spring15BetaV5/VHToGG_M125_13TeV_amcatnloFXFX_madspin_pythia8/RunIISpring15-50ns-Spring15BetaV5-v0-RunIISpring15DR74-Asympt50ns_MCRUN2_74_V9A-v1/150925_095732/0000/myMicroAODOutputFile_11.root",
-"/store/group/phys_higgs/cmshgg/sethzenz/flashgg/RunIISpring15-50ns/Spring15BetaV5/VHToGG_M125_13TeV_amcatnloFXFX_madspin_pythia8/RunIISpring15-50ns-Spring15BetaV5-v0-RunIISpring15DR74-Asympt50ns_MCRUN2_74_V9A-v1/150925_095732/0000/myMicroAODOutputFile_12.root",
-"/store/group/phys_higgs/cmshgg/sethzenz/flashgg/RunIISpring15-50ns/Spring15BetaV5/VHToGG_M125_13TeV_amcatnloFXFX_madspin_pythia8/RunIISpring15-50ns-Spring15BetaV5-v0-RunIISpring15DR74-Asympt50ns_MCRUN2_74_V9A-v1/150925_095732/0000/myMicroAODOutputFile_13.root",
-"/store/group/phys_higgs/cmshgg/sethzenz/flashgg/RunIISpring15-50ns/Spring15BetaV5/VHToGG_M125_13TeV_amcatnloFXFX_madspin_pythia8/RunIISpring15-50ns-Spring15BetaV5-v0-RunIISpring15DR74-Asympt50ns_MCRUN2_74_V9A-v1/150925_095732/0000/myMicroAODOutputFile_14.root",
-"/store/group/phys_higgs/cmshgg/sethzenz/flashgg/RunIISpring15-50ns/Spring15BetaV5/VHToGG_M125_13TeV_amcatnloFXFX_madspin_pythia8/RunIISpring15-50ns-Spring15BetaV5-v0-RunIISpring15DR74-Asympt50ns_MCRUN2_74_V9A-v1/150925_095732/0000/myMicroAODOutputFile_15.root"
+"/store/group/phys_higgs/cmshgg/nancy/flashgg/RunIIFall15DR76-1_4_0-25ns/1_4_0/VHToGG_M125_13TeV_amcatnloFXFX_madspin_pythia8/RunIIFall15DR76-1_4_0-25ns-1_4_0-v0-RunIIFall15MiniAODv2-PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v4/160512_140422/0000/myMicroAODOutputFile_1.root",
+"/store/group/phys_higgs/cmshgg/nancy/flashgg/RunIIFall15DR76-1_4_0-25ns/1_4_0/VHToGG_M125_13TeV_amcatnloFXFX_madspin_pythia8/RunIIFall15DR76-1_4_0-25ns-1_4_0-v0-RunIIFall15MiniAODv2-PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v4/160512_140422/0000/myMicroAODOutputFile_2.root",
+"/store/group/phys_higgs/cmshgg/nancy/flashgg/RunIIFall15DR76-1_4_0-25ns/1_4_0/VHToGG_M125_13TeV_amcatnloFXFX_madspin_pythia8/RunIIFall15DR76-1_4_0-25ns-1_4_0-v0-RunIIFall15MiniAODv2-PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v4/160512_140422/0000/myMicroAODOutputFile_3.root",
+"/store/group/phys_higgs/cmshgg/nancy/flashgg/RunIIFall15DR76-1_4_0-25ns/1_4_0/VHToGG_M125_13TeV_amcatnloFXFX_madspin_pythia8/RunIIFall15DR76-1_4_0-25ns-1_4_0-v0-RunIIFall15MiniAODv2-PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v4/160512_140422/0000/myMicroAODOutputFile_4.root",
+"/store/group/phys_higgs/cmshgg/nancy/flashgg/RunIIFall15DR76-1_4_0-25ns/1_4_0/VHToGG_M125_13TeV_amcatnloFXFX_madspin_pythia8/RunIIFall15DR76-1_4_0-25ns-1_4_0-v0-RunIIFall15MiniAODv2-PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v4/160512_140422/0000/myMicroAODOutputFile_5.root",
+"/store/group/phys_higgs/cmshgg/nancy/flashgg/RunIIFall15DR76-1_4_0-25ns/1_4_0/VHToGG_M125_13TeV_amcatnloFXFX_madspin_pythia8/RunIIFall15DR76-1_4_0-25ns-1_4_0-v0-RunIIFall15MiniAODv2-PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v4/160512_140422/0000/myMicroAODOutputFile_6.root",
+"/store/group/phys_higgs/cmshgg/nancy/flashgg/RunIIFall15DR76-1_4_0-25ns/1_4_0/VHToGG_M125_13TeV_amcatnloFXFX_madspin_pythia8/RunIIFall15DR76-1_4_0-25ns-1_4_0-v0-RunIIFall15MiniAODv2-PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v4/160512_140422/0000/myMicroAODOutputFile_7.root"
 
 ))
 
@@ -50,7 +42,7 @@ process.load("flashgg/Taggers/flashggTagTester_cfi")
 switchToUnPreselected = False
 switchToFinal = False
 switchToPuppi = False
-switchToReadOld = True
+switchToReadOld = False
 assert(not switchToUnPreselected or not switchToFinal)
 assert(not switchToReadOld or not switchToUnPreselected)
 assert(not switchToReadOld or not switchToFinal)
@@ -61,8 +53,8 @@ if switchToReadOld:
     from PhysicsTools.PatAlgos.tools.helpers import massSearchReplaceAnyInputTag
     massSearchReplaceAnyInputTag(process.flashggTagSequence,cms.InputTag("flashggPreselectedDiPhotons"),cms.InputTag("flashggDiPhotonsWithAddedDz"))
     process.flashggDiPhotonsWithAddedDz = cms.EDProducer('FlashggDiPhotonGenZProducer',
-                                                 DiPhotonTag=cms.InputTag('flashggPreselectedDiPhotons'),
-                                                 GenParticleTag=cms.InputTag( "flashggPrunedGenParticles" ))
+                                                         DiPhotonTag=cms.InputTag('flashggPreselectedDiPhotons'),
+                                                         GenParticleTag=cms.InputTag( "flashggPrunedGenParticles" ))
     process.flashggNewPreselectedDiPhotons = cms.Sequence(process.flashggPreselectedDiPhotons*process.flashggDiPhotonsWithAddedDz)
     process.flashggTagSequence.replace(process.flashggPreselectedDiPhotons,process.flashggNewPreselectedDiPhotons)
     process.source.fileNames=cms.untracked.vstring("root://eoscms.cern.ch//eos/cms/store/group/phys_higgs/cmshgg/sethzenz/flashgg/RunIISpring15-ReMiniAOD-BetaV7-25ns/Spring15BetaV7/GluGluHToGG_M-125_13TeV_powheg_pythia8/RunIISpring15-ReMiniAOD-BetaV7-25ns-Spring15BetaV7-v0-RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v1/151021_152108/0000/myMicroAODOutputFile_2.root")
@@ -147,13 +139,20 @@ cfgTools.addCategories(process.vhEtTagDumper,
                         "caloMET_rawPt      := met.caloMETPt",
                         "caloMET_rawPhi     := met.caloMETPhi",
                         "caloMET_rawSumEt   := met.caloMETSumEt",
-                        "genMET_pt          := met.genMET.pt",
-                        "genMET_phi         := met.genMET.phi",
-                        "genMET_sumEt       := met.genMET.sumEt",
-                        "pfNeutralEMFraction := met.NeutralEMFraction",
-                        "pfNeutralHadEtFraction := met.NeutralHadEtFraction",
-                        "pfChargedEMEtFraction := met.ChargedEMEtFraction",
-                        "pfChargedHadEtFraction := met.ChargedHadEtFraction"
+                        #"genMET_pt          := met.genMET.pt",
+                        #"genMET_phi         := met.genMET.phi",
+                        #"genMET_sumEt       := met.genMET.sumEt",
+                        #"pfNeutralEMFraction := met.NeutralEMFraction",
+                        #"pfNeutralHadEtFraction := met.NeutralHadEtFraction",
+                        #"pfChargedEMEtFraction := met.ChargedEMEtFraction",
+                        #"pfChargedHadEtFraction := met.ChargedHadEtFraction",
+                        "hasZ := tagTruth().associatedZ",
+                        "hasW := tagTruth().associatedW",
+                        "ZhasDaughters := tagTruth().ZhasDaughters",
+                        "WhasDaughters := tagTruth().WhasDaughters",
+                        "WhasNeutrinos := tagTruth().WhasNeutrinos",
+                        "WhasMissingLeptons := tagTruth().WhasMissingLeptons",
+                        "Zpt := tagTruth().Zpt"
                         ],
                        histograms=["mass>>mass(160,100,180)",
                                    "subleadPt:leadPt>>ptLeadvsSub(180,20,200:180,20,200)",
@@ -168,9 +167,9 @@ cfgTools.addCategories(process.vhEtTagDumper,
                                    "pfMET_rawPhi>>pfMET_rawPhi(100,-3.14,3.14)",
                                    "pfMET_corPhi>>pfMET_corPhi(100,-3.14,3.14)",
                                    "caloMET_rawPhi>>caloMET_rawPhi(100,-3.14,3.14)",
-                                   "genMET_pt>>genMET_pt(250,0,500)",
-                                   "genMET_phi>>genMET_phi(100,-3.14,3.14)",
-                                   "genMET_sumEt>>genMET_sumEt(400,200,2000)"
+                                   #"genMET_pt>>genMET_pt(250,0,500)",
+                                   #"genMET_phi>>genMET_phi(100,-3.14,3.14)",
+                                   #"genMET_sumEt>>genMET_sumEt(400,200,2000)"
                                   ]
                        )
 
@@ -178,6 +177,7 @@ cfgTools.addCategories(process.vhEtTagDumper,
 
 
 process.p = cms.Path(process.flashggTagSequence*process.flashggTagTester*process.vhEtTagDumper)
+#process.p = cms.Path(process.flashggTagSequence)
 
 #process.e = cms.EndPath(process.out)
 

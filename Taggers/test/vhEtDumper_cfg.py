@@ -77,9 +77,9 @@ cfgTools.addCategories(process.vhEtTagDumper,
                         "caloMET_rawPt      := met.caloMETPt",
                         "caloMET_rawPhi     := met.caloMETPhi",
                         "caloMET_rawSumEt   := met.caloMETSumEt",
-                        "genMET_pt          := met.genMET.pt",
-                        "genMET_phi         := met.genMET.phi",
-                        "genMET_sumEt       := met.genMET.sumEt",
+                        #"genMET_pt          := met.genMET.pt",
+                        #"genMET_phi         := met.genMET.phi",
+                        #"genMET_sumEt       := met.genMET.sumEt",
                         "pfNeutralEMFraction := met.NeutralEMFraction",
                         "pfNeutralHadEtFraction := met.NeutralHadEtFraction",
                         "pfChargedEMEtFraction := met.ChargedEMEtFraction",
@@ -98,9 +98,9 @@ cfgTools.addCategories(process.vhEtTagDumper,
                                    "pfMET_rawPhi>>pfMET_rawPhi(100,-3.14,3.14)",
                                    "pfMET_corPhi>>pfMET_corPhi(100,-3.14,3.14)",
                                    "caloMET_rawPhi>>caloMET_rawPhi(100,-3.14,3.14)",
-                                   "genMET_pt>>genMET_pt(250,0,500)",
-                                   "genMET_phi>>genMET_phi(100,-3.14,3.14)",
-                                   "genMET_sumEt>>genMET_sumEt(400,200,2000)"
+                                   #"genMET_pt>>genMET_pt(250,0,500)",
+                                   #"genMET_phi>>genMET_phi(100,-3.14,3.14)",
+                                   #"genMET_sumEt>>genMET_sumEt(400,200,2000)"
                                   ]
                        )
 

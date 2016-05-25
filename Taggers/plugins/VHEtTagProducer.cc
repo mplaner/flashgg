@@ -13,7 +13,7 @@
 //#include "flashgg/DataFormats/interface/VBFMVAResult.h"
 #include "flashgg/DataFormats/interface/VHEtTag.h"
 
-#include "flashgg/DataFormats/interface/TagTruthBase.h"
+#include "flashgg/DataFormats/interface/VHEtTagTruth.h"
 #include "DataFormats/Common/interface/RefToPtr.h"
 
 #include <vector>
@@ -64,7 +64,7 @@ namespace flashgg {
         phoIdMVAThreshold_           = iConfig.getParameter<double>( "phoIdMVAThreshold" );
 
         produces<vector<VHEtTag> >();
-        produces<vector<TagTruthBase> >();
+        produces<vector<VHEtTagTruth> >();
         photonCollection_=iConfig.getParameter<InputTag> ( "DiPhotonTag" );
 
     }
@@ -92,28 +92,66 @@ namespace flashgg {
         Handle<View<reco::GenParticle> > genParticles;
 
         std::auto_ptr<vector<VHEtTag> > vhettags( new vector<VHEtTag> );
-        std::auto_ptr<vector<TagTruthBase> > truths( new vector<TagTruthBase> );
-
+        std::auto_ptr<vector<VHEtTagTruth> > truths( new vector<VHEtTagTruth> );
+        
         Point higgsVtx;
-
+        bool associatedZ=0;
+        bool associatedW=0;
+        bool ZhasDaughters=0;
+        bool WhasDaughters=0;
+        bool WhasNeutrinos=0;
+        bool WhasMissingLeptons=0;
+        float Zpt=0;
+        
         if( ! evt.isRealData() ) {
             evt.getByToken( genParticleToken_, genParticles );
-            for( unsigned int genLoop = 0 ; genLoop < genParticles->size(); genLoop++ ) {
-                int pdgid = genParticles->ptrAt( genLoop )->pdgId();
-                if( pdgid == 25 || pdgid == 22 ) {
-                    higgsVtx = genParticles->ptrAt( genLoop )->vertex();
-                    break;
+            for( unsigned int genLoop = 0 ; genLoop < genParticles->size(); genLoop++ ) 
+                {
+                    int pdgid = genParticles->ptrAt( genLoop )->pdgId();
+                    //std::cout << "pdgID: " << pdgid << std::endl;
+                    if(pdgid ==23) //z-boson
+                        {
+                            associatedZ=1;
+                            if( genParticles->ptrAt( genLoop )->numberOfDaughters())
+                                ZhasDaughters=1;
+                            Zpt=genParticles->ptrAt( genLoop )->pt();
+                        }
+                    if(pdgid==24||pdgid==-24) //look for W
+                        {
+                            associatedW=1;
+                            if( genParticles->ptrAt( genLoop )->numberOfDaughters())
+                                WhasDaughters=1;
+                        }
+                    if(pdgid==11||pdgid==13||pdgid==13||
+                       -pdgid==11||-pdgid==13||-pdgid==13) //look for lepton decay of W
+                        {
+                            
+                            if(genParticles->ptrAt( genLoop )->mother()->pdgId()==24)
+                                {
+                                    WhasNeutrinos=1;
+                                    if(fabs(genParticles->ptrAt( genLoop )->eta())>2.5) //lepton outside of eta range
+                                        WhasMissingLeptons=1;
+                                    if(fabs(genParticles->ptrAt( genLoop )->eta())>1.455&&fabs(genParticles->ptrAt( genLoop )->eta())<1.566) //lepton in gap
+                                        WhasMissingLeptons=1;
+                                }
+                        }
+                    
+                    if( pdgid == 25 || pdgid == 22 ) 
+                        {
+                            higgsVtx = genParticles->ptrAt( genLoop )->vertex();
+                            continue;
+                        }
                 }
-            }
         }
-
-        edm::RefProd<vector<TagTruthBase> > rTagTruth = evt.getRefBeforePut<vector<TagTruthBase> >();
+        
+        edm::RefProd<vector<VHEtTagTruth> > rTagTruth = evt.getRefBeforePut<vector<VHEtTagTruth> >();
         unsigned int idx = 0;
 
 
         assert( diPhotons->size() ==
                 mvaResults->size() ); // We are relying on corresponding sets - update this to give an error/exception
-
+        
+        //        std::cout << "has z: " << associatedZ << std::endl;
         for( unsigned int candIndex = 0; candIndex < diPhotons->size() ; candIndex++ ) {
 
 
@@ -154,10 +192,18 @@ namespace flashgg {
                 //setMET
                 vhettags->push_back( tag_obj );
                 if( ! evt.isRealData() ) {
-                    TagTruthBase truth_obj;
+                    VHEtTagTruth truth_obj;
                     truth_obj.setGenPV( higgsVtx );
+                    truth_obj.setAssociatedZ( associatedZ );
+                    truth_obj.setAssociatedW( associatedW );
+                    truth_obj.setZhasDaughters( ZhasDaughters );
+                    truth_obj.setWhasDaughters( WhasDaughters );
+                    truth_obj.setWhasNeutrinos( WhasNeutrinos );
+                    truth_obj.setWhasMissingLeptons( WhasMissingLeptons );
+                    truth_obj.setZpt( Zpt );
+                    
                     truths->push_back( truth_obj );
-                    vhettags->back().setTagTruth( edm::refToPtr( edm::Ref<vector<TagTruthBase> >( rTagTruth, idx++ ) ) );
+                    vhettags->back().setTagTruth( edm::refToPtr( edm::Ref<vector<VHEtTagTruth> >( rTagTruth, idx++ ) ) );
                 }
             }
         }
