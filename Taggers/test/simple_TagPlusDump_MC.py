@@ -23,14 +23,15 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 #                                       )
 
 process.source = cms.Source ("PoolSource",fileNames = cms.untracked.vstring(
-
-"/store/group/phys_higgs/cmshgg/nancy/flashgg/RunIIFall15DR76-1_4_0-25ns/1_4_0/VHToGG_M125_13TeV_amcatnloFXFX_madspin_pythia8/RunIIFall15DR76-1_4_0-25ns-1_4_0-v0-RunIIFall15MiniAODv2-PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v4/160512_140422/0000/myMicroAODOutputFile_1.root",
-"/store/group/phys_higgs/cmshgg/nancy/flashgg/RunIIFall15DR76-1_4_0-25ns/1_4_0/VHToGG_M125_13TeV_amcatnloFXFX_madspin_pythia8/RunIIFall15DR76-1_4_0-25ns-1_4_0-v0-RunIIFall15MiniAODv2-PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v4/160512_140422/0000/myMicroAODOutputFile_2.root",
-"/store/group/phys_higgs/cmshgg/nancy/flashgg/RunIIFall15DR76-1_4_0-25ns/1_4_0/VHToGG_M125_13TeV_amcatnloFXFX_madspin_pythia8/RunIIFall15DR76-1_4_0-25ns-1_4_0-v0-RunIIFall15MiniAODv2-PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v4/160512_140422/0000/myMicroAODOutputFile_3.root",
-"/store/group/phys_higgs/cmshgg/nancy/flashgg/RunIIFall15DR76-1_4_0-25ns/1_4_0/VHToGG_M125_13TeV_amcatnloFXFX_madspin_pythia8/RunIIFall15DR76-1_4_0-25ns-1_4_0-v0-RunIIFall15MiniAODv2-PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v4/160512_140422/0000/myMicroAODOutputFile_4.root",
-"/store/group/phys_higgs/cmshgg/nancy/flashgg/RunIIFall15DR76-1_4_0-25ns/1_4_0/VHToGG_M125_13TeV_amcatnloFXFX_madspin_pythia8/RunIIFall15DR76-1_4_0-25ns-1_4_0-v0-RunIIFall15MiniAODv2-PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v4/160512_140422/0000/myMicroAODOutputFile_5.root",
-"/store/group/phys_higgs/cmshgg/nancy/flashgg/RunIIFall15DR76-1_4_0-25ns/1_4_0/VHToGG_M125_13TeV_amcatnloFXFX_madspin_pythia8/RunIIFall15DR76-1_4_0-25ns-1_4_0-v0-RunIIFall15MiniAODv2-PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v4/160512_140422/0000/myMicroAODOutputFile_6.root",
-"/store/group/phys_higgs/cmshgg/nancy/flashgg/RunIIFall15DR76-1_4_0-25ns/1_4_0/VHToGG_M125_13TeV_amcatnloFXFX_madspin_pythia8/RunIIFall15DR76-1_4_0-25ns-1_4_0-v0-RunIIFall15MiniAODv2-PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v4/160512_140422/0000/myMicroAODOutputFile_7.root"
+        "file:microAOD_1000_wz.root"
+        
+#"/store/group/phys_higgs/cmshgg/nancy/flashgg/RunIIFall15DR76-1_4_0-25ns/1_4_0/VHToGG_M125_13TeV_amcatnloFXFX_madspin_pythia8/RunIIFall15DR76-1_4_0-25ns-1_4_0-v0-RunIIFall15MiniAODv2-PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v4/160512_140422/0000/myMicroAODOutputFile_1.root",
+#"/store/group/phys_higgs/cmshgg/nancy/flashgg/RunIIFall15DR76-1_4_0-25ns/1_4_0/VHToGG_M125_13TeV_amcatnloFXFX_madspin_pythia8/RunIIFall15DR76-1_4_0-25ns-1_4_0-v0-RunIIFall15MiniAODv2-PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v4/160512_140422/0000/myMicroAODOutputFile_2.root",
+#"/store/group/phys_higgs/cmshgg/nancy/flashgg/RunIIFall15DR76-1_4_0-25ns/1_4_0/VHToGG_M125_13TeV_amcatnloFXFX_madspin_pythia8/RunIIFall15DR76-1_4_0-25ns-1_4_0-v0-RunIIFall15MiniAODv2-PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v4/160512_140422/0000/myMicroAODOutputFile_3.root",
+#"/store/group/phys_higgs/cmshgg/nancy/flashgg/RunIIFall15DR76-1_4_0-25ns/1_4_0/VHToGG_M125_13TeV_amcatnloFXFX_madspin_pythia8/RunIIFall15DR76-1_4_0-25ns-1_4_0-v0-RunIIFall15MiniAODv2-PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v4/160512_140422/0000/myMicroAODOutputFile_4.root",
+#"/store/group/phys_higgs/cmshgg/nancy/flashgg/RunIIFall15DR76-1_4_0-25ns/1_4_0/VHToGG_M125_13TeV_amcatnloFXFX_madspin_pythia8/RunIIFall15DR76-1_4_0-25ns-1_4_0-v0-RunIIFall15MiniAODv2-PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v4/160512_140422/0000/myMicroAODOutputFile_5.root",
+#"/store/group/phys_higgs/cmshgg/nancy/flashgg/RunIIFall15DR76-1_4_0-25ns/1_4_0/VHToGG_M125_13TeV_amcatnloFXFX_madspin_pythia8/RunIIFall15DR76-1_4_0-25ns-1_4_0-v0-RunIIFall15MiniAODv2-PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v4/160512_140422/0000/myMicroAODOutputFile_6.root",
+#"/store/group/phys_higgs/cmshgg/nancy/flashgg/RunIIFall15DR76-1_4_0-25ns/1_4_0/VHToGG_M125_13TeV_amcatnloFXFX_madspin_pythia8/RunIIFall15DR76-1_4_0-25ns-1_4_0-v0-RunIIFall15MiniAODv2-PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v4/160512_140422/0000/myMicroAODOutputFile_7.root"
 
 ))
 
@@ -148,11 +149,11 @@ cfgTools.addCategories(process.vhEtTagDumper,
                         #"pfChargedHadEtFraction := met.ChargedHadEtFraction",
                         "hasZ := tagTruth().associatedZ",
                         "hasW := tagTruth().associatedW",
-                        "ZhasDaughters := tagTruth().ZhasDaughters",
-                        "WhasDaughters := tagTruth().WhasDaughters",
-                        "WhasNeutrinos := tagTruth().WhasNeutrinos",
-                        "WhasMissingLeptons := tagTruth().WhasMissingLeptons",
-                        "Zpt := tagTruth().Zpt"
+                        "VhasDaughters := tagTruth().VhasDaughters",
+                        "VhasNeutrinos := tagTruth().VhasNeutrinos",
+                        "VhasMissingLeptons := tagTruth().VhasMissingLeptons",
+                        "genZ := tagTruth().genPV().z",
+                        "Vpt := tagTruth().Vpt"
                         ],
                        histograms=["mass>>mass(160,100,180)",
                                    "subleadPt:leadPt>>ptLeadvsSub(180,20,200:180,20,200)",
