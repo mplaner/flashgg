@@ -76,25 +76,14 @@ def setModules(process, options):
                                                 #nonIsoObjects = cms.InputTag("l1extraParticles:NonIsolated"),
                                                 #objects = cms.InputTag("hltCaloStage2Digis:EGamma"),
                                                 objects = cms.InputTag("caloStage2Digis:EGamma"),
-                                                minET = cms.double(15), #lead eff only                                                                                                   
-                                                #minET = cms.double(10), #sublead eff only                                                                                                 
-                                                dRmatch = cms.double(0.3), #defined to match L1 online matching to hlt (0.261)
-                                                dRmatchEE = cms.double(0.5), #defined to match L1 online matching to hlt (should probably be tightened for stage2)
+                                                #minET = cms.double(15), #lead eff only
+                                                minET = cms.double(10), #sublead eff only
+                                                dRmatch = cms.double(0.2), #defined to match L1 online matching to hlt (0.261)
+                                                dRmatchEE = cms.double(0.2), #defined to match L1 online matching to hlt (should probably be tightened for stage2)
                                                 isolatedOnly = cms.bool(False)
                                                 )
 
-    #process.goodPhotonProbesL1 = cms.EDProducer("FlashggPhotonL1CandProducer",
-    #                                            inputs = cms.InputTag("goodPhotonProbesPreselection"),
-    #                                            isoObjects = cms.InputTag("l1extraParticles:Isolated"),
-    #                                            nonIsoObjects = cms.InputTag("l1extraParticles:NonIsolated"),
-    #                                            minET = cms.double(15), #lead eff only                                                                                                   
-    #                                            #minET = cms.double(10), #sublead eff only                                                                                                 
-    #                                            dRmatch = cms.double(0.3), #defined to match L1 online matching to hlt (0.261)
-    #                                            dRmatchEE = cms.double(0.5), #defined to match L1 online matching to hlt (should probably be tightened for stage2)
-    #                                            isolatedOnly = cms.bool(False)
-    #                                            )
-
-    #numerator passing HLT requiring preselection and L1                             
+    #numerator passing HLT requiring preselection and L1  
     process.goodPhotonsProbeHLT = cms.EDProducer("FlashggPhotonTriggerCandProducer",
                                                     filterNames = options['HLTFILTERTOMEASURE'],
                                                     inputs      = cms.InputTag("goodPhotonProbesPreselection"),

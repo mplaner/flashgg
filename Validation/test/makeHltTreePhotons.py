@@ -14,12 +14,12 @@ options = dict()
 
 isMC=False
 #isData=False
-isLEAD=True
+isLEAD=False
 #isLEAD=False
 
 
 #mylist = FileUtils.loadListFromFile ('../../microAOD_Hgg.txt')
-mylist = FileUtils.loadListFromFile ('/afs/cern.ch/user/m/mplaner/flashgg/CMSSW_7_6_3_patch2/src/flashgg/microAOD_Hgg_l1Study.txt')
+mylist = FileUtils.loadListFromFile ('/afs/cern.ch/user/m/mplaner/flashgg/CMSSW_8_0_8/src/flashgg/microAOD_hlt2016.txt')
 readFiles = cms.untracked.vstring( *mylist)
 if(isMC):
     options['HLTProcessName']        = "TEST"
@@ -85,8 +85,9 @@ if (isMC): #isMC
     options['GLOBALTAG']             = 'MCRUN2_74_V9'
     options['EVENTSToPROCESS']       = cms.untracked.VEventRange()
 else: 
-    options['INPUT_FILE_NAME']       = ("file:myMicroAODOutputFile.root")
-    #options['INPUT_FILE_NAME']       = ("/store/group/phys_higgs/cmshgg/ferriff/flashgg/RunIIFall15DR76-1_3_0-25ns_ext1/1_3_1/SingleElectron/RunIIFall15DR76-1_3_0-25ns_ext1-1_3_1-v0-Run2015D-16Dec2015-v1/160127_024003/0003/myMicroAODOutputFile_3923.root")
+    #options['INPUT_FILE_NAME']       = ("file:myMicroAODOutputFile.root")
+    #options['INPUT_FILE_NAME']       = ("/store/group/phys_higgs/cmshgg/mplaner/flashgg/2016hltData_v1/V1/SingleElectron/2016hltData_v1-Run2016B-PromptReco-v2/160518_081245/0000/myMicroAODOutputFile_168.root")
+    options['INPUT_FILE_NAME']        = readFiles
     #                                    )
     #mylist =  FileUtils.loadListFromFile('testFileList.txt')
     #mylist =  FileUtils.loadListFromFile('tempFileList.txt')
