@@ -1,5 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 from PhysicsTools.PatUtils.tools.runMETCorrectionsAndUncertainties import runMetCorAndUncFromMiniAOD
+from os import environ
 usePrivateSQlite=True
 
 if usePrivateSQlite:
@@ -17,8 +18,10 @@ def runMETs(process,isMC):
         era += "_MC"
     else :
         era += "_DATA"
-    dBFile = os.path.expandvars("flashgg/MicraAOD/data/"+era+".db")
-
+        
+    dBFile = os.path.expandvars(era+".db")
+    
+    print dBFile
     if usePrivateSQlite:
         process.jec = cms.ESSource("PoolDBESSource",
                                    CondDBSetup,
