@@ -60,7 +60,7 @@ options['LEADING_PRESELECTION']  = ""
 
 options['SUBLEADING_PRESELECTION'] = ""
 
-from flashgg.Validation.treeMakerOptionsPhotons_cfi import *
+from flashgg.Validation.treeMakerOptionsHLT_cfi import *
 
 if (isMC): #isMC
     #options['INPUT_FILE_NAME']       = ('root://eoscms.cern.ch//eos/cms/store/group/phys_higgs/cmshgg/mplaner/flashgg/RunIIFall15-ReHLT-25ns/2016c/microAOD/GluGluHToGG_M-125_13TeV_powheg_pythia8/ReHLT-HLT_2016cmicroAOD-25ns-Hgg-RunIIFall15DR76-25nsFlat10to25TSG_76X_mcRun2_asymptotic_v12-v1/160418_085554/0000/testOpenHLT_Hgg_7.root')
