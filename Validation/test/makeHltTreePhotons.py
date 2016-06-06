@@ -325,7 +325,7 @@ process.TFileService = cms.Service(
 # import flashgg customization
 from flashgg.MetaData.JobConfig import customize
 # set default options if needed
-customize.setDefault("maxEvents",-1)
+customize.setDefault("maxEvents",100)
 customize.setDefault("targetLumi",10e+3)
 # call the customization
 customize(process)

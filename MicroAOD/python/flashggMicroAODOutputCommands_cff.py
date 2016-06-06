@@ -52,13 +52,11 @@ microAODDebugOutputCommand = cms.untracked.vstring("keep *_reducedEgamma_*_*",
                                                    "keep *_slimmedJets_*_*"
                                                    )
 
-#output needed for HLT efficiency study
-#   "hltCaloStage2Digis"        "EGamma"    
 microAODHLTOutputCommand = cms.untracked.vstring(
-                                                  "keep *_l1extraParticles_Isolated_*",
-                                                  "keep *_l1extraParticles_NonIsolated_*",
-                                                  #"keep *_hltCaloStage2Digis_EGamma_*",
-                                                  "keep *_caloStage2Digis_EGamma_*",
+                                                  "keep *_l1extraParticles_Isolated_*", #old stage1 info, empty but worth keeping
+                                                  "keep *_l1extraParticles_NonIsolated_*", #old stage1 info, empty, but worth keeping
+                                                  "keep *_hltCaloStage2Digis_EGamma_*", #should only be present in rerunning HLT 
+                                                  "keep *_caloStage2Digis_EGamma_*",  #new stage2 l1 infos
                                                   "keep *_selectedPatTrigger_*_*",
                                                   "keep *_TriggerResults_*_HLT",
                                                   )
