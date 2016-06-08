@@ -13,7 +13,7 @@ process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc')
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
-#process.MessageLogger.cerr.FwkReport.reportEvery = cms.untracked.int32( 100 )
+process.MessageLogger.cerr.FwkReport.reportEvery = cms.untracked.int32( 10000 )
 
 # Uncomment the following if you notice you have a memory leak
 # This is a lightweight tool to digg further
@@ -23,8 +23,13 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 #                                       )
 
 process.source = cms.Source ("PoolSource",fileNames = cms.untracked.vstring(
-        "file:microAOD_1000_wz.root"
+        "/store/group/phys_higgs/cmshgg/ferriff/flashgg/RunIISpring16DR80X-2_0_0-25ns/2_0_0/DYToEE_NNPDF30_13TeV-powheg-pythia8/RunIISpring16DR80X-2_0_0-25ns-2_0_0-v0-RunIISpring16MiniAODv1-PUSpring16_80X_mcRun2_asymptotic_2016_v3-v1/160524_084452/0000/myMicroAODOutputFile_1.root"
+        #"/store/group/phys_higgs/cmshgg/mplaner/flashgg/VHmetTuning/genInfo/VHToGG_M125_13TeV_amcatnloFXFX_madspin_pythia8_CUETP8M1Down/VHmetTuning-v1-RunIIFall15MiniAODv2-PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v1/160527_100115/0000/myMicroAODOutputFile_2.root"
         
+        
+        #"file:microAOD_1000_wz.root"
+        #"/store/group/phys_higgs/cmshgg/mplaner/flashgg/VHmetTuning/Moriond16WSFinal-73-g0caa6f4/VHToGG_M125_13TeV_amcatnloFXFX_madspin_pythia8_CUETP8M1Down/VHmetTuning-v0-RunIIFall15MiniAODv2-PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v1/160526_215857/0000/myMicroAODOutputFile_1.root",
+        #"/store/group/phys_higgs/cmshgg/mplaner/flashgg/VHmetTuning/Moriond16WSFinal-73-g0caa6f4/VHToGG_M125_13TeV_amcatnloFXFX_madspin_pythia8_CUETP8M1Down/VHmetTuning-v0-RunIIFall15MiniAODv2-PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v1/160526_215857/0000/myMicroAODOutputFile_2.root"
 #"/store/group/phys_higgs/cmshgg/nancy/flashgg/RunIIFall15DR76-1_4_0-25ns/1_4_0/VHToGG_M125_13TeV_amcatnloFXFX_madspin_pythia8/RunIIFall15DR76-1_4_0-25ns-1_4_0-v0-RunIIFall15MiniAODv2-PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v4/160512_140422/0000/myMicroAODOutputFile_1.root",
 #"/store/group/phys_higgs/cmshgg/nancy/flashgg/RunIIFall15DR76-1_4_0-25ns/1_4_0/VHToGG_M125_13TeV_amcatnloFXFX_madspin_pythia8/RunIIFall15DR76-1_4_0-25ns-1_4_0-v0-RunIIFall15MiniAODv2-PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v4/160512_140422/0000/myMicroAODOutputFile_2.root",
 #"/store/group/phys_higgs/cmshgg/nancy/flashgg/RunIIFall15DR76-1_4_0-25ns/1_4_0/VHToGG_M125_13TeV_amcatnloFXFX_madspin_pythia8/RunIIFall15DR76-1_4_0-25ns-1_4_0-v0-RunIIFall15MiniAODv2-PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v4/160512_140422/0000/myMicroAODOutputFile_3.root",
@@ -185,7 +190,7 @@ process.p = cms.Path(process.flashggTagSequence*process.flashggTagTester*process
 # import flashgg customization
 from flashgg.MetaData.JobConfig import customize
 # set default options if needed
-customize.setDefault("maxEvents",100)
+customize.setDefault("maxEvents",-1)
 customize.setDefault("targetLumi",10e+3)
 customize.setDefault("puTarget",'1.34e+05,6.34e+05,8.42e+05,1.23e+06,2.01e+06,4.24e+06,1.26e+07,4.88e+07,1.56e+08,3.07e+08,4.17e+08,4.48e+08,4.04e+08,3.05e+08,1.89e+08,9.64e+07,4.19e+07,1.71e+07,7.85e+06,4.2e+06,2.18e+06,9.43e+05,3.22e+05,8.9e+04,2.16e+04,5.43e+03,1.6e+03,551,206,80.1,31.2,11.9,4.38,1.54,0.518,0.165,0.0501,0.0144,0.00394,0.00102,0.000251,5.87e-05,1.3e-05,2.74e-06,5.47e-07,1.04e-07,1.86e-08,3.18e-09,5.16e-10,9.35e-11,0,0')
 

@@ -110,8 +110,6 @@ namespace flashgg {
                     //std::cout << "pdgID: " << pdgid << std::endl;
                     if(pdgid ==23) //z-boson
                         {
-                            //if(genParticles->ptrAt( genLoop )->status()!=62)
-                            //  continue;
                             associatedZ=1;
                             if( genParticles->ptrAt( genLoop )->numberOfDaughters())
                                 VhasDaughters=1;  
@@ -119,8 +117,6 @@ namespace flashgg {
                         }
                     if(pdgid==24||pdgid==-24) //look for W
                         {
-                            //if(genParticles->ptrAt( genLoop )->status()!=62)
-                            //   continue;
                             associatedW=1;
                             if( genParticles->ptrAt( genLoop )->numberOfDaughters())
                                 VhasDaughters=1;
@@ -128,7 +124,7 @@ namespace flashgg {
                         }
                     if(fabs(pdgid)==12||fabs(pdgid)==14||fabs(pdgid)==16) //look for lepton decay of W
                         {
-                            if(fabs(genParticles->ptrAt( genLoop )->mother()->pdgId())==24)
+                            if(fabs(genParticles->ptrAt( genLoop )->mother()->pdgId())==23)
                                 {
                                     VhasNeutrinos=1;
                                 }
