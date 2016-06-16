@@ -1,0 +1,8 @@
+{
+    "processes" : {
+        "SingleElectron" : [
+            "/SingleElectron"
+        ]
+        },
+     "cmdLine" : "campaign=2016hltDataB targetLumi=1e+3"
+}
