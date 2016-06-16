@@ -1,0 +1,7 @@
+{
+   "data" : ["/SingleElectron/Run2016B-PromptReco-v1/MINIAOD",
+   	     "/SingleElectron/Run2016B-PromptReco-v2/MINIAOD"
+	     ],
+   "sig" : [],
+   "bkg" : []
+}
