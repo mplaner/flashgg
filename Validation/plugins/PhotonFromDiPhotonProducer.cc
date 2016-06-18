@@ -9,6 +9,7 @@
 #include "flashgg/DataFormats/interface/Photon.h"
 #include "flashgg/DataFormats/interface/DiPhotonMVAResult.h"
 
+#include <algorithm> //AP
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 
 namespace flashgg {
@@ -57,6 +58,7 @@ namespace flashgg {
             edm::Handle<edm::View<flashgg::DiPhotonMVAResult> > mvaResults;
             evt.getByToken(diPhotonMVAToken_, mvaResults);
 
+            vector<double> phoptcoll; //AP
             for(unsigned int i = 0 ; i<diPhotons->size(); i++) {
                 edm::Ptr<flashgg::DiPhotonCandidate> diphoton = diPhotons->ptrAt(i);
                 edm::Ptr<flashgg::DiPhotonMVAResult> mvares = mvaResults->ptrAt( i );
@@ -77,6 +79,17 @@ namespace flashgg {
                     }
                 }
             }
+            //AP      
+            for(unsigned int i = 0 ; i<photonColl->size(); i++) {
+                double this_photon_pt = (photonColl->at(i)).pt();
+                if ( std::find(phoptcoll.begin(), phoptcoll.end(), this_photon_pt) != phoptcoll.end()){
+                    photonColl->erase (photonColl->begin()+i);
+                    idValues.erase(idValues.begin()+i);
+                    preselValues.erase(preselValues.begin()+i);
+                    i--;
+                } else phoptcoll.push_back(this_photon_pt);
+            }
+            //AP
         }
         
         edm::OrphanHandle<std::vector<flashgg::Photon> > photonCollH = evt.put(photonColl); 
