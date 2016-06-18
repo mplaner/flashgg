@@ -128,6 +128,10 @@ cd $CMSSW_BASE/src
 #git cms-addpkg RecoEgamma/EgammaTools
 #git cms-merge-topic -u sethzenz:topic-conversion-tools-for-pat-ele-74X
 
+echo "Setting up pileup jet id..."
+git cms-addpkg RecoJets/JetProducers
+git cms-merge-topic -u sethzenz:topic-PileupJetId-NonStandardVtx
+
 echo "Setting up TnP tools..."
 #git cms-addpkg DataFormats/RecoCandidate
 #git cms-addpkg PhysiscsTools/TagAndProbe
@@ -159,6 +163,7 @@ fi
 
 echo "copy databases for local running (consistency with crab)"
 cp $CMSSW_BASE/src/flashgg/MicroAOD/data/Fall15_25nsV2_*.db $CMSSW_BASE/src/flashgg
+cp $CMSSW_BASE/src/flashgg/MicroAOD/data/Spring16_25nsV3*.db $CMSSW_BASE/src/flashgg
 
 echo "adding hook for indentation"
 ln -s $CMSSW_BASE/src/flashgg/Validation/scripts/flashgg_indent_check.sh $CMSSW_BASE/src/flashgg/.git/hooks/pre-commit
