@@ -103,15 +103,16 @@ namespace flashgg {
         bool VhasHadrons=0;
         bool VhasMissingLeptons=0;
         float Vpt=0;
-        
+
+        //std::cout << "about to loop over gen" << std::endl;
         if( ! evt.isRealData() ) {
             evt.getByToken( genParticleToken_, genParticles );
             for( unsigned int genLoop = 0 ; genLoop < genParticles->size(); genLoop++ ) 
                 {
                     int pdgid = genParticles->ptrAt( genLoop )->pdgId();
-                    //std::cout << "pdgID: " << pdgid << std::endl;
                     if(pdgid ==23) //z-boson
                         {
+                            //std::cout << "Z boson" << std::endl;
                             associatedZ=1;
                             if( genParticles->ptrAt( genLoop )->numberOfDaughters())
                                 VhasDaughters=1;  
@@ -119,6 +120,7 @@ namespace flashgg {
                         }
                     if(fabs(pdgid)==24) //look for W
                         {
+                            //std::cout << "W boson" << std::endl;
                             associatedW=1;
                             if( genParticles->ptrAt( genLoop )->numberOfDaughters())
                                 VhasDaughters=1;
@@ -126,12 +128,15 @@ namespace flashgg {
                         }
                     if(fabs(pdgid)==12||fabs(pdgid)==14||fabs(pdgid)==16) //look for neutrino decay of V
                         {
+
                             if(fabs(genParticles->ptrAt( genLoop )->mother()->pdgId())==23)
                                 {
+                                    //std::cout << "neutrinos" << std::endl;
                                     VhasNeutrinos=1;
                                 }
                             if(fabs(genParticles->ptrAt( genLoop )->mother()->pdgId())==24) // also lepton decay of W
                                 {
+                                    //std::cout << "neutrinos" << std::endl;
                                     VhasNeutrinos=1;
                                     VhasLeptons=1;
                                 }
@@ -140,6 +145,7 @@ namespace flashgg {
                         {
                             if(fabs(genParticles->ptrAt( genLoop )->mother()->pdgId())==23) //lepton decay of Z
                                 {
+                                    //std::cout << "leptons" << std::endl;
                                     VhasLeptons=1;
                                 }
                             if(fabs(genParticles->ptrAt( genLoop )->mother()->pdgId())==24) //missing lepton of W
@@ -148,14 +154,22 @@ namespace flashgg {
                                         VhasMissingLeptons=1;
                                     if(fabs(genParticles->ptrAt( genLoop )->eta())>1.455&&fabs(genParticles->ptrAt( genLoop )->eta())<1.566) //lepton in gap
                                         VhasMissingLeptons=1;
+                                    //std::cout << "missing leptons" << std::endl;
                                 }
                         }
+                    
+                    //if(genParticles->ptrAt(genLoop)->status()==1)
                     if(fabs(pdgid)>0&&fabs(pdgid)<9) //look for quark decay of V
                         {
-                            if(fabs(genParticles->ptrAt( genLoop )->mother()->pdgId())==23||fabs(genParticles->ptrAt( genLoop )->mother()->pdgId())==24) //mother is Z or W
-                                VhasHadrons=1;
+                            //std::cout << " ------------ " <<  genParticles->ptrAt(genLoop)->status() << "--------------"  << std::endl;
+                            
+                            //if(fabs(genParticles->ptrAt( genLoop )->mother()->pdgId())==23) //mother is Z 
+                            if(genParticles->ptrAt(genLoop)->status()==23)
+                                {
+                                    //std::cout << "hadrons" << std::endl;
+                                    VhasHadrons=0;  //needs to match parents, but parents are missing 
+                                }
                         }
-                        
                     if( pdgid == 25 || pdgid == 22 ) 
                         {
                             higgsVtx = genParticles->ptrAt( genLoop )->vertex();
@@ -163,6 +177,25 @@ namespace flashgg {
                         }
                 }
         }
+        
+        if(VhasLeptons)
+            {
+                if(associatedZ)
+                    std::cout << "z->lnu" <<std::endl;
+                else
+                    std::cout << "w->nunu" <<std::endl;
+            }
+        else
+            //if(VhasHadrons) for now assume all non-leptonic decays are hadronic
+            {
+                VhasHadrons=1;
+                if(associatedZ)
+                    std::cout << "z->hadrons" <<std::endl;
+                else
+                    std::cout << "w->hadrons" <<std::endl;
+            }
+                
+        
         
         edm::RefProd<vector<VHTagTruth> > rTagTruth = evt.getRefBeforePut<vector<VHTagTruth> >();
         unsigned int idx = 0;
