@@ -13,7 +13,7 @@
 //#include "flashgg/DataFormats/interface/VBFMVAResult.h"
 #include "flashgg/DataFormats/interface/VHEtTag.h"
 
-#include "flashgg/DataFormats/interface/TagTruthBase.h"
+#include "flashgg/DataFormats/interface/VHEtTagTruth.h"
 #include "DataFormats/Common/interface/RefToPtr.h"
 
 #include <vector>
@@ -34,11 +34,13 @@ namespace flashgg {
     private:
         void produce( Event &, const EventSetup & ) override;
 
+
         EDGetTokenT<View<DiPhotonCandidate> > diPhotonToken_;
         EDGetTokenT<View<DiPhotonMVAResult> > mvaResultToken_;
         EDGetTokenT<View<pat::MET> > METToken_;
         EDGetTokenT<View<reco::GenParticle> > genParticleToken_;
         string systLabel_;
+        edm::InputTag photonCollection_;
 
         //configurable selection variables
         double leadPhoOverMassThreshold_;
@@ -62,7 +64,9 @@ namespace flashgg {
         phoIdMVAThreshold_           = iConfig.getParameter<double>( "phoIdMVAThreshold" );
 
         produces<vector<VHEtTag> >();
-        produces<vector<TagTruthBase> >();
+        produces<vector<VHEtTagTruth> >();
+        photonCollection_=iConfig.getParameter<InputTag> ( "DiPhotonTag" );
+
     }
 
     void VHEtTagProducer::produce( Event &evt, const EventSetup & )
@@ -70,6 +74,10 @@ namespace flashgg {
         //        std::cout << "starting met tagger" << std::endl;
         Handle<View<flashgg::DiPhotonCandidate> > diPhotons;
         evt.getByToken( diPhotonToken_, diPhotons );
+
+
+
+        //        std::cout << " diphoton collection " <<  photonCollection_.label() << std::endl;
 
         Handle<View<flashgg::DiPhotonMVAResult> > mvaResults;
         evt.getByToken( mvaResultToken_, mvaResults );
@@ -84,27 +92,70 @@ namespace flashgg {
         Handle<View<reco::GenParticle> > genParticles;
 
         std::auto_ptr<vector<VHEtTag> > vhettags( new vector<VHEtTag> );
-        std::auto_ptr<vector<TagTruthBase> > truths( new vector<TagTruthBase> );
-
+        std::auto_ptr<vector<VHEtTagTruth> > truths( new vector<VHEtTagTruth> );
+        
         Point higgsVtx;
-
+        bool associatedZ=0;
+        bool associatedW=0;
+        bool VhasDaughters=0;
+        bool VhasNeutrinos=0;
+        bool VhasMissingLeptons=0;
+        float Vpt=0;
+        
         if( ! evt.isRealData() ) {
             evt.getByToken( genParticleToken_, genParticles );
-            for( unsigned int genLoop = 0 ; genLoop < genParticles->size(); genLoop++ ) {
-                int pdgid = genParticles->ptrAt( genLoop )->pdgId();
-                if( pdgid == 25 || pdgid == 22 ) {
-                    higgsVtx = genParticles->ptrAt( genLoop )->vertex();
-                    break;
+            for( unsigned int genLoop = 0 ; genLoop < genParticles->size(); genLoop++ ) 
+                {
+                    int pdgid = genParticles->ptrAt( genLoop )->pdgId();
+                    //std::cout << "pdgID: " << pdgid << std::endl;
+                    if(pdgid ==23) //z-boson
+                        {
+                            associatedZ=1;
+                            if( genParticles->ptrAt( genLoop )->numberOfDaughters())
+                                VhasDaughters=1;  
+                            Vpt=genParticles->ptrAt( genLoop )->pt();
+                        }
+                    if(pdgid==24||pdgid==-24) //look for W
+                        {
+                            associatedW=1;
+                            if( genParticles->ptrAt( genLoop )->numberOfDaughters())
+                                VhasDaughters=1;
+                            Vpt=genParticles->ptrAt( genLoop )->pt();
+                        }
+                    if(fabs(pdgid)==12||fabs(pdgid)==14||fabs(pdgid)==16) //look for lepton decay of W
+                        {
+                            if(fabs(genParticles->ptrAt( genLoop )->mother()->pdgId())==23)
+                                {
+                                    VhasNeutrinos=1;
+                                }
+                        }
+                    if(fabs(pdgid==11)||fabs(pdgid)==13||fabs(pdgid)==13) //look for lepton decay of W
+                        {
+                            if(fabs(genParticles->ptrAt( genLoop )->mother()->pdgId())==24)
+                                {
+                                    if(fabs(genParticles->ptrAt( genLoop )->eta())>2.5) //lepton outside of eta range
+                                        VhasMissingLeptons=1;
+                                    if(fabs(genParticles->ptrAt( genLoop )->eta())>1.455&&fabs(genParticles->ptrAt( genLoop )->eta())<1.566) //lepton in gap
+                                        VhasMissingLeptons=1;
+                                }
+                        }
+                    
+                    if( pdgid == 25 || pdgid == 22 ) 
+                        {
+                            higgsVtx = genParticles->ptrAt( genLoop )->vertex();
+                            continue;
+                        }
                 }
-            }
         }
-
-        edm::RefProd<vector<TagTruthBase> > rTagTruth = evt.getRefBeforePut<vector<TagTruthBase> >();
+        
+        edm::RefProd<vector<VHEtTagTruth> > rTagTruth = evt.getRefBeforePut<vector<VHEtTagTruth> >();
         unsigned int idx = 0;
+
 
         assert( diPhotons->size() ==
                 mvaResults->size() ); // We are relying on corresponding sets - update this to give an error/exception
-
+        
+        //        std::cout << "has z: " << associatedZ << std::endl;
         for( unsigned int candIndex = 0; candIndex < diPhotons->size() ; candIndex++ ) {
 
 
@@ -145,10 +196,17 @@ namespace flashgg {
                 //setMET
                 vhettags->push_back( tag_obj );
                 if( ! evt.isRealData() ) {
-                    TagTruthBase truth_obj;
+                    VHEtTagTruth truth_obj;
                     truth_obj.setGenPV( higgsVtx );
+                    truth_obj.setAssociatedZ( associatedZ );
+                    truth_obj.setAssociatedW( associatedW );
+                    truth_obj.setVhasDaughters( VhasDaughters );
+                    truth_obj.setVhasNeutrinos( VhasNeutrinos );
+                    truth_obj.setVhasMissingLeptons( VhasMissingLeptons );
+                    truth_obj.setVpt( Vpt );
+                    
                     truths->push_back( truth_obj );
-                    vhettags->back().setTagTruth( edm::refToPtr( edm::Ref<vector<TagTruthBase> >( rTagTruth, idx++ ) ) );
+                    vhettags->back().setTagTruth( edm::refToPtr( edm::Ref<vector<VHEtTagTruth> >( rTagTruth, idx++ ) ) );
                 }
             }
         }
