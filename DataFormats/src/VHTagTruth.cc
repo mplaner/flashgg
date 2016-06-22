@@ -1,14 +1,14 @@
-#include "flashgg/DataFormats/interface/VHEtTagTruth.h"
+#include "flashgg/DataFormats/interface/VHTagTruth.h"
 #include <iostream>
 
 using namespace flashgg;
 
-VHEtTagTruth::VHEtTagTruth() {}
+VHTagTruth::VHTagTruth() {}
 
-VHEtTagTruth::~VHEtTagTruth() {}
+VHTagTruth::~VHTagTruth() {}
 
 /*
-VHEtTagTruth::VHEtTagTruth(const VHEtTagTruth &b) : TagTruthBase::TagTruthBase(b)
+VHTagTruth::VHTagTruth(const VHTagTruth &b) : TagTruthBase::TagTruthBase(b)
 {
     std::cout << " Derived copy constructor!" << std::endl;
     setClosestGenJetToLeadingJet(b.closestGenJetToLeadingJet());
@@ -22,14 +22,16 @@ VHEtTagTruth::VHEtTagTruth(const VHEtTagTruth &b) : TagTruthBase::TagTruthBase(b
 }
 */
 
-VHEtTagTruth *VHEtTagTruth::clone() const
+VHTagTruth *VHTagTruth::clone() const
 {
-    //    return (new VHEtTagTruth(*this));
-    VHEtTagTruth *result = new VHEtTagTruth;
+    //    return (new VHTagTruth(*this));
+    VHTagTruth *result = new VHTagTruth;
     result->setAssociatedZ( associatedZ() );
     result->setAssociatedW( associatedW() );
     result->setVhasDaughters( VhasDaughters() );
     result->setVhasNeutrinos( VhasNeutrinos() );
+    result->setVhasLeptons( VhasLeptons() );
+    result->setVhasHadrons( VhasHadrons() );
     result->setVhasMissingLeptons( VhasMissingLeptons() );
     result->setVpt( Vpt() );
     return result;

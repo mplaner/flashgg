@@ -83,11 +83,11 @@
 <class name="edm::Wrapper<std::vector<flashgg::VBFTagTruth> >"/>
 
 
-<class name="flashgg::VHEtTagTruth" ClassVersion="11">
-  <version ClassVersion="11" checksum="447789630"/>
+<class name="flashgg::VHTagTruth" ClassVersion="10">
+  <version ClassVersion="10" checksum="2764404041"/>
 </class>
-<class name="std::vector<flashgg::VHEtTagTruth>"/>
-<class name="edm::Wrapper<std::vector<flashgg::VHEtTagTruth> >"/>
+<class name="std::vector<flashgg::VHTagTruth>"/>
+<class name="edm::Wrapper<std::vector<flashgg::VHTagTruth> >"/>
 
 
 <class name="flashgg::VHLooseTag" ClassVersion="12">

@@ -23,27 +23,10 @@ process.MessageLogger.cerr.FwkReport.reportEvery = cms.untracked.int32( 10000 )
 #                                       )
 
 process.source = cms.Source ("PoolSource",fileNames = cms.untracked.vstring(
-        "/store/group/phys_higgs/cmshgg/ferriff/flashgg/RunIISpring16DR80X-2_0_0-25ns/2_0_0/DYToEE_NNPDF30_13TeV-powheg-pythia8/RunIISpring16DR80X-2_0_0-25ns-2_0_0-v0-RunIISpring16MiniAODv1-PUSpring16_80X_mcRun2_asymptotic_2016_v3-v1/160524_084452/0000/myMicroAODOutputFile_1.root"
-        #"/store/group/phys_higgs/cmshgg/mplaner/flashgg/VHmetTuning/genInfo/VHToGG_M125_13TeV_amcatnloFXFX_madspin_pythia8_CUETP8M1Down/VHmetTuning-v1-RunIIFall15MiniAODv2-PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v1/160527_100115/0000/myMicroAODOutputFile_2.root"
-        
-        
-        #"file:microAOD_1000_wz.root"
-        #"/store/group/phys_higgs/cmshgg/mplaner/flashgg/VHmetTuning/Moriond16WSFinal-73-g0caa6f4/VHToGG_M125_13TeV_amcatnloFXFX_madspin_pythia8_CUETP8M1Down/VHmetTuning-v0-RunIIFall15MiniAODv2-PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v1/160526_215857/0000/myMicroAODOutputFile_1.root",
-        #"/store/group/phys_higgs/cmshgg/mplaner/flashgg/VHmetTuning/Moriond16WSFinal-73-g0caa6f4/VHToGG_M125_13TeV_amcatnloFXFX_madspin_pythia8_CUETP8M1Down/VHmetTuning-v0-RunIIFall15MiniAODv2-PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v1/160526_215857/0000/myMicroAODOutputFile_2.root"
-#"/store/group/phys_higgs/cmshgg/nancy/flashgg/RunIIFall15DR76-1_4_0-25ns/1_4_0/VHToGG_M125_13TeV_amcatnloFXFX_madspin_pythia8/RunIIFall15DR76-1_4_0-25ns-1_4_0-v0-RunIIFall15MiniAODv2-PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v4/160512_140422/0000/myMicroAODOutputFile_1.root",
-#"/store/group/phys_higgs/cmshgg/nancy/flashgg/RunIIFall15DR76-1_4_0-25ns/1_4_0/VHToGG_M125_13TeV_amcatnloFXFX_madspin_pythia8/RunIIFall15DR76-1_4_0-25ns-1_4_0-v0-RunIIFall15MiniAODv2-PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v4/160512_140422/0000/myMicroAODOutputFile_2.root",
-#"/store/group/phys_higgs/cmshgg/nancy/flashgg/RunIIFall15DR76-1_4_0-25ns/1_4_0/VHToGG_M125_13TeV_amcatnloFXFX_madspin_pythia8/RunIIFall15DR76-1_4_0-25ns-1_4_0-v0-RunIIFall15MiniAODv2-PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v4/160512_140422/0000/myMicroAODOutputFile_3.root",
-#"/store/group/phys_higgs/cmshgg/nancy/flashgg/RunIIFall15DR76-1_4_0-25ns/1_4_0/VHToGG_M125_13TeV_amcatnloFXFX_madspin_pythia8/RunIIFall15DR76-1_4_0-25ns-1_4_0-v0-RunIIFall15MiniAODv2-PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v4/160512_140422/0000/myMicroAODOutputFile_4.root",
-#"/store/group/phys_higgs/cmshgg/nancy/flashgg/RunIIFall15DR76-1_4_0-25ns/1_4_0/VHToGG_M125_13TeV_amcatnloFXFX_madspin_pythia8/RunIIFall15DR76-1_4_0-25ns-1_4_0-v0-RunIIFall15MiniAODv2-PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v4/160512_140422/0000/myMicroAODOutputFile_5.root",
-#"/store/group/phys_higgs/cmshgg/nancy/flashgg/RunIIFall15DR76-1_4_0-25ns/1_4_0/VHToGG_M125_13TeV_amcatnloFXFX_madspin_pythia8/RunIIFall15DR76-1_4_0-25ns-1_4_0-v0-RunIIFall15MiniAODv2-PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v4/160512_140422/0000/myMicroAODOutputFile_6.root",
-#"/store/group/phys_higgs/cmshgg/nancy/flashgg/RunIIFall15DR76-1_4_0-25ns/1_4_0/VHToGG_M125_13TeV_amcatnloFXFX_madspin_pythia8/RunIIFall15DR76-1_4_0-25ns-1_4_0-v0-RunIIFall15MiniAODv2-PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v4/160512_140422/0000/myMicroAODOutputFile_7.root"
-
-))
-
+        "/store/group/phys_higgs/cmshgg/mplaner/flashgg/RunIIVHMetSpring2016Signal/Moriond16WSFinal-95-gfd6dcdf/VBFHToGG_M-125_13TeV_powheg_pythia8/RunIIVHMetSpring2016Signal-RunIISpring16MiniAODv1-PUSpring16RAWAODSIM_80X_mcRun2_asymptotic_2016_v3-v1/160609_161227/0000/myMicroAODOutputFile_4.root"
+        ))
 process.load("flashgg/Taggers/flashggTagSequence_cfi")
 process.load("flashgg/Taggers/flashggTagTester_cfi")
-
-
 # For debugging
 switchToUnPreselected = False
 switchToFinal = False
@@ -52,7 +35,6 @@ switchToReadOld = False
 assert(not switchToUnPreselected or not switchToFinal)
 assert(not switchToReadOld or not switchToUnPreselected)
 assert(not switchToReadOld or not switchToFinal)
-
 
 
 if switchToReadOld:
@@ -86,16 +68,15 @@ from flashgg.Taggers.flashggTagOutputCommands_cff import tagDefaultOutputCommand
 #                               outputCommands = tagDefaultOutputCommand			       
 #                               )
 
-
-
-
 process.TFileService = cms.Service("TFileService",
                                    fileName = cms.string("test.root"))
 
 from flashgg.Taggers.tagsDumpers_cfi import createTagDumper
 import flashgg.Taggers.dumperConfigTools as cfgTools
 
-process.vhEtTagDumper = createTagDumper("VHEtTag")
+#process.vhEtTagDumper = createTagDumper("VHEtTag")
+#process.vhEtTagDumper = createTagDumper("VHLooseTag")
+process.vhEtTagDumper = createTagDumper("VHTightTag")
 process.vhEtTagDumper.dumpTrees =  True
 process.vhEtTagDumper.dumpHistos = True
 
@@ -152,13 +133,16 @@ cfgTools.addCategories(process.vhEtTagDumper,
                         #"pfNeutralHadEtFraction := met.NeutralHadEtFraction",
                         #"pfChargedEMEtFraction := met.ChargedEMEtFraction",
                         #"pfChargedHadEtFraction := met.ChargedHadEtFraction",
-                        "hasZ := tagTruth().associatedZ",
-                        "hasW := tagTruth().associatedW",
-                        "VhasDaughters := tagTruth().VhasDaughters",
-                        "VhasNeutrinos := tagTruth().VhasNeutrinos",
-                        "VhasMissingLeptons := tagTruth().VhasMissingLeptons",
+                        
+                        #"hasZ := tagTruth().associatedZ",
+                        #"hasW := tagTruth().associatedW",
+                        #"VhasDaughters := tagTruth().VhasDaughters",
+                        #"VhasNeutrinos := tagTruth().VhasNeutrinos",
+                        #"VhasNeutrinos := tagTruth().VhasLeptons",
+                        #"VhasNeutrinos := tagTruth().VhasHadrons",
+                        #"VhasMissingLeptons := tagTruth().VhasMissingLeptons",
                         "genZ := tagTruth().genPV().z",
-                        "Vpt := tagTruth().Vpt"
+                        #"Vpt := tagTruth().Vpt"
                         ],
                        histograms=["mass>>mass(160,100,180)",
                                    "subleadPt:leadPt>>ptLeadvsSub(180,20,200:180,20,200)",
@@ -183,6 +167,7 @@ cfgTools.addCategories(process.vhEtTagDumper,
 
 
 process.p = cms.Path(process.flashggTagSequence*process.flashggTagTester*process.vhEtTagDumper)
+print process.vhEtTagDumper.src
 #process.p = cms.Path(process.flashggTagSequence)
 
 #process.e = cms.EndPath(process.out)

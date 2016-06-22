@@ -1,5 +1,5 @@
-#ifndef FLASHgg_VHEtTagTruth_h
-#define FLASHgg_VHEtTagTruth_h
+#ifndef FLASHgg_VHTagTruth_h
+#define FLASHgg_VHTagTruth_h
 
 #include "DataFormats/JetReco/interface/GenJet.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
@@ -10,20 +10,22 @@
 
 namespace flashgg {
 
-    class VHEtTagTruth : public TagTruthBase
+    class VHTagTruth : public TagTruthBase
     {
 
     public:
 
-        VHEtTagTruth();
-        ~VHEtTagTruth();
-        //        VHEtTagTruth(const VHEtTagTruth &b);
+        VHTagTruth();
+        ~VHTagTruth();
+        //        VHTagTruth(const VHTagTruth &b);
 
 
         const bool associatedZ() const { return associatedZ_; }
         const bool associatedW() const { return associatedW_; }
         const bool VhasDaughters() const { return VhasDaughters_; }
         const bool VhasNeutrinos() const { return VhasNeutrinos_; }
+        const bool VhasLeptons() const { return VhasLeptons_; }
+        const bool VhasHadrons() const { return VhasHadrons_; }
         const bool VhasMissingLeptons() const { return VhasMissingLeptons_; }
         const float Vpt() const { return Vpt_; }
         //Setter methods
@@ -31,18 +33,22 @@ namespace flashgg {
         void setAssociatedW( const bool &val ) { associatedW_ = val; }
         void setVhasDaughters( const bool &val ) { VhasDaughters_ = val; }
         void setVhasNeutrinos( const bool &val ) { VhasNeutrinos_ = val; }
+        void setVhasLeptons( const bool &val ) { VhasLeptons_ = val; }
+        void setVhasHadrons( const bool &val ) { VhasHadrons_ = val; }
         void setVhasMissingLeptons( const bool &val ) { VhasMissingLeptons_ = val; }
         void setVpt( const float &val ) { Vpt_ = val; }
         
         //Counts
         //Clone
-        VHEtTagTruth *clone() const;
+        VHTagTruth *clone() const;
 
     private:
         bool associatedZ_;
         bool associatedW_;
         bool VhasDaughters_;
         bool VhasNeutrinos_;
+        bool VhasLeptons_;
+        bool VhasHadrons_;
         bool VhasMissingLeptons_;
         float Vpt_;
 

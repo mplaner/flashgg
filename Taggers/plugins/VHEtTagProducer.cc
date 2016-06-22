@@ -13,7 +13,7 @@
 //#include "flashgg/DataFormats/interface/VBFMVAResult.h"
 #include "flashgg/DataFormats/interface/VHEtTag.h"
 
-#include "flashgg/DataFormats/interface/VHEtTagTruth.h"
+#include "flashgg/DataFormats/interface/VHTagTruth.h"
 #include "DataFormats/Common/interface/RefToPtr.h"
 
 #include <vector>
@@ -64,7 +64,7 @@ namespace flashgg {
         phoIdMVAThreshold_           = iConfig.getParameter<double>( "phoIdMVAThreshold" );
 
         produces<vector<VHEtTag> >();
-        produces<vector<VHEtTagTruth> >();
+        produces<vector<VHTagTruth> >();
         photonCollection_=iConfig.getParameter<InputTag> ( "DiPhotonTag" );
 
     }
@@ -92,13 +92,15 @@ namespace flashgg {
         Handle<View<reco::GenParticle> > genParticles;
 
         std::auto_ptr<vector<VHEtTag> > vhettags( new vector<VHEtTag> );
-        std::auto_ptr<vector<VHEtTagTruth> > truths( new vector<VHEtTagTruth> );
+        std::auto_ptr<vector<VHTagTruth> > truths( new vector<VHTagTruth> );
         
         Point higgsVtx;
         bool associatedZ=0;
         bool associatedW=0;
         bool VhasDaughters=0;
         bool VhasNeutrinos=0;
+        bool VhasLeptons=0;
+        bool VhasHadrons=0;
         bool VhasMissingLeptons=0;
         float Vpt=0;
         
@@ -115,23 +117,32 @@ namespace flashgg {
                                 VhasDaughters=1;  
                             Vpt=genParticles->ptrAt( genLoop )->pt();
                         }
-                    if(pdgid==24||pdgid==-24) //look for W
+                    if(fabs(pdgid)==24) //look for W
                         {
                             associatedW=1;
                             if( genParticles->ptrAt( genLoop )->numberOfDaughters())
                                 VhasDaughters=1;
                             Vpt=genParticles->ptrAt( genLoop )->pt();
                         }
-                    if(fabs(pdgid)==12||fabs(pdgid)==14||fabs(pdgid)==16) //look for lepton decay of W
+                    if(fabs(pdgid)==12||fabs(pdgid)==14||fabs(pdgid)==16) //look for neutrino decay of V
                         {
                             if(fabs(genParticles->ptrAt( genLoop )->mother()->pdgId())==23)
                                 {
                                     VhasNeutrinos=1;
                                 }
+                            if(fabs(genParticles->ptrAt( genLoop )->mother()->pdgId())==24) // also lepton decay of W
+                                {
+                                    VhasNeutrinos=1;
+                                    VhasLeptons=1;
+                                }
                         }
-                    if(fabs(pdgid==11)||fabs(pdgid)==13||fabs(pdgid)==13) //look for lepton decay of W
+                    if(fabs(pdgid==11)||fabs(pdgid)==13||fabs(pdgid)==13) //look for lepton decay of V
                         {
-                            if(fabs(genParticles->ptrAt( genLoop )->mother()->pdgId())==24)
+                            if(fabs(genParticles->ptrAt( genLoop )->mother()->pdgId())==23) //lepton decay of Z
+                                {
+                                    VhasLeptons=1;
+                                }
+                            if(fabs(genParticles->ptrAt( genLoop )->mother()->pdgId())==24) //missing lepton of W
                                 {
                                     if(fabs(genParticles->ptrAt( genLoop )->eta())>2.5) //lepton outside of eta range
                                         VhasMissingLeptons=1;
@@ -139,7 +150,12 @@ namespace flashgg {
                                         VhasMissingLeptons=1;
                                 }
                         }
-                    
+                    if(fabs(pdgid)>0&&fabs(pdgid)<9) //look for quark decay of V
+                        {
+                            if(fabs(genParticles->ptrAt( genLoop )->mother()->pdgId())==23||fabs(genParticles->ptrAt( genLoop )->mother()->pdgId())==24) //mother is Z or W
+                                VhasHadrons=1;
+                        }
+                        
                     if( pdgid == 25 || pdgid == 22 ) 
                         {
                             higgsVtx = genParticles->ptrAt( genLoop )->vertex();
@@ -148,7 +164,7 @@ namespace flashgg {
                 }
         }
         
-        edm::RefProd<vector<VHEtTagTruth> > rTagTruth = evt.getRefBeforePut<vector<VHEtTagTruth> >();
+        edm::RefProd<vector<VHTagTruth> > rTagTruth = evt.getRefBeforePut<vector<VHTagTruth> >();
         unsigned int idx = 0;
 
 
@@ -196,17 +212,19 @@ namespace flashgg {
                 //setMET
                 vhettags->push_back( tag_obj );
                 if( ! evt.isRealData() ) {
-                    VHEtTagTruth truth_obj;
+                    VHTagTruth truth_obj;
                     truth_obj.setGenPV( higgsVtx );
                     truth_obj.setAssociatedZ( associatedZ );
                     truth_obj.setAssociatedW( associatedW );
                     truth_obj.setVhasDaughters( VhasDaughters );
                     truth_obj.setVhasNeutrinos( VhasNeutrinos );
+                    truth_obj.setVhasLeptons( VhasLeptons );
+                    truth_obj.setVhasHadrons( VhasHadrons );
                     truth_obj.setVhasMissingLeptons( VhasMissingLeptons );
                     truth_obj.setVpt( Vpt );
                     
                     truths->push_back( truth_obj );
-                    vhettags->back().setTagTruth( edm::refToPtr( edm::Ref<vector<VHEtTagTruth> >( rTagTruth, idx++ ) ) );
+                    vhettags->back().setTagTruth( edm::refToPtr( edm::Ref<vector<VHTagTruth> >( rTagTruth, idx++ ) ) );
                 }
             }
         }
