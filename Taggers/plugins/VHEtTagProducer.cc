@@ -48,6 +48,7 @@ namespace flashgg {
         double diphoMVAThreshold_;
         double metPtThreshold_;
         double phoIdMVAThreshold_;
+        double dPhiDiphotonMetThreshold_;
     };
 
     VHEtTagProducer::VHEtTagProducer( const ParameterSet &iConfig ) :
@@ -62,23 +63,19 @@ namespace flashgg {
         diphoMVAThreshold_           = iConfig.getParameter<double>( "diphoMVAThreshold" );
         metPtThreshold_              = iConfig.getParameter<double>( "metPtThreshold" );
         phoIdMVAThreshold_           = iConfig.getParameter<double>( "phoIdMVAThreshold" );
+        dPhiDiphotonMetThreshold_    = iConfig.getParameter<double>( "dPhiDiphotonMetThreshold" );
+
 
         produces<vector<VHEtTag> >();
         produces<vector<VHTagTruth> >();
         photonCollection_=iConfig.getParameter<InputTag> ( "DiPhotonTag" );
 
     }
-
+    
     void VHEtTagProducer::produce( Event &evt, const EventSetup & )
     {
-        //        std::cout << "starting met tagger" << std::endl;
         Handle<View<flashgg::DiPhotonCandidate> > diPhotons;
         evt.getByToken( diPhotonToken_, diPhotons );
-
-
-
-        //        std::cout << " diphoton collection " <<  photonCollection_.label() << std::endl;
-
         Handle<View<flashgg::DiPhotonMVAResult> > mvaResults;
         evt.getByToken( mvaResultToken_, mvaResults );
 
@@ -104,110 +101,81 @@ namespace flashgg {
         bool VhasMissingLeptons=0;
         float Vpt=0;
 
-        //std::cout << "about to loop over gen" << std::endl;
-        if( ! evt.isRealData() ) {
-            evt.getByToken( genParticleToken_, genParticles );
-            for( unsigned int genLoop = 0 ; genLoop < genParticles->size(); genLoop++ ) 
-                {
-                    int pdgid = genParticles->ptrAt( genLoop )->pdgId();
-                    if(pdgid ==23) //z-boson
-                        {
-                            //std::cout << "Z boson" << std::endl;
-                            associatedZ=1;
-                            if( genParticles->ptrAt( genLoop )->numberOfDaughters())
-                                VhasDaughters=1;  
-                            Vpt=genParticles->ptrAt( genLoop )->pt();
-                        }
-                    if(fabs(pdgid)==24) //look for W
-                        {
-                            //std::cout << "W boson" << std::endl;
-                            associatedW=1;
-                            if( genParticles->ptrAt( genLoop )->numberOfDaughters())
-                                VhasDaughters=1;
-                            Vpt=genParticles->ptrAt( genLoop )->pt();
-                        }
-                    if(fabs(pdgid)==12||fabs(pdgid)==14||fabs(pdgid)==16) //look for neutrino decay of V
-                        {
-
-                            if(fabs(genParticles->ptrAt( genLoop )->mother()->pdgId())==23)
-                                {
-                                    //std::cout << "neutrinos" << std::endl;
-                                    VhasNeutrinos=1;
-                                }
-                            if(fabs(genParticles->ptrAt( genLoop )->mother()->pdgId())==24) // also lepton decay of W
-                                {
-                                    //std::cout << "neutrinos" << std::endl;
-                                    VhasNeutrinos=1;
-                                    VhasLeptons=1;
-                                }
-                        }
-                    if(fabs(pdgid==11)||fabs(pdgid)==13||fabs(pdgid)==13) //look for lepton decay of V
-                        {
-                            if(fabs(genParticles->ptrAt( genLoop )->mother()->pdgId())==23) //lepton decay of Z
-                                {
-                                    //std::cout << "leptons" << std::endl;
-                                    VhasLeptons=1;
-                                }
-                            if(fabs(genParticles->ptrAt( genLoop )->mother()->pdgId())==24) //missing lepton of W
-                                {
-                                    if(fabs(genParticles->ptrAt( genLoop )->eta())>2.5) //lepton outside of eta range
-                                        VhasMissingLeptons=1;
-                                    if(fabs(genParticles->ptrAt( genLoop )->eta())>1.455&&fabs(genParticles->ptrAt( genLoop )->eta())<1.566) //lepton in gap
-                                        VhasMissingLeptons=1;
-                                    //std::cout << "missing leptons" << std::endl;
-                                }
-                        }
-                    
-                    //if(genParticles->ptrAt(genLoop)->status()==1)
-                    if(fabs(pdgid)>0&&fabs(pdgid)<9) //look for quark decay of V
-                        {
-                            //std::cout << " ------------ " <<  genParticles->ptrAt(genLoop)->status() << "--------------"  << std::endl;
-                            
-                            //if(fabs(genParticles->ptrAt( genLoop )->mother()->pdgId())==23) //mother is Z 
-                            if(genParticles->ptrAt(genLoop)->status()==23)
-                                {
-                                    //std::cout << "hadrons" << std::endl;
-                                    VhasHadrons=0;  //needs to match parents, but parents are missing 
-                                }
-                        }
-                    if( pdgid == 25 || pdgid == 22 ) 
-                        {
-                            higgsVtx = genParticles->ptrAt( genLoop )->vertex();
-                            continue;
-                        }
-                }
-        }
-        
-        if(VhasLeptons)
+        if( ! evt.isRealData() ) 
             {
-                if(associatedZ)
-                    std::cout << "z->lnu" <<std::endl;
-                else
-                    std::cout << "w->nunu" <<std::endl;
+                evt.getByToken( genParticleToken_, genParticles );
+                for( unsigned int genLoop = 0 ; genLoop < genParticles->size(); genLoop++ ) 
+                    {
+                        int pdgid = genParticles->ptrAt( genLoop )->pdgId();
+                        int dpdgid[2] = {0,0};
+                        if(pdgid ==23) //z-boson
+                            {
+                                associatedZ=1;
+                                if( genParticles->ptrAt( genLoop )->numberOfDaughters()==2)
+                                    {
+                                        VhasDaughters=1;  
+                                        dpdgid[0]=genParticles->ptrAt(genLoop)->daughter(0)->pdgId();
+                                        //dpdgid[1]=genParticles->ptrAt(genLoop)->daughter(1)->pdgId();
+                                        Vpt=genParticles->ptrAt( genLoop )->pt();
+                                        if(fabs(dpdgid[0])==12||fabs(dpdgid[0])==14||fabs(dpdgid[0])==16) //look for neutrino decay of Z
+                                            {
+                                                VhasNeutrinos=1;
+                                            }
+                                        if(fabs(dpdgid[0])==11||fabs(dpdgid[0])==13||fabs(dpdgid[0])==15) //look for lepton decay of Z
+                                            {
+                                                VhasLeptons=1;
+                                            }
+                                        if(fabs(dpdgid[0])>0&&fabs(dpdgid[0])<9) //look for quark decay of Z
+                                            {                                        
+                                                VhasHadrons=1;
+                                            }
+                                    }
+                            }
+                        if(fabs(pdgid)==24) //look for W
+                            {
+                                associatedW=1;
+                                if( genParticles->ptrAt( genLoop )->numberOfDaughters()==2)
+                                    {
+                                        VhasDaughters=1;
+                                        Vpt=genParticles->ptrAt( genLoop )->pt();
+                                        dpdgid[0]=genParticles->ptrAt(genLoop)->daughter(0)->pdgId();
+                                        //dpdgid[1]=genParticles->ptrAt(genLoop)->daughter(1)->pdgId();
+                                        if(fabs(dpdgid[0])==12||fabs(dpdgid[0])==14||fabs(dpdgid[0])==16) //look for neutrino decay of W
+                                            {
+                                                VhasNeutrinos=1;
+                                                VhasLeptons=1;
+                                            }
+                                        if(fabs(dpdgid[0])==11||fabs(dpdgid[0])==13||fabs(dpdgid[0])==15) //look for lepton decay of W
+                                            {
+                                                VhasNeutrinos=1;
+                                                VhasLeptons=1;
+                                            }
+                                        if(fabs(dpdgid[0])>0&&fabs(dpdgid[0])<9) //look for quark decay of W
+                                            {
+                                                VhasHadrons=1;
+                                            }
+                                        
+                                    }
+                            }
+                        if( pdgid == 25 || pdgid == 22 ) 
+                            {
+                                higgsVtx = genParticles->ptrAt( genLoop )->vertex();
+                                continue;
+                            }
+                    }
             }
-        else
-            //if(VhasHadrons) for now assume all non-leptonic decays are hadronic
-            {
-                VhasHadrons=1;
-                if(associatedZ)
-                    std::cout << "z->hadrons" <<std::endl;
-                else
-                    std::cout << "w->hadrons" <<std::endl;
-            }
-                
         
+        if(VhasDaughters==0)
+            std::cout << "--------------V has no children ------------" << std::endl;
         
         edm::RefProd<vector<VHTagTruth> > rTagTruth = evt.getRefBeforePut<vector<VHTagTruth> >();
         unsigned int idx = 0;
-
-
+        
+        
         assert( diPhotons->size() ==
                 mvaResults->size() ); // We are relying on corresponding sets - update this to give an error/exception
         
-        //        std::cout << "has z: " << associatedZ << std::endl;
         for( unsigned int candIndex = 0; candIndex < diPhotons->size() ; candIndex++ ) {
-
-
             edm::Ptr<flashgg::DiPhotonMVAResult> mvares = mvaResults->ptrAt( candIndex );
             edm::Ptr<flashgg::DiPhotonCandidate> dipho = diPhotons->ptrAt( candIndex );
 
@@ -225,41 +193,57 @@ namespace flashgg {
             if( mvares->result < diphoMVAThreshold_ )
             { continue; }
 
-
-
             VHEtTag tag_obj( dipho, mvares );
             tag_obj.includeWeights( *dipho );
             tag_obj.setDiPhotonIndex( candIndex );
             tag_obj.setSystLabel( systLabel_ );
             tag_obj.setMet( theMET );
 
-
-            //MetCorrections2012_Simple(leadp4,subleadp4);
-            //if(diphoton.mass()>100&&diphoton.mass()<180)
-            {
-                //calculate met
-            }
-            //std::cout << "Met: " << theMET->pt() << std::endl;
-            if( theMET->pt() > metPtThreshold_ ) {
-                //setdiphotonindex
-                //setMET
-                vhettags->push_back( tag_obj );
-                if( ! evt.isRealData() ) {
-                    VHTagTruth truth_obj;
-                    truth_obj.setGenPV( higgsVtx );
-                    truth_obj.setAssociatedZ( associatedZ );
-                    truth_obj.setAssociatedW( associatedW );
-                    truth_obj.setVhasDaughters( VhasDaughters );
-                    truth_obj.setVhasNeutrinos( VhasNeutrinos );
-                    truth_obj.setVhasLeptons( VhasLeptons );
-                    truth_obj.setVhasHadrons( VhasHadrons );
-                    truth_obj.setVhasMissingLeptons( VhasMissingLeptons );
-                    truth_obj.setVpt( Vpt );
-                    
-                    truths->push_back( truth_obj );
-                    vhettags->back().setTagTruth( edm::refToPtr( edm::Ref<vector<VHTagTruth> >( rTagTruth, idx++ ) ) );
-                }
-            }
+            //apply phi correction
+           float px_0 = 2.74771;
+           float px_1 = 0.00842948;
+           float py_0 = 1.46669;
+           float py_1 = 0.0295922;
+           if( ! evt.isRealData() ) 
+               {
+                   px_0 = -3.17373;
+                    px_1 = -0.024752;
+                    py_0 = 0.480606;
+                    py_1 = 0.0297115;   
+               }  
+           float oldPx = theMET->corPt()*cos(theMET->corPhi());
+           float oldPy = theMET->corPt()*sin(theMET->corPhi());
+           float newPx = oldPx - (px_0 +px_1*theMET->corSumEt());
+           float newPy = oldPy - (py_0 +py_1*theMET->corSumEt());
+           float newPhi=theMET->corPhi();
+           newPhi = atan(newPy/newPx); //px>0
+           if(newPx<0&&newPy<0)
+               newPhi = -3.14159 + newPhi;
+           else if(newPx<0&&newPy>=0)
+               newPhi = 3.14159 + newPhi;
+           
+           if(fabs(newPhi-dipho->phi())<dPhiDiphotonMetThreshold_)  //skip if close
+               if(fabs(newPhi-dipho->phi())-3.14159<dPhiDiphotonMetThreshold_) //skip if close but on other side of phi=0
+                   continue;
+           if(theMET->corPt()< metPtThreshold_ )  
+               continue;
+           vhettags->push_back( tag_obj );
+           if( ! evt.isRealData() ) 
+               {
+                   VHTagTruth truth_obj;
+                   truth_obj.setGenPV( higgsVtx );
+                   truth_obj.setAssociatedZ( associatedZ );
+                   truth_obj.setAssociatedW( associatedW );
+                   truth_obj.setVhasDaughters( VhasDaughters );
+                   truth_obj.setVhasNeutrinos( VhasNeutrinos );
+                   truth_obj.setVhasLeptons( VhasLeptons );
+                   truth_obj.setVhasHadrons( VhasHadrons );
+                   truth_obj.setVhasMissingLeptons( VhasMissingLeptons );
+                   truth_obj.setVpt( Vpt );
+                   
+                   truths->push_back( truth_obj );
+                   vhettags->back().setTagTruth( edm::refToPtr( edm::Ref<vector<VHTagTruth> >( rTagTruth, idx++ ) ) );
+               }
         }
         evt.put( vhettags );
         evt.put( truths );

@@ -93,9 +93,12 @@ flashggVHEtTag = cms.EDProducer("FlashggVHEtTagProducer",
                                 METTag=cms.InputTag('slimmedMETs'),   
                                 leadPhoOverMassThreshold = cms.double(0.375),
                                 subleadPhoOverMassThreshold = cms.double(0.25),
-                                metPtThreshold = cms.double(70),
+                                #metPtThreshold = cms.double(70),
+                                metPtThreshold = cms.double(0),
                                 diphoMVAThreshold= cms.double(-1.0),
-                                phoIdMVAThreshold= cms.double(-0.9)
+                                phoIdMVAThreshold= cms.double(-0.9),
+                                #dPhiDiphotonMetThreshold= cms.double(2.1)
+                                dPhiDiphotonMetThreshold= cms.double(0.0)
                                 #Boundaries=cms.vdouble(0.21,0.6,0.81)
 )
 
