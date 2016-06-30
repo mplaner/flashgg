@@ -165,9 +165,7 @@ namespace flashgg {
                     }
             }
         
-        if(VhasDaughters==0)
-            std::cout << "--------------V has no children ------------" << std::endl;
-        
+            
         edm::RefProd<vector<VHTagTruth> > rTagTruth = evt.getRefBeforePut<vector<VHTagTruth> >();
         unsigned int idx = 0;
         
@@ -178,7 +176,18 @@ namespace flashgg {
         for( unsigned int candIndex = 0; candIndex < diPhotons->size() ; candIndex++ ) {
             edm::Ptr<flashgg::DiPhotonMVAResult> mvares = mvaResults->ptrAt( candIndex );
             edm::Ptr<flashgg::DiPhotonCandidate> dipho = diPhotons->ptrAt( candIndex );
-
+            
+            if(candIndex==0)
+                {
+                    if(VhasDaughters==0)
+                        std::cout << "--------------V has no children ------------" << std::endl;
+                    if(VhasLeptons && associatedW)
+                        std::cout << "W-> leptons ---tight with    met>45" << std::endl;
+                    if(VhasLeptons && associatedZ)
+                        std::cout << "Z-> leptons ---tight with 2 leptons" << std::endl;
+                    if(VhasHadrons)
+                        std::cout << "V-> hadrons ---          hadron tag" << std::endl;
+            }
             //diphoton pt cuts
             if( dipho->leadingPhoton()->pt() < ( dipho->mass() )*leadPhoOverMassThreshold_ )
             { continue; }

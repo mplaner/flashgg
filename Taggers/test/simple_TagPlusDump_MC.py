@@ -23,7 +23,8 @@ process.MessageLogger.cerr.FwkReport.reportEvery = cms.untracked.int32( 10000 )
 #                                       )
 
 process.source = cms.Source ("PoolSource",fileNames = cms.untracked.vstring(
-        "/store/group/phys_higgs/cmshgg/mplaner/flashgg/RunIIVHMetSpring2016Signal/Moriond16WSFinal-95-gfd6dcdf/VBFHToGG_M-125_13TeV_powheg_pythia8/RunIIVHMetSpring2016Signal-RunIISpring16MiniAODv1-PUSpring16RAWAODSIM_80X_mcRun2_asymptotic_2016_v3-v1/160609_161227/0000/myMicroAODOutputFile_4.root"
+        "/store/group/phys_higgs/cmshgg/ferriff/flashgg/RunIISpring16DR80X-2_1_0-25ns_ICHEP16/2_1_0/VHToGG_M125_13TeV_amcatnloFXFX_madspin_pythia8/RunIISpring16DR80X-2_1_0-25ns_ICHEP16-2_1_0-v0-RunIISpring16MiniAODv1-PUSpring16RAWAODSIM_80X_mcRun2_asymptotic_2016_v3-v1/160618_081222/0000/myMicroAODOutputFile_1.root"
+        #"root://eoscms//eos/cms/store/group/phys_higgs/cmshgg/ferriff/flashgg/RunIISpring16DR80X-2_1_0-25ns_ICHEP16/2_1_0/GJet_Pt-40toInf_DoubleEMEnriched_MGG-80toInf_TuneCUETP8M1_13TeV_Pythia8/RunIISpring16DR80X-2_1_0-25ns_ICHEP16-2_1_0-v0-RunIISpring16MiniAODv1-PUSpring16_80X_mcRun2_asymptotic_2016_v3-v1/160618_074506/0000/myMicroAODOutputFile_100.root"
         ))
 process.load("flashgg/Taggers/flashggTagSequence_cfi")
 process.load("flashgg/Taggers/flashggTagTester_cfi")
@@ -74,11 +75,17 @@ process.TFileService = cms.Service("TFileService",
 from flashgg.Taggers.tagsDumpers_cfi import createTagDumper
 import flashgg.Taggers.dumperConfigTools as cfgTools
 
-#process.vhEtTagDumper = createTagDumper("VHEtTag")
+process.vhEtTagDumper = createTagDumper("VHEtTag")
+process.vhHadronicTagDumper = createTagDumper("VHHadronicTag")
+process.vhLooseTagDumper = createTagDumper("VHLooseTag")
+process.vhTightTagDumper = createTagDumper("VHTightTag")
 #process.vhEtTagDumper = createTagDumper("VHLooseTag")
-process.vhEtTagDumper = createTagDumper("VHTightTag")
+#process.vhEtTagDumper = createTagDumper("VHTightTag")
 process.vhEtTagDumper.dumpTrees =  True
 process.vhEtTagDumper.dumpHistos = True
+process.vhHadronicTagDumper.dumpTrees =  True
+process.vhLooseTagDumper.dumpTrees =  True
+process.vhTightTagDumper.dumpTrees =  True
 
 
 
@@ -111,16 +118,115 @@ dipho_variables=["dipho_sumpt      := diPhoton.sumPt",
                  "subleadIDMVA     := diPhoton.subLeadingView.phoIdMvaWrtChosenVtx",
                  "diPhoMVA         := diPhotonMVA.result",]
 
+
+
+cfgTools.addCategories(process.vhHadronicTagDumper,
+                       ## categories definition
+                       [("all","1",0)
+                        ],                       
+                       ## variables to be dumped in trees/datasets. Same variables for all categories
+                       variables=dipho_variables+
+                       ["dRphoLeadJ    := min(deltaR(leadingJet.eta, leadingJet.phi, diPhoton.leadingPhoton.eta, diPhoton.leadingPhoton.phi), deltaR(leadingJet.eta, leadingJet.phi, diPhoton.subLeadingPhoton.eta, diPhoton.subLeadingPhoton.phi))",
+                        "dRphoSubleadJ := min(deltaR(subLeadingJet.eta, subLeadingJet.phi, diPhoton.leadingPhoton.eta, diPhoton.leadingPhoton.phi), deltaR(subLeadingJet.eta, subLeadingJet.phi, diPhoton.subLeadingPhoton.eta, diPhoton.subLeadingPhoton.phi))",
+                        "leadJPt       := leadingJet.pt",
+                        "leadJEta      := leadingJet.eta",
+                        "subleadJPt    := subLeadingJet.pt",
+                        "subleadJEta   := leadingJet.eta",
+                        "Mjj           := sqrt((leadingJet.energy+subLeadingJet.energy)^2-(leadingJet.px+subLeadingJet.px)^2-(leadingJet.py+subLeadingJet.py)^2-(leadingJet.pz+subLeadingJet.pz)^2)",
+                        "tagType := tagEnum()",
+                        "hasZ := tagTruth().associatedZ",
+                        "hasW := tagTruth().associatedW",
+                        "VhasDaughters := tagTruth().VhasDaughters",
+                        "VhasNeutrinos := tagTruth().VhasNeutrinos",
+                        "VhasLeptons := tagTruth().VhasLeptons",
+                        "VhasHadrons := tagTruth().VhasHadrons",
+                        "VhasMissingLeptons := tagTruth().VhasMissingLeptons",
+                        "genZ := tagTruth().genPV().z",
+                        "Vpt := tagTruth().Vpt"
+                        ],
+                       ## histograms
+                       histograms=[]
+)
+
+
+cfgTools.addCategories(process.vhLooseTagDumper,
+                       ## categories definition
+                       [("all","1",0)
+                    ],                       
+                       ## variables to be dumped in trees/datasets. Same variables for all categories
+                       variables=dipho_variables+
+                       ["met      := ?met.size>0? met.at(0).NoShift : -1",
+                        "n_ele    := electrons.size",
+                        "ele1_pt  := ?(electrons.size>0)? electrons.at(0).pt : -1",
+                        "ele2_pt  := ?(electrons.size>1)? electrons.at(1).pt : -1",
+                        "n_muons  := muons.size",
+                        "muon1_pt := ?(muons.size>0)? muons.at(0).pt : -1",
+                        "muon2_pt := ?(muons.size>1)? muons.at(1).pt : -1",
+                        "n_jets   := jets.size",
+                        "jet1_pt  := ?(jets.size>0)? jets.at(0).pt : -1",
+                        "jet2_pt  := ?(jets.size>1)? jets.at(1).pt : -1",
+                        "Mjj      := ?(jets.size>1)?"
+                        +"sqrt((jets.at(0).energy+jets.at(1).energy)^2-(jets.at(0).px+jets.at(1).px)^2-(jets.at(0).py+jets.at(1).py)^2-(jets.at(0).pz+jets.at(1).pz)^2)"
+                        +": -1",
+                        "tagType := tagEnum()",
+                        "hasZ := tagTruth().associatedZ",
+                        "hasW := tagTruth().associatedW",
+                        "VhasDaughters := tagTruth().VhasDaughters",
+                        "VhasNeutrinos := tagTruth().VhasNeutrinos",
+                        "VhasLeptons := tagTruth().VhasLeptons",
+                        "VhasHadrons := tagTruth().VhasHadrons",
+                        "VhasMissingLeptons := tagTruth().VhasMissingLeptons",
+                        "genZ := tagTruth().genPV().z",
+                        "Vpt := tagTruth().Vpt"
+                    ],
+                       ## histograms
+                       histograms=[]
+)
+
+
+cfgTools.addCategories(process.vhTightTagDumper,
+                        ## categories definition
+                       [("all","1",0)
+                        ],                       
+                       ## variables to be dumped in trees/datasets. Same variables for all categories
+                       variables=dipho_variables+
+                       ["met      := ?met.size>0? met.at(0).NoShift : -1",
+                        "n_ele    := electrons.size",
+                        "ele1_pt  := ?(electrons.size>0)? electrons.at(0).pt : -1",
+                        "ele2_pt  := ?(electrons.size>1)? electrons.at(1).pt : -1",
+                        "n_muons  := muons.size",
+                        # "muon1_pt := ?(muons.size>0)? muons.at(0).pt : -1",
+                        # "muon2_pt := ?(muons.size>1)? muons.at(1).pt : -1",
+                        "n_jets   := jets.size",
+                        "jet1_pt  := ?(jets.size>0)? jets.at(0).pt : -1",
+                        "jet2_pt  := ?(jets.size>1)? jets.at(1).pt : -1",
+                        "Mjj      := ?(jets.size>1)?"
+                        +"sqrt((jets.at(0).energy+jets.at(1).energy)^2-(jets.at(0).px+jets.at(1).px)^2-(jets.at(0).py+jets.at(1).py)^2-(jets.at(0).pz+jets.at(1).pz)^2)"
+                        +": -1",
+                        "tagType := tagEnum()",
+                        "hasZ := tagTruth().associatedZ",
+                        "hasW := tagTruth().associatedW",
+                        "VhasDaughters := tagTruth().VhasDaughters",
+                        "VhasNeutrinos := tagTruth().VhasNeutrinos",
+                        "VhasLeptons := tagTruth().VhasLeptons",
+                        "VhasHadrons := tagTruth().VhasHadrons",
+                        "VhasMissingLeptons := tagTruth().VhasMissingLeptons",
+                        "genZ := tagTruth().genPV().z",
+                        ],
+                       ## histograms
+                       histograms=[]
+                       )
+
 cfgTools.addCategories(process.vhEtTagDumper,
                        ## categories definition                                                                                                                                                                                  
                        [("all","1",0)
                     ],
                        ## variables to be dumped in trees/datasets. Same variables for all categories                                                                                                                            
                        variables=dipho_variables+
-                       ["pfMET_rawPt        := met.uncorPt",
-                        "pfMET_rawPhi       := met.uncorPhi",
-                        "pfMET_rawSumEt     := met.uncorSumEt",
-                        "pfMET_corPt        := met.corPt",
+                       ["pfMET_rawPt        := met().uncorPt",
+                        "pfMET_rawPhi       := met().uncorPhi",
+                        "pfMET_rawSumEt     := met().uncorSumEt",
+                        "pfMET_corPt        := met().corPt",
                         "pfMET_corPhi       := met.corPhi",
                         "pfMET_corSumEt     := met.corSumEt",
                         "caloMET_rawPt      := met.caloMETPt",
@@ -133,16 +239,16 @@ cfgTools.addCategories(process.vhEtTagDumper,
                         #"pfNeutralHadEtFraction := met.NeutralHadEtFraction",
                         #"pfChargedEMEtFraction := met.ChargedEMEtFraction",
                         #"pfChargedHadEtFraction := met.ChargedHadEtFraction",
-                        
-                        #"hasZ := tagTruth().associatedZ",
-                        #"hasW := tagTruth().associatedW",
-                        #"VhasDaughters := tagTruth().VhasDaughters",
-                        #"VhasNeutrinos := tagTruth().VhasNeutrinos",
-                        #"VhasNeutrinos := tagTruth().VhasLeptons",
-                        #"VhasNeutrinos := tagTruth().VhasHadrons",
-                        #"VhasMissingLeptons := tagTruth().VhasMissingLeptons",
+                        "tagType := tagEnum()",
+                        "hasZ := tagTruth().associatedZ",
+                        "hasW := tagTruth().associatedW",
+                        "VhasDaughters := tagTruth().VhasDaughters",
+                        "VhasNeutrinos := tagTruth().VhasNeutrinos",
+                        "VhasLeptons := tagTruth().VhasLeptons",
+                        "VhasHadrons := tagTruth().VhasHadrons",
+                        "VhasMissingLeptons := tagTruth().VhasMissingLeptons",
                         "genZ := tagTruth().genPV().z",
-                        #"Vpt := tagTruth().Vpt"
+                        "Vpt := tagTruth().Vpt"
                         ],
                        histograms=["mass>>mass(160,100,180)",
                                    "subleadPt:leadPt>>ptLeadvsSub(180,20,200:180,20,200)",
@@ -166,7 +272,7 @@ cfgTools.addCategories(process.vhEtTagDumper,
 
 
 
-process.p = cms.Path(process.flashggTagSequence*process.flashggTagTester*process.vhEtTagDumper)
+process.p = cms.Path(process.flashggTagSequence*process.flashggTagTester*process.vhEtTagDumper*process.vhHadronicTagDumper*process.vhTightTagDumper*process.vhLooseTagDumper)
 print process.vhEtTagDumper.src
 #process.p = cms.Path(process.flashggTagSequence)
 
