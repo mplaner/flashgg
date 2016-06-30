@@ -294,27 +294,19 @@ namespace flashgg {
             VHLooseTag vhloosetags_obj( dipho, mvares );
             vhloosetags_obj.includeWeights( *dipho );
             
-            //if( dipho->leadingPhoton()->pt() < ( dipho->mass() )*leadPhoOverMassThreshold_ ) { std::cout << " mass: "  << dipho->mass() << "  leading Pt: " << dipho->leadingPhoton()->pt() << std::endl; }
-            //if( dipho->subLeadingPhoton()->pt() < ( dipho->mass() )*subleadPhoOverMassThreshold_ ) { std::cout << " mass: "  << dipho->mass() << "  leading Pt: " << dipho->subLeadingPhoton()->pt() << std::endl; }
-            
             if( dipho->leadingPhoton()->pt() < ( dipho->mass() )*leadPhoOverMassThreshold_ ) { continue; }
             if( dipho->subLeadingPhoton()->pt() < ( dipho->mass() )*subleadPhoOverMassThreshold_ ) { continue; }
           
             idmva1 = dipho->leadingPhoton()->phoIdMvaDWrtVtx( dipho->vtx() );
             idmva2 = dipho->subLeadingPhoton()->phoIdMvaDWrtVtx( dipho->vtx() );
             
-            //if( idmva1 <= PhoMVAThreshold_ ) { std::cout << "---------failed idmva---------: " << idmva1 << std::endl;}
-            //if( idmva2 <= PhoMVAThreshold_ ) { std::cout << "---------failed idmva---------: " << idmva2 << std::endl;}
-
             if( idmva1 <= PhoMVAThreshold_ || idmva2 <= PhoMVAThreshold_ ) { continue; }
-            //if( mvares->result < MVAThreshold_ ) { std::cout << "failed mva cut: " << mvares->result << std::endl; }
             if( mvares->result < MVAThreshold_ ) { continue; }
             
             photonSelection = true;
             std::vector<edm::Ptr<flashgg::Muon> > goodMuons = selectMuons( theMuons->ptrs(), dipho, vertices->ptrs(), muonEtaThreshold_, leptonPtThreshold_,
                     muPFIsoSumRelThreshold_, deltaRMuonPhoThreshold_, deltaRMuonPhoThreshold_ );
-
-
+            
             std::vector<edm::Ptr<Electron> >goodElectrons = selectElectrons( theElectrons->ptrs(), dipho,vertices->ptrs(), ElectronPtThreshold_, 
                                                                              TransverseImpactParam_, LongitudinalImpactParam_, nonTrigMVAThresholds_, nonTrigMVAEtaCuts_, 
                                                                              electronIsoThreshold_, electronNumOfHitsThreshold_, electronEtaThresholds_ ,
@@ -362,31 +354,30 @@ namespace flashgg {
             //------>MET info
             if( METs->size() != 1 ) { std::cout << "WARNING - #MET is not 1" << std::endl;}
             Ptr<pat::MET> theMET = METs->ptrAt( 0 );
-            if( theMET->pt() < METThreshold_ ) 
-                continue;
+            tagMETs.push_back( theMET );            
             std::cout << "------------------------loose has good met" << std::endl;
-            if( tagJets.size() < jetsNumberThreshold_ && photonSelection && ( goodMuons.size() == 1 || goodElectrons.size() == 1 ) && tagMETs.size() > 0 ) {
+            if( (tagJets.size() < jetsNumberThreshold_) && photonSelection && ( goodMuons.size() >= 1 || goodElectrons.size() >= 1 ) && theMET->corPt()<METThreshold_) {
                 vhloosetags_obj.setJets( tagJets );
-
                 vhloosetags_obj.setMuons( goodMuons );
                 vhloosetags_obj.setElectrons( goodElectrons );
-                vhloosetags_obj.setMET( tagMETs );
                 vhloosetags_obj.setDiPhotonIndex( diphoIndex );
                 vhloosetags_obj.setSystLabel( systLabel_ );
+                vhloosetags_obj.setMET( tagMETs );
                 vhloosetags->push_back( vhloosetags_obj );
-                if( ! evt.isRealData() ) {
-                    VHTagTruth truth_obj;
-                    truth_obj.setGenPV( higgsVtx );
-                    truth_obj.setAssociatedZ( associatedZ );
-                    truth_obj.setAssociatedW( associatedW );
-                    truth_obj.setVhasDaughters( VhasDaughters );
-                    truth_obj.setVhasNeutrinos( VhasNeutrinos );
-                    truth_obj.setVhasLeptons( VhasLeptons );
-                    truth_obj.setVhasHadrons( VhasHadrons );
-                    truth_obj.setVhasMissingLeptons( VhasMissingLeptons );
-                    truth_obj.setVpt( Vpt );
-                    vhloosetags->back().setTagTruth( edm::refToPtr( edm::Ref<vector<VHTagTruth> >( rTagTruth, idx++ ) ) );
-                }
+                if( ! evt.isRealData() ) 
+                    {
+                        VHTagTruth truth_obj;
+                        truth_obj.setGenPV( higgsVtx );
+                        truth_obj.setAssociatedZ( associatedZ );
+                        truth_obj.setAssociatedW( associatedW );
+                        truth_obj.setVhasDaughters( VhasDaughters );
+                        truth_obj.setVhasNeutrinos( VhasNeutrinos );
+                        truth_obj.setVhasLeptons( VhasLeptons );
+                        truth_obj.setVhasHadrons( VhasHadrons );
+                        truth_obj.setVhasMissingLeptons( VhasMissingLeptons );
+                        truth_obj.setVpt( Vpt );
+                        //vhloosetags->back().setTagTruth( edm::refToPtr( edm::Ref<vector<VHTagTruth> >( rTagTruth, idx++ ) ) );
+                    }
             }
         }
         evt.put( vhloosetags );

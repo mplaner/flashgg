@@ -364,7 +364,7 @@ namespace flashgg {
             hasGoodElectrons_lowPt = ( tagElectrons_lowPt.size() > 0 );
 
             if( !hasGoodMuons_highPt && !hasGoodMuons_lowPt && !hasGoodElectrons_highPt && !hasGoodElectrons_lowPt ) { continue; }
-
+            std::cout << "tight tag has leptons" << std::endl;
             if( !hasGoodMuons_highPt && !hasGoodElectrons_highPt && !hasGoodElectrons_lowPt ) {
                 if( tagMuons_lowPt.size() >= 2 ) 
                     {
@@ -461,7 +461,7 @@ namespace flashgg {
             tagMETs.push_back( theMET );
             // }
             if( photonSelection && ( ( ( isMuonHighPt && theMET->pt() >METThreshold_  && tagJets.size() < jetsNumberThreshold_ ) || ( isMuonLowPt && isInvMassOK ) ) ||
-                                     ( isElectronHighPt && theMET->pt() > METThreshold_ && tagJets.size() < jetsNumberThreshold_ ) || ( isElectronLowPt && isInvMassOK_elec ) ) ) {
+                                     ( isElectronHighPt && theMET->corPt() > METThreshold_ && tagJets.size() < jetsNumberThreshold_ ) || ( isElectronLowPt && isInvMassOK_elec ) ) ) {
                 VHTightTags_obj.setJets( tagJets );
                 VHTightTags_obj.setMuons( tagMuons );
                 VHTightTags_obj.setElectrons( tagElectrons );

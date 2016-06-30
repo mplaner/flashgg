@@ -24,6 +24,7 @@ process.MessageLogger.cerr.FwkReport.reportEvery = cms.untracked.int32( 10000 )
 
 process.source = cms.Source ("PoolSource",fileNames = cms.untracked.vstring(
         "/store/group/phys_higgs/cmshgg/ferriff/flashgg/RunIISpring16DR80X-2_1_0-25ns_ICHEP16/2_1_0/VHToGG_M125_13TeV_amcatnloFXFX_madspin_pythia8/RunIISpring16DR80X-2_1_0-25ns_ICHEP16-2_1_0-v0-RunIISpring16MiniAODv1-PUSpring16RAWAODSIM_80X_mcRun2_asymptotic_2016_v3-v1/160618_081222/0000/myMicroAODOutputFile_1.root"
+        #"/store/group/phys_higgs/cmshgg/ferriff/flashgg/RunIISpring16DR80X-2_1_0-25ns_ICHEP16/2_1_0/GluGluHToGG_M-125_13TeV_powheg_pythia8/RunIISpring16DR80X-2_1_0-25ns_ICHEP16-2_1_0-v0-RunIISpring16MiniAODv1-PUSpring16RAWAODSIM_80X_mcRun2_asymptotic_2016_v3-v1/160618_074258/0000/myMicroAODOutputFile_1.root"
         #"root://eoscms//eos/cms/store/group/phys_higgs/cmshgg/ferriff/flashgg/RunIISpring16DR80X-2_1_0-25ns_ICHEP16/2_1_0/GJet_Pt-40toInf_DoubleEMEnriched_MGG-80toInf_TuneCUETP8M1_13TeV_Pythia8/RunIISpring16DR80X-2_1_0-25ns_ICHEP16-2_1_0-v0-RunIISpring16MiniAODv1-PUSpring16_80X_mcRun2_asymptotic_2016_v3-v1/160618_074506/0000/myMicroAODOutputFile_100.root"
         ))
 process.load("flashgg/Taggers/flashggTagSequence_cfi")
@@ -155,7 +156,12 @@ cfgTools.addCategories(process.vhLooseTagDumper,
                     ],                       
                        ## variables to be dumped in trees/datasets. Same variables for all categories
                        variables=dipho_variables+
-                       ["met      := ?met.size>0? met.at(0).NoShift : -1",
+                       ["pfMET_rawPt        := ?met.size>0? met.at(0).uncorPt : -1",
+                        "pfMET_rawPhi       := ?met.size>0? met.at(0).uncorPhi : -1",
+                        "pfMET_rawSumEt     := ?met.size>0? met.at(0).uncorSumEt : -1",
+                        "pfMET_corPt        := ?met.size>0? met.at(0).corPt : -1",
+                        "pfMET_corPhi       := ?met.size>0? met.at(0).corPhi : -1",
+                        "pfMET_corSumEt     := ?met.size>0? met.at(0).corSumEt : -1",
                         "n_ele    := electrons.size",
                         "ele1_pt  := ?(electrons.size>0)? electrons.at(0).pt : -1",
                         "ele2_pt  := ?(electrons.size>1)? electrons.at(1).pt : -1",
@@ -168,16 +174,15 @@ cfgTools.addCategories(process.vhLooseTagDumper,
                         "Mjj      := ?(jets.size>1)?"
                         +"sqrt((jets.at(0).energy+jets.at(1).energy)^2-(jets.at(0).px+jets.at(1).px)^2-(jets.at(0).py+jets.at(1).py)^2-(jets.at(0).pz+jets.at(1).pz)^2)"
                         +": -1",
-                        "tagType := tagEnum()",
-                        "hasZ := tagTruth().associatedZ",
-                        "hasW := tagTruth().associatedW",
-                        "VhasDaughters := tagTruth().VhasDaughters",
-                        "VhasNeutrinos := tagTruth().VhasNeutrinos",
-                        "VhasLeptons := tagTruth().VhasLeptons",
-                        "VhasHadrons := tagTruth().VhasHadrons",
-                        "VhasMissingLeptons := tagTruth().VhasMissingLeptons",
-                        "genZ := tagTruth().genPV().z",
-                        "Vpt := tagTruth().Vpt"
+                        #"hasZ := tagTruth().associatedZ",
+                        #"hasW := tagTruth().associatedW",
+                        #"VhasDaughters := tagTruth().VhasDaughters",
+                        #"VhasNeutrinos := tagTruth().VhasNeutrinos",
+                        #"VhasLeptons := tagTruth().VhasLeptons",
+                        #"VhasHadrons := tagTruth().VhasHadrons",
+                        #"VhasMissingLeptons := tagTruth().VhasMissingLeptons",
+                        #"genZ := tagTruth().genPV().z",
+                        #"Vpt := tagTruth().Vpt"
                     ],
                        ## histograms
                        histograms=[]
@@ -190,7 +195,12 @@ cfgTools.addCategories(process.vhTightTagDumper,
                         ],                       
                        ## variables to be dumped in trees/datasets. Same variables for all categories
                        variables=dipho_variables+
-                       ["met      := ?met.size>0? met.at(0).NoShift : -1",
+                       ["pfMET_rawPt        := ?met.size>0? met.at(0).uncorPt : -1",
+                        "pfMET_rawPhi       := ?met.size>0? met.at(0).uncorPhi : -1",
+                        "pfMET_rawSumEt     := ?met.size>0? met.at(0).uncorSumEt : -1",
+                        "pfMET_corPt        := ?met.size>0? met.at(0).corPt : -1",
+                        "pfMET_corPhi       := ?met.size>0? met.at(0).corPhi : -1",
+                        "pfMET_corSumEt     := ?met.size>0? met.at(0).corSumEt : -1",
                         "n_ele    := electrons.size",
                         "ele1_pt  := ?(electrons.size>0)? electrons.at(0).pt : -1",
                         "ele2_pt  := ?(electrons.size>1)? electrons.at(1).pt : -1",
@@ -203,7 +213,6 @@ cfgTools.addCategories(process.vhTightTagDumper,
                         "Mjj      := ?(jets.size>1)?"
                         +"sqrt((jets.at(0).energy+jets.at(1).energy)^2-(jets.at(0).px+jets.at(1).px)^2-(jets.at(0).py+jets.at(1).py)^2-(jets.at(0).pz+jets.at(1).pz)^2)"
                         +": -1",
-                        "tagType := tagEnum()",
                         "hasZ := tagTruth().associatedZ",
                         "hasW := tagTruth().associatedW",
                         "VhasDaughters := tagTruth().VhasDaughters",
@@ -239,7 +248,6 @@ cfgTools.addCategories(process.vhEtTagDumper,
                         #"pfNeutralHadEtFraction := met.NeutralHadEtFraction",
                         #"pfChargedEMEtFraction := met.ChargedEMEtFraction",
                         #"pfChargedHadEtFraction := met.ChargedHadEtFraction",
-                        "tagType := tagEnum()",
                         "hasZ := tagTruth().associatedZ",
                         "hasW := tagTruth().associatedW",
                         "VhasDaughters := tagTruth().VhasDaughters",
