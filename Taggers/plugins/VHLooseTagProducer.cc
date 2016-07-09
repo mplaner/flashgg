@@ -15,6 +15,8 @@
 #include "flashgg/DataFormats/interface/Muon.h"
 #include "DataFormats/PatCandidates/interface/MET.h"
 
+#include "FWCore/Common/interface/TriggerNames.h"
+#include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/TrackReco/interface/HitPattern.h"
 #include "flashgg/Taggers/interface/LeptonSelection.h"
 
@@ -58,6 +60,9 @@ namespace flashgg {
         EDGetTokenT<View<reco::Vertex> > vertexToken_;
         EDGetTokenT<View<reco::GenParticle> > genParticleToken_;
         string systLabel_;
+        edm::EDGetTokenT<edm::TriggerResults> triggerRECO_;
+        edm::EDGetTokenT<edm::TriggerResults> triggerPAT_;
+        edm::EDGetTokenT<edm::TriggerResults> triggerFLASHggMicroAOD_;
 
         typedef std::vector<edm::Handle<edm::View<flashgg::Jet> > > JetCollectionVector;
 
@@ -109,7 +114,10 @@ namespace flashgg {
         METToken_( consumes<View<pat::MET> >( iConfig.getParameter<InputTag> ( "METTag" ) ) ),
         vertexToken_( consumes<View<reco::Vertex> >( iConfig.getParameter<InputTag> ( "VertexTag" ) ) ),
         genParticleToken_( consumes<View<reco::GenParticle> >( iConfig.getParameter<InputTag> ( "GenParticleTag" ) ) ),
-        systLabel_( iConfig.getParameter<string> ( "SystLabel" ) )
+        systLabel_( iConfig.getParameter<string> ( "SystLabel" ) ),
+        triggerRECO_( consumes<edm::TriggerResults>(iConfig.getParameter<InputTag>("RECOfilters") ) ),
+        triggerPAT_( consumes<edm::TriggerResults>(iConfig.getParameter<InputTag>("PATfilters") ) ),
+        triggerFLASHggMicroAOD_( consumes<edm::TriggerResults>( iConfig.getParameter<InputTag>("FLASHfilters") ) )
     {
 
 
@@ -202,6 +210,33 @@ namespace flashgg {
         bool VhasHadrons=0;
         bool VhasMissingLeptons=0;
         float Vpt=0;
+        bool passMETfilters=1;
+        //Get trigger results relevant to MET filters                                                                                                                                              
+
+        edm::Handle<edm::TriggerResults> triggerBits;
+        if(! evt.isRealData() )
+            evt.getByToken( triggerPAT_, triggerBits );
+        else
+            evt.getByToken( triggerRECO_, triggerBits );
+
+        edm::Handle<edm::TriggerResults> triggerFLASHggMicroAOD;
+        evt.getByToken( triggerFLASHggMicroAOD_, triggerFLASHggMicroAOD );
+        const edm::TriggerNames &triggerNames = evt.triggerNames( *triggerBits );
+
+        std::vector<std::string> flagList {"Flag_HBHENoiseFilter","Flag_HBHENoiseIsoFilter","Flag_EcalDeadCellTriggerPrimitiveFilter","Flag_goodVertices","Flag_eeBadScFilter"};
+        for( unsigned int i = 0; i < triggerNames.triggerNames().size(); i++ )
+            {
+                if(!triggerBits->accept(i))
+                    for(size_t j=0;j<flagList.size();j++)
+                        {
+                            //if(flagList(j)==triggerNames.triggerName(i))                                                                                                                         
+                            if(flagList[j]==triggerNames.triggerName(i))
+                                {
+                                    passMETfilters=0;
+                                    break;
+                                }
+                        }
+            }
 
         
         if( ! evt.isRealData() )
@@ -234,45 +269,45 @@ namespace flashgg {
                                             }
                                     }
                             }
-
-        if(fabs(pdgid)==24) //look for W 
-            {
-                associatedW=1;
-                if( genParticles->ptrAt( genLoop )->numberOfDaughters()==2)
-                    {
-                        VhasDaughters=1;
-                        Vpt=genParticles->ptrAt( genLoop )->pt();
-                        dpdgid[0]=genParticles->ptrAt(genLoop)->daughter(0)->pdgId();
-                        //dpdgid[1]=genParticles->ptrAt(genLoop)->daughter(1)->pdgId();
-                        if(fabs(dpdgid[0])==12||fabs(dpdgid[0])==14||fabs(dpdgid[0])==16) //look for neutrino decay of W
+                        
+                        if(fabs(pdgid)==24) //look for W 
                             {
-                                VhasNeutrinos=1;
-                                VhasLeptons=1;
+                                associatedW=1;
+                                if( genParticles->ptrAt( genLoop )->numberOfDaughters()==2)
+                                    {
+                                        VhasDaughters=1;
+                                        Vpt=genParticles->ptrAt( genLoop )->pt();
+                                        dpdgid[0]=genParticles->ptrAt(genLoop)->daughter(0)->pdgId();
+                                        //dpdgid[1]=genParticles->ptrAt(genLoop)->daughter(1)->pdgId();
+                                        if(fabs(dpdgid[0])==12||fabs(dpdgid[0])==14||fabs(dpdgid[0])==16) //look for neutrino decay of W
+                                            {
+                                                VhasNeutrinos=1;
+                                                VhasLeptons=1;
+                                            }
+                                        if(fabs(dpdgid[0])==11||fabs(dpdgid[0])==13||fabs(dpdgid[0])==15) //look for lepton decay of W
+                                            {
+                                                VhasNeutrinos=1;
+                                                VhasLeptons=1;
+                                            }
+                                        if(fabs(dpdgid[0])>0&&fabs(dpdgid[0])<9) //look for quark decay of W 
+                                            {
+                                                VhasHadrons=1;
+                                            }
+                                        
+                                    }
                             }
-                        if(fabs(dpdgid[0])==11||fabs(dpdgid[0])==13||fabs(dpdgid[0])==15) //look for lepton decay of W
+                        if( pdgid == 25 || pdgid == 22 )
                             {
-                                VhasNeutrinos=1;
-                                VhasLeptons=1;
+                                higgsVtx = genParticles->ptrAt( genLoop )->vertex();
+                                continue;
                             }
-                        if(fabs(dpdgid[0])>0&&fabs(dpdgid[0])<9) //look for quark decay of W 
-                            {
-                                VhasHadrons=1;
-                            }
-
                     }
             }
-        if( pdgid == 25 || pdgid == 22 )
-            {
-                higgsVtx = genParticles->ptrAt( genLoop )->vertex();
-                continue;
-            }
-    }
-}
-
-
+        
+        
         edm::RefProd<vector<VHTagTruth> > rTagTruth = evt.getRefBeforePut<vector<VHTagTruth> >();
         unsigned int idx = 0;
-
+        
         bool photonSelection = false;
         double idmva1 = 0.;
         double idmva2 = 0.;
@@ -280,7 +315,10 @@ namespace flashgg {
         for( unsigned int diphoIndex = 0; diphoIndex < diPhotons->size(); diphoIndex++ ) {
             hasGoodElec = false;
             hasGoodMuons = false;
-
+            if(!passMETfilters)
+                {
+                    continue;
+                }
             unsigned int jetCollectionIndex = diPhotons->ptrAt( diphoIndex )->jetCollectionIndex();
 
             //std::vector<edm::Ptr<flashgg::Muon> > tagMuons;
@@ -317,7 +355,7 @@ namespace flashgg {
             //std::cout << goodMuons.size() << std::endl;
             
             if( !hasGoodElec && !hasGoodMuons ) { continue; }
-            std::cout << "------------------------loose has good leptons" << std::endl;
+            //std::cout << "------------------------loose has good leptons" << std::endl;
             
             for( unsigned int candIndex_outer = 0; candIndex_outer < Jets[jetCollectionIndex]->size() ; candIndex_outer++ ) 
                 {
@@ -350,12 +388,12 @@ namespace flashgg {
                 }
             //tagElectrons.push_back( goodElectrons );
             //tagMuons.push_back( goodMuons );
-            std::cout << "------------------------loose has good jets" << std::endl;
+            //std::cout << "------------------------loose has good jets" << std::endl;
             //------>MET info
             if( METs->size() != 1 ) { std::cout << "WARNING - #MET is not 1" << std::endl;}
             Ptr<pat::MET> theMET = METs->ptrAt( 0 );
             tagMETs.push_back( theMET );            
-            std::cout << "------------------------loose has good met" << std::endl;
+            //std::cout << "------------------------loose has good met" << std::endl;
             if( (tagJets.size() < jetsNumberThreshold_) && photonSelection && ( goodMuons.size() >= 1 || goodElectrons.size() >= 1 ) && theMET->corPt()<METThreshold_) {
                 vhloosetags_obj.setJets( tagJets );
                 vhloosetags_obj.setMuons( goodMuons );
@@ -376,7 +414,8 @@ namespace flashgg {
                         truth_obj.setVhasHadrons( VhasHadrons );
                         truth_obj.setVhasMissingLeptons( VhasMissingLeptons );
                         truth_obj.setVpt( Vpt );
-                        //vhloosetags->back().setTagTruth( edm::refToPtr( edm::Ref<vector<VHTagTruth> >( rTagTruth, idx++ ) ) );
+                        truths->push_back( truth_obj );
+                        vhloosetags->back().setTagTruth( edm::refToPtr( edm::Ref<vector<VHTagTruth> >( rTagTruth, idx++ ) ) );
                     }
             }
         }

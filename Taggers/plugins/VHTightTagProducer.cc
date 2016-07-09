@@ -15,6 +15,8 @@
 #include "flashgg/DataFormats/interface/Electron.h"
 #include "flashgg/DataFormats/interface/Muon.h"
 
+#include "FWCore/Common/interface/TriggerNames.h"
+#include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/TrackReco/interface/HitPattern.h"
 #include "flashgg/Taggers/interface/LeptonSelection.h"
 
@@ -56,7 +58,10 @@ namespace flashgg {
         EDGetTokenT<View<reco::Vertex> > vertexToken_;
         EDGetTokenT<View<reco::GenParticle> > genParticleToken_;
         string systLabel_;
-
+        edm::EDGetTokenT<edm::TriggerResults> triggerRECO_;
+        edm::EDGetTokenT<edm::TriggerResults> triggerPAT_;
+        edm::EDGetTokenT<edm::TriggerResults> triggerFLASHggMicroAOD_;
+        
         typedef std::vector<edm::Handle<edm::View<flashgg::Jet> > > JetCollectionVector;
 
         //Thresholds
@@ -118,7 +123,10 @@ namespace flashgg {
         METToken_( consumes<View<pat::MET> >( iConfig.getParameter<InputTag> ( "METTag" ) ) ),
         vertexToken_( consumes<View<reco::Vertex> >( iConfig.getParameter<InputTag> ( "VertexTag" ) ) ),
         genParticleToken_( consumes<View<reco::GenParticle> >( iConfig.getParameter<InputTag> ( "GenParticleTag" ) ) ),
-        systLabel_( iConfig.getParameter<string> ( "SystLabel" ) )
+        systLabel_( iConfig.getParameter<string> ( "SystLabel" ) ),
+        triggerRECO_( consumes<edm::TriggerResults>(iConfig.getParameter<InputTag>("RECOfilters") ) ),
+        triggerPAT_( consumes<edm::TriggerResults>(iConfig.getParameter<InputTag>("PATfilters") ) ),
+        triggerFLASHggMicroAOD_( consumes<edm::TriggerResults>( iConfig.getParameter<InputTag>("FLASHfilters") ) )
     {
 
         leptonPtThreshold_ = iConfig.getParameter<double>( "leptonPtThreshold");
@@ -206,7 +214,35 @@ namespace flashgg {
         bool VhasHadrons=0;
         bool VhasMissingLeptons=0;
         float Vpt=0;
+        bool passMETfilters=1;
+        //Get trigger results relevant to MET filters                                                                                                                                              
 
+        edm::Handle<edm::TriggerResults> triggerBits;
+        if(! evt.isRealData() )
+            evt.getByToken( triggerPAT_, triggerBits );
+        else
+            evt.getByToken( triggerRECO_, triggerBits );
+
+        edm::Handle<edm::TriggerResults> triggerFLASHggMicroAOD;
+        evt.getByToken( triggerFLASHggMicroAOD_, triggerFLASHggMicroAOD );
+        const edm::TriggerNames &triggerNames = evt.triggerNames( *triggerBits );
+
+        std::vector<std::string> flagList {"Flag_HBHENoiseFilter","Flag_HBHENoiseIsoFilter","Flag_EcalDeadCellTriggerPrimitiveFilter","Flag_goodVertices","Flag_eeBadScFilter"};
+        for( unsigned int i = 0; i < triggerNames.triggerNames().size(); i++ )
+            {
+                if(!triggerBits->accept(i))
+                    for(size_t j=0;j<flagList.size();j++)
+                        {
+                            //if(flagList(j)==triggerNames.triggerName(i))                                                                                                                         
+                            if(flagList[j]==triggerNames.triggerName(i))
+                                {
+                                    passMETfilters=0;
+                                    break;
+                                }
+                        }
+            }
+
+        
         if( ! evt.isRealData() )
             {
                 evt.getByToken( genParticleToken_, genParticles );
@@ -302,7 +338,10 @@ namespace flashgg {
             hasGoodMuons_lowPt = false;
             hasGoodElectrons_highPt = false;
             hasGoodElectrons_lowPt = false;
-
+            if(!passMETfilters)
+                {
+                    continue;
+                }
             unsigned int jetCollectionIndex = diPhotons->ptrAt( diphoIndex )->jetCollectionIndex();
             
             std::vector<edm::Ptr<flashgg::Muon> > tagMuons_highPt;
@@ -364,7 +403,7 @@ namespace flashgg {
             hasGoodElectrons_lowPt = ( tagElectrons_lowPt.size() > 0 );
 
             if( !hasGoodMuons_highPt && !hasGoodMuons_lowPt && !hasGoodElectrons_highPt && !hasGoodElectrons_lowPt ) { continue; }
-            std::cout << "tight tag has leptons" << std::endl;
+            //std::cout << "tight tag has leptons" << std::endl;
             if( !hasGoodMuons_highPt && !hasGoodElectrons_highPt && !hasGoodElectrons_lowPt ) {
                 if( tagMuons_lowPt.size() >= 2 ) 
                     {

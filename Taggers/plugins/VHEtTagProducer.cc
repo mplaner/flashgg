@@ -7,6 +7,9 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 
+
+#include "FWCore/Common/interface/TriggerNames.h"
+#include "DataFormats/Common/interface/TriggerResults.h"
 #include "flashgg/DataFormats/interface/DiPhotonCandidate.h"
 #include "DataFormats/PatCandidates/interface/MET.h"
 //#include "flashgg/DataFormats/interface/VBFDiPhoDiJetMVAResult.h"
@@ -41,7 +44,10 @@ namespace flashgg {
         EDGetTokenT<View<reco::GenParticle> > genParticleToken_;
         string systLabel_;
         edm::InputTag photonCollection_;
-
+        edm::EDGetTokenT<edm::TriggerResults> triggerRECO_;
+        edm::EDGetTokenT<edm::TriggerResults> triggerPAT_;
+        edm::EDGetTokenT<edm::TriggerResults> triggerFLASHggMicroAOD_;
+        
         //configurable selection variables
         double leadPhoOverMassThreshold_;
         double subleadPhoOverMassThreshold_;
@@ -56,7 +62,10 @@ namespace flashgg {
         mvaResultToken_( consumes<View<flashgg::DiPhotonMVAResult> >( iConfig.getParameter<InputTag> ( "MVAResultTag" ) ) ),
         METToken_( consumes<View<pat::MET> >( iConfig.getParameter<InputTag> ( "METTag" ) ) ),
         genParticleToken_( consumes<View<reco::GenParticle> >( iConfig.getParameter<InputTag> ( "GenParticleTag" ) ) ),
-        systLabel_( iConfig.getParameter<string> ( "SystLabel" ) )
+        systLabel_( iConfig.getParameter<string> ( "SystLabel" ) ),
+        triggerRECO_( consumes<edm::TriggerResults>(iConfig.getParameter<InputTag>("RECOfilters") ) ),
+        triggerPAT_( consumes<edm::TriggerResults>(iConfig.getParameter<InputTag>("PATfilters") ) ),
+        triggerFLASHggMicroAOD_( consumes<edm::TriggerResults>( iConfig.getParameter<InputTag>("FLASHfilters") ) )
     {
         leadPhoOverMassThreshold_    = iConfig.getParameter<double>( "leadPhoOverMassThreshold" );
         subleadPhoOverMassThreshold_ = iConfig.getParameter<double>( "subleadPhoOverMassThreshold" );
@@ -100,7 +109,34 @@ namespace flashgg {
         bool VhasHadrons=0;
         bool VhasMissingLeptons=0;
         float Vpt=0;
-
+        bool passMETfilters=1;
+        //Get trigger results relevant to MET filters
+        
+        edm::Handle<edm::TriggerResults> triggerBits;
+        if(! evt.isRealData() )
+            evt.getByToken( triggerPAT_, triggerBits );
+        else
+            evt.getByToken( triggerRECO_, triggerBits );
+        
+        edm::Handle<edm::TriggerResults> triggerFLASHggMicroAOD;
+        evt.getByToken( triggerFLASHggMicroAOD_, triggerFLASHggMicroAOD );
+        const edm::TriggerNames &triggerNames = evt.triggerNames( *triggerBits );
+                
+        std::vector<std::string> flagList {"Flag_HBHENoiseFilter","Flag_HBHENoiseIsoFilter","Flag_EcalDeadCellTriggerPrimitiveFilter","Flag_goodVertices","Flag_eeBadScFilter"};
+        for( unsigned int i = 0; i < triggerNames.triggerNames().size(); i++ ) 
+            {
+                if(!triggerBits->accept(i))
+                    for(size_t j=0;j<flagList.size();j++)
+                        {
+                            //if(flagList(j)==triggerNames.triggerName(i))
+                            if(flagList[j]==triggerNames.triggerName(i))
+                                {
+                                    passMETfilters=0;
+                                    break;
+                                }
+                        }
+            }
+        
         if( ! evt.isRealData() ) 
             {
                 evt.getByToken( genParticleToken_, genParticles );
@@ -176,8 +212,12 @@ namespace flashgg {
         for( unsigned int candIndex = 0; candIndex < diPhotons->size() ; candIndex++ ) {
             edm::Ptr<flashgg::DiPhotonMVAResult> mvares = mvaResults->ptrAt( candIndex );
             edm::Ptr<flashgg::DiPhotonCandidate> dipho = diPhotons->ptrAt( candIndex );
-            
-            if(candIndex==0)
+            if(!passMETfilters)
+                {
+                    continue;
+                }
+            /*
+              if(candIndex==0)
                 {
                     if(VhasDaughters==0)
                         std::cout << "--------------V has no children ------------" << std::endl;
@@ -188,6 +228,7 @@ namespace flashgg {
                     if(VhasHadrons)
                         std::cout << "V-> hadrons ---          hadron tag" << std::endl;
             }
+            */
             //diphoton pt cuts
             if( dipho->leadingPhoton()->pt() < ( dipho->mass() )*leadPhoOverMassThreshold_ )
             { continue; }
@@ -207,7 +248,7 @@ namespace flashgg {
             tag_obj.setDiPhotonIndex( candIndex );
             tag_obj.setSystLabel( systLabel_ );
             tag_obj.setMet( theMET );
-
+            
             //apply phi correction
            float px_0 = 2.74771;
            float px_1 = 0.00842948;

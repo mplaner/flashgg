@@ -259,7 +259,7 @@ namespace flashgg {
             }
             
             // *********************************************************************
-            std::cout << "-----------------------------------------------------number of jets: " << goodJets.size() << std::endl;
+            //            std::cout << "-----------------------------------------------------number of jets: " << goodJets.size() << std::endl;
             if( goodJets.size() < 2 ) { continue; }
 
             TLorentzVector jetl, jets, dijet, phol, phos, diphoton, vstar;
