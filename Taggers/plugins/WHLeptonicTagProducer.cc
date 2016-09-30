@@ -410,7 +410,7 @@ namespace flashgg {
                 whleptonictags_obj.setSystLabel( systLabel_ );
                 //whleptonictags_obj.setMET( tagMETs );
                 whleptonictags_obj.setMET( theMET );
-                whleptonictags->push_back( whleptonic_obj );
+                whleptonictags->push_back( whleptonictags_obj );
                 if( ! evt.isRealData() ) 
                     {
                         VHTagTruth truth_obj;

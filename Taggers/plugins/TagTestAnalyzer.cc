@@ -28,7 +28,7 @@
 #include "flashgg/DataFormats/interface/TTHLeptonicTag.h"
 #include "flashgg/DataFormats/interface/ZHLeptonicTag.h"
 #include "flashgg/DataFormats/interface/VHMetTag.h"
-#include "flashgg/DataFormats/interface/WHLeptonic.h"
+#include "flashgg/DataFormats/interface/WHLeptonicTag.h"
 #include "flashgg/DataFormats/interface/VHHadronicTag.h"
 #include "flashgg/DataFormats/interface/VBFTagTruth.h"
 #include "flashgg/DataFormats/interface/ZPlusJetTag.h"
@@ -226,13 +226,13 @@ namespace flashgg {
             const    VHMetTag *vhmettag = dynamic_cast<const VHMetTag *>( chosenTag );
             if( vhmettag != NULL ) {
                 std::cout << "[VHMet] Category "      << vhmettag->categoryNumber()
-                          << " with MEt        = "   << vhmettag->met().pt()
+                          << " with MEt        = "   << vhmettag->met()->getCorPt()
                           << std::endl;
             }
 
             // IMPORTANT: All future Tags must be added in the way of untagged and vbftag.
 
-            if( untagged == NULL && vbftag == NULL && tthhadronictag == NULL && tthleptonictag == NULL && zhtighttag == NULL && whtighttag == NULL &&
+            if( untagged == NULL && vbftag == NULL && tthhadronictag == NULL && tthleptonictag == NULL && zhleptonictag == NULL && whleptonictag == NULL &&
                     vhhadronictag == NULL && vhmettag == NULL && zplusjet==NULL ) {
                 std::cout << "[FAILED TO CONVERT TAG] with SumPt " << chosenTag->sumPt() << std::endl;
             }
