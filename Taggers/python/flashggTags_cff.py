@@ -99,7 +99,7 @@ flashggVBFTag = cms.EDProducer("FlashggVBFTagProducer",
                                )
 
 
-flashggVHEtTag = cms.EDProducer("FlashggVHEtTagProducer",
+flashggVHMetTag = cms.EDProducer("FlashggVHMetTagProducer",
                                 RECOfilters = cms.InputTag('TriggerResults::RECO'),
                                 PATfilters = cms.InputTag('TriggerResults::PAT'),
                                 FLASHfilters = cms.InputTag('TriggerResults::FLASHggMicroAOD'),
@@ -162,7 +162,7 @@ flashggTTHLeptonicTag = cms.EDProducer("FlashggTTHLeptonicTagProducer",
                                        useElectronMVARecipe = cms.bool(False),
                                        useElectronLooseID = cms.bool(True)
 )
-flashggVHLooseTag = cms.EDProducer("FlashggVHLooseTagProducer",
+flashggWHLeptonicTag = cms.EDProducer("FlashggWHLeptonicTagProducer",
                                    DiPhotonTag=cms.InputTag('flashggPreselectedDiPhotons'),
                                    SystLabel=cms.string(""),
                                    RECOfilters = cms.InputTag('TriggerResults::RECO'),
@@ -207,7 +207,7 @@ flashggVHLooseTag = cms.EDProducer("FlashggVHLooseTagProducer",
                                    useElectronMVARecipe = cms.bool(False),
                                    useElectronLooseID = cms.bool(True)
 				    )
-flashggVHTightTag = cms.EDProducer("FlashggVHTightTagProducer",
+flashggZHLeptonicTag = cms.EDProducer("FlashggZHLeptonicTagProducer",
                                    DiPhotonTag=cms.InputTag('flashggPreselectedDiPhotons'),
                                    SystLabel=cms.string(""),
                                    RECOfilters = cms.InputTag('TriggerResults::RECO'),

@@ -6,9 +6,9 @@ namespace flashgg {
     namespace fwlite {
         PLUGGABLE_ANALYZER( CutBasedTTHHadronicTagDumper );
         PLUGGABLE_ANALYZER( CutBasedTTHLeptonicTagDumper );
-        PLUGGABLE_ANALYZER( CutBasedVHLooseTagDumper );
-        PLUGGABLE_ANALYZER( CutBasedVHTightTagDumper );
-        PLUGGABLE_ANALYZER( CutBasedVHEtTagDumper );
+        PLUGGABLE_ANALYZER( CutBasedWHLeptonicTagDumper );
+        PLUGGABLE_ANALYZER( CutBasedZHLeptonicTagDumper );
+        PLUGGABLE_ANALYZER( CutBasedVHMetTagDumper );
         PLUGGABLE_ANALYZER( CutBasedVHHadronicTagDumper );
         PLUGGABLE_ANALYZER( CutBasedVBFTagDumper );
         PLUGGABLE_ANALYZER( CutBasedZPlusJetTagDumper );

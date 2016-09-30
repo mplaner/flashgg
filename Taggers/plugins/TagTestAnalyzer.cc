@@ -26,9 +26,9 @@
 #include "flashgg/DataFormats/interface/DiPhotonTagBase.h"
 #include "flashgg/DataFormats/interface/TTHHadronicTag.h"
 #include "flashgg/DataFormats/interface/TTHLeptonicTag.h"
-#include "flashgg/DataFormats/interface/VHTightTag.h"
-#include "flashgg/DataFormats/interface/VHEtTag.h"
-#include "flashgg/DataFormats/interface/VHLooseTag.h"
+#include "flashgg/DataFormats/interface/ZHLeptonicTag.h"
+#include "flashgg/DataFormats/interface/VHMetTag.h"
+#include "flashgg/DataFormats/interface/WHLeptonic.h"
 #include "flashgg/DataFormats/interface/VHHadronicTag.h"
 #include "flashgg/DataFormats/interface/VBFTagTruth.h"
 #include "flashgg/DataFormats/interface/ZPlusJetTag.h"
@@ -199,19 +199,20 @@ namespace flashgg {
                           << std::endl;
             }
 
-            const   VHTightTag *vhtighttag = dynamic_cast<const VHTightTag *>( chosenTag );
-            if( vhtighttag != NULL ) {
-                std::cout << "[VHtight] Category " << vhtighttag->categoryNumber()
-                          << " nmuons=" << vhtighttag->muons().size()
+            const   ZHLeptonicTag *zhleptonictag = dynamic_cast<const ZHLeptonicTag *>( chosenTag );
+            if( zhleptonictag != NULL ) {
+                std::cout << "[ZHLeptonic] Category " << zhleptonictag->categoryNumber()
+                          << " nmuons=" << zhleptonictag->muons().size()
+                          << " nelectrons=" << zhleptonictag->electrons().size()
                           << std::endl;
             }
 
-            const   VHLooseTag *vhloosetag = dynamic_cast<const VHLooseTag *>( chosenTag );
-            if( vhloosetag != NULL ) {
-                std::cout << "[VHloose] Category " << vhloosetag->categoryNumber()
-                          << " nmuons=" << vhloosetag->muons().size()
-                          << " nelectrons=" << vhloosetag->electrons().size()
-                          << " systLabel " << vhloosetag->systLabel()
+            const   WHLeptonicTag *whleptonictag = dynamic_cast<const WHLeptonicTag *>( chosenTag );
+            if( whleptonictag != NULL ) {
+                std::cout << "[WHLeptonic] Category " << whleptonictag->categoryNumber()
+                          << " nmuons=" << whleptonictag->muons().size()
+                          << " nelectrons=" << whleptonictag->electrons().size()
+                          << " systLabel " << whleptonictag->systLabel()
                           << std::endl;
             }
 
@@ -222,17 +223,17 @@ namespace flashgg {
                           << " and  subleadingJet pt = " << vhhadronictag->subLeadingJet()->pt()
                           << std::endl;
             }
-            const    VHEtTag *vhettag = dynamic_cast<const VHEtTag *>( chosenTag );
-            if( vhettag != NULL ) {
-                std::cout << "[VHEt] Category "      << vhettag->categoryNumber()
-                          //<< " with MEt        = "   << vhettag->met()
+            const    VHMetTag *vhmettag = dynamic_cast<const VHMetTag *>( chosenTag );
+            if( vhmettag != NULL ) {
+                std::cout << "[VHMet] Category "      << vhmettag->categoryNumber()
+                          << " with MEt        = "   << vhmettag->met().pt()
                           << std::endl;
             }
 
             // IMPORTANT: All future Tags must be added in the way of untagged and vbftag.
 
-            if( untagged == NULL && vbftag == NULL && tthhadronictag == NULL && tthleptonictag == NULL && vhtighttag == NULL && vhloosetag == NULL &&
-                    vhhadronictag == NULL && vhettag == NULL && zplusjet==NULL ) {
+            if( untagged == NULL && vbftag == NULL && tthhadronictag == NULL && tthleptonictag == NULL && zhtighttag == NULL && whtighttag == NULL &&
+                    vhhadronictag == NULL && vhmettag == NULL && zplusjet==NULL ) {
                 std::cout << "[FAILED TO CONVERT TAG] with SumPt " << chosenTag->sumPt() << std::endl;
             }
 

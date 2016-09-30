@@ -89,9 +89,9 @@ if customize.doFiducial == 'True':
     process.flashggTagSequence.remove(process.flashggTTHLeptonicTag)
     process.flashggTagSequence.remove(process.flashggTTHHadronicTag)
     #haven't tested VH tags with fiducial cross-section measurement yet
-    process.flashggTagSequence.remove(process.flashggVHEtTag)
-    process.flashggTagSequence.remove(process.flashggVHLooseTag)
-    process.flashggTagSequence.remove(process.flashggVHTightTag)
+    process.flashggTagSequence.remove(process.flashggVHMetTag)
+    process.flashggTagSequence.remove(process.flashggWHLeptonicTag)
+    process.flashggTagSequence.remove(process.flashggZHLeptonicTag)
     process.flashggTagSequence.replace(process.flashggUntagged, process.flashggSigmaMoMpToMTag)
 
 
@@ -208,16 +208,6 @@ process.tagsDumper.dumpHistos = False
 process.tagsDumper.quietRooFit = True
 process.tagsDumper.nameTemplate = cms.untracked.string("$PROCESS_$SQRTS_$CLASSNAME_$SUBCAT_$LABEL")
 
-#tagList=[
-#["UntaggedTag",4],
-#["VBFTag",2],
-#["VHTightTag",0],
-#["VHLooseTag",0],
-#["VHEtTag",0],
-#["VHHadronicTag",0],
-#["TTHHadronicTag",0],
-##["TTHLeptonicTag",0]
-#]
 
 if customize.doFiducial == 'True':
     tagList=[["SigmaMpTTag",3]]
@@ -225,10 +215,10 @@ else:
     tagList=[
         ["UntaggedTag",4],
         ["VBFTag",2],
-        ["VHTightTag",0],
-        ["VHLooseTag",0],
-        ["VHEtTag",0],
-        #["VHHadronicTag",0],
+        ["WHLeptonicTag",0],
+        ["ZHLeptonicTag",0],
+        ["VHMetTag",0],
+        ["VHHadronicTag",0],
         ["TTHHadronicTag",0],
         ["TTHLeptonicTag",0]
         ]

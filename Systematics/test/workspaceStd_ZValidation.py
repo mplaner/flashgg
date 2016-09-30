@@ -215,27 +215,15 @@ process.flashggPreselectedDiPhotons.variables =  cms.vstring('pfPhoIso03',
                                                              'full5x5_r9',
                                                              '1-passElectronVeto')
 
-
-#tagList=[
-#["UntaggedTag",4],
-#["VBFTag",2],
-#["VHTightTag",0],
-#["VHLooseTag",0],
-#["VHEtTag",0],
-#["VHHadronicTag",0],
-#["TTHHadronicTag",0],
-##["TTHLeptonicTag",0]
-#]
-
 if customize.doFiducial == 'True':
     tagList=[["SigmaMpTTag",3]]
 else:
     tagList=[
         ["UntaggedTag",4],
         ["VBFTag",2],
-        #["VHTightTag",0],
-        #["VHLooseTag",0],
-        #["VHEtTag",0],
+        #["ZHLeptonicTag",0],
+        #["WHLeptonicTag",0],
+        #["VHMetTag",0],
         #["VHHadronicTag",0],
         ["TTHHadronicTag",0],
         ["TTHLeptonicTag",0]

@@ -10,7 +10,7 @@ namespace flashgg {
     class DiPhotonTagBase : public WeightedObject
     {
     public:
-        enum tag_t { kUndefined = 0, kUntagged, kVBF, kTTHHadronic, kTTHLeptonic, kVHTight, kVHLoose, kVHHadronic, kVHEt };
+        enum tag_t { kUndefined = 0, kUntagged, kVBF, kTTHHadronic, kTTHLeptonic, kZHLeptonic, kWHLeptonic, kVHHadronic, kVHMet };
 
         DiPhotonTagBase();
         virtual ~DiPhotonTagBase(); 

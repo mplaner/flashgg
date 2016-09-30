@@ -35,17 +35,19 @@ process.untaggedDumper = createTagDumper("Untagged")
 process.vbfTagDumper = createTagDumper("VBFTag")
 process.tthLeptonicTagDumper = createTagDumper("TTHLeptonicTag")
 process.tthHadronicTagDumper = createTagDumper("TTHHadronicTag")
-process.vhLooseTagDumper = createTagDumper("VHLooseTag")
-process.vhTightTagDumper = createTagDumper("VHTightTag")
+process.whLeptonicTagDumper = createTagDumper("WHLeptonicTag")
+process.zhLeptonicTagDumper = createTagDumper("ZHLeptonicTag")
 process.vhHadronicTagDumper = createTagDumper("VHHadronicTag")
+process.vhMetTagDumper = createTagDumper("VHMetTag")
 
 process.untaggedDumper.dumpTrees = True
 process.vbfTagDumper.dumpTrees = True
 process.tthLeptonicTagDumper.dumpTrees = True
 process.tthHadronicTagDumper.dumpTrees = True
-process.vhLooseTagDumper.dumpTrees = True
-process.vhTightTagDumper.dumpTrees = True
+process.whLeptonicTagDumper.dumpTrees = True
+process.zhLeptonicTagDumper.dumpTrees = True
 process.vhHadronicTagDumper.dumpTrees = True
+process.vhMetTagDumper.dumpTrees = True
 
 ## define categories and associated objects to dump
 import flashgg.Taggers.dumperConfigTools as cfgTools
@@ -157,8 +159,8 @@ cfgTools.addCategories(process.tthHadronicTagDumper,
                        histograms=[]
 )
 
-## VH Loose ##
-cfgTools.addCategories(process.vhLooseTagDumper,
+## WH Leptonic ##
+cfgTools.addCategories(process.whLeptonicTagDumper,
                        ## categories definition
                        [("all","1",0)
                     ],                       
@@ -182,8 +184,8 @@ cfgTools.addCategories(process.vhLooseTagDumper,
                        histograms=[]
 )
 
-## VH Tight ##
-cfgTools.addCategories(process.vhTightTagDumper,
+## ZH Leptonic ##
+cfgTools.addCategories(process.zhLeptonicTagDumper,
                        ## categories definition
                        [("all","1",0)
                     ],                       
@@ -226,11 +228,27 @@ cfgTools.addCategories(process.vhHadronicTagDumper,
                        histograms=[]
 )
 
+## VH met ##
+cfgTools.addCategories(process.vhMetTagDumper,
+                       ## categories definition
+                       [("all","1",0)
+                    ],                       
+                       ## variables to be dumped in trees/datasets. Same variables for all categories
+                       variables=dipho_variables+
+                       ["tagged_met         := met().getCorPt()",
+                        "tagged_phi         := met().getCorPhi()",
+                        ],
+                       ## histograms
+                       histograms=[]
+)
+
 process.p1 = cms.Path(process.untaggedDumper
                       +process.vbfTagDumper
                       +process.tthLeptonicTagDumper
                       +process.tthHadronicTagDumper
-                      +process.vhLooseTagDumper                      
-                      +process.vhTightTagDumper
-                      +process.vhHadronicTagDumper)
+                      +process.whLeptonicTagDumper                      
+                      +process.zhLeptonicTagDumper
+                      +process.vhHadronicTagDumper
+                      +process.vhMetTagDumper
+                      )
 

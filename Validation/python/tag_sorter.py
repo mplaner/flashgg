@@ -35,11 +35,13 @@ process.load("flashgg/TagProducers/flashggTags_cfi")
 process.flashggTagSorter = cms.EDProducer('FlashggTagSorter',
                                           DiPhotonTag = cms.InputTag('flashggDiPhotons'),
                                           TagVectorTag = cms.untracked.VInputTag(
-									cms.untracked.InputTag('flashggVHLooseTag'),
-                                                                        cms.untracked.InputTag('flashggVHTightTag'),
+									cms.untracked.InputTag('flashggWHLeptonicTag'),
+                                                                        cms.untracked.InputTag('flashggZHLeptonicTag'),
         								cms.untracked.InputTag('flashggTTHLeptonicTag'),
                                                                         cms.untracked.InputTag('flashggTTHHadronicTag'),
         								cms.untracked.InputTag('flashggVBFTag'),
+                                                                        #cms.untracked.InputTag('flashggVHHadronicTag'),
+                                                                        #cms.untracked.InputTag('flashggVHMetTag'),
 									cms.untracked.InputTag('flashggUntagged'),
                                                                         ),
                                           massCutUpper=cms.untracked.double(180.),
@@ -101,7 +103,7 @@ process.p = cms.Path(process.flashggVertexMapUnique*
                      (process.flashggVBFDiPhoDiJetMVA)* # Needs to happen after VBF MVA and DiPho MVA
 
                      # Tag producers, once written, can run in parallel, so they go in here with +
-                     (process.flashggUntagged+process.flashggVBFTag+process.flashggTTHLeptonicTag+process.flashggTTHHadronicTag+process.flashggVHLooseTag+process.flashggVHTightTag)*
+                     (process.flashggUntagged+process.flashggVBFTag+process.flashggTTHLeptonicTag+process.flashggTTHHadronicTag+process.flashggWHLeptonicTag+process.flashggZHLeptonicTag)*
 
                      process.flashggTagSorter*
                      process.flashggTreeMakerWithTagSorter

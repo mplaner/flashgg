@@ -15,7 +15,7 @@
 //#include "DataFormats/PatCandidates/interface/MET.h"
 //#include "flashgg/DataFormats/interface/VBFDiPhoDiJetMVAResult.h"
 //#include "flashgg/DataFormats/interface/VBFMVAResult.h"
-#include "flashgg/DataFormats/interface/VHEtTag.h"
+#include "flashgg/DataFormats/interface/VHMetTag.h"
 
 #include "flashgg/DataFormats/interface/VHTagTruth.h"
 #include "DataFormats/Common/interface/RefToPtr.h"
@@ -28,13 +28,13 @@ using namespace edm;
 
 namespace flashgg {
 
-    class VHEtTagProducer : public EDProducer
+    class VHMetTagProducer : public EDProducer
     {
 
     public:
         typedef math::XYZPoint Point;
 
-        VHEtTagProducer( const ParameterSet & );
+        VHMetTagProducer( const ParameterSet & );
     private:
         void produce( Event &, const EventSetup & ) override;
 
@@ -59,7 +59,7 @@ namespace flashgg {
         double dPhiDiphotonMetThreshold_;
     };
 
-    VHEtTagProducer::VHEtTagProducer( const ParameterSet &iConfig ) :
+    VHMetTagProducer::VHMetTagProducer( const ParameterSet &iConfig ) :
         diPhotonToken_( consumes<View<flashgg::DiPhotonCandidate> >( iConfig.getParameter<InputTag> ( "DiPhotonTag" ) ) ),
         mvaResultToken_( consumes<View<flashgg::DiPhotonMVAResult> >( iConfig.getParameter<InputTag> ( "MVAResultTag" ) ) ),
         //METToken_( consumes<View<pat::MET> >( iConfig.getParameter<InputTag> ( "METTag" ) ) ),
@@ -77,13 +77,13 @@ namespace flashgg {
         phoIdMVAThreshold_           = iConfig.getParameter<double>( "phoIdMVAThreshold" );
         dPhiDiphotonMetThreshold_    = iConfig.getParameter<double>( "dPhiDiphotonMetThreshold" );
 
-        produces<vector<VHEtTag> >();
+        produces<vector<VHMetTag> >();
         produces<vector<VHTagTruth> >();
         photonCollection_=iConfig.getParameter<InputTag> ( "DiPhotonTag" );
 
     }
     
-    void VHEtTagProducer::produce( Event &evt, const EventSetup & )
+    void VHMetTagProducer::produce( Event &evt, const EventSetup & )
     {
         Handle<View<flashgg::DiPhotonCandidate> > diPhotons;
         evt.getByToken( diPhotonToken_, diPhotons );
@@ -100,7 +100,7 @@ namespace flashgg {
 
         Handle<View<reco::GenParticle> > genParticles;
 
-        std::auto_ptr<vector<VHEtTag> > vhettags( new vector<VHEtTag> );
+        std::auto_ptr<vector<VHMetTag> > vhettags( new vector<VHMetTag> );
         std::auto_ptr<vector<VHTagTruth> > truths( new vector<VHTagTruth> );
         
         Point higgsVtx;
@@ -246,7 +246,7 @@ namespace flashgg {
             if( mvares->result < diphoMVAThreshold_ )
             { continue; }
 
-            VHEtTag tag_obj( dipho, mvares );
+            VHMetTag tag_obj( dipho, mvares );
             tag_obj.includeWeights( *dipho );
             tag_obj.setDiPhotonIndex( candIndex );
             tag_obj.setSystLabel( systLabel_ );
@@ -311,8 +311,8 @@ namespace flashgg {
     }
 }
 
-typedef flashgg::VHEtTagProducer FlashggVHEtTagProducer;
-DEFINE_FWK_MODULE( FlashggVHEtTagProducer );
+typedef flashgg::VHMetTagProducer FlashggVHMetTagProducer;
+DEFINE_FWK_MODULE( FlashggVHMetTagProducer );
 // Local Variables:
 // mode:c++
 // indent-tabs-mode:nil

@@ -10,7 +10,7 @@
 #include "DataFormats/PatCandidates/interface/Jet.h"
 #include "flashgg/DataFormats/interface/Jet.h"
 #include "flashgg/DataFormats/interface/DiPhotonCandidate.h"
-#include "flashgg/DataFormats/interface/VHLooseTag.h"
+#include "flashgg/DataFormats/interface/WHLeptonicTag.h"
 #include "flashgg/DataFormats/interface/Electron.h"
 #include "flashgg/DataFormats/interface/Muon.h"
 #include "flashgg/DataFormats/interface/Met.h"
@@ -38,13 +38,13 @@ using namespace edm;
 
 
 namespace flashgg {
-    class VHLooseTagProducer : public EDProducer
+    class WHLeptonicTagProducer : public EDProducer
     {
 
     public:
         typedef math::XYZPoint Point;
 
-        VHLooseTagProducer( const ParameterSet & );
+        WHLeptonicTagProducer( const ParameterSet & );
     private:
         void produce( Event &, const EventSetup & ) override;
 
@@ -106,7 +106,7 @@ namespace flashgg {
         
     };
 
-    VHLooseTagProducer::VHLooseTagProducer( const ParameterSet &iConfig ) :
+    WHLeptonicTagProducer::WHLeptonicTagProducer( const ParameterSet &iConfig ) :
         diPhotonToken_( consumes<View<flashgg::DiPhotonCandidate> >( iConfig.getParameter<InputTag> ( "DiPhotonTag" ) ) ),
         //thejetToken_( consumes<View<flashgg::Jet> >( iConfig.getParameter<InputTag>( "JetTag" ) ) ),
         inputTagJets_( iConfig.getParameter<std::vector<edm::InputTag> >( "inputTagJets" ) ),
@@ -159,11 +159,11 @@ namespace flashgg {
             auto token = consumes<View<flashgg::Jet> >(inputTagJets_[i]);
             tokenJets_.push_back(token);
         }
-        produces<vector<VHLooseTag> >();
+        produces<vector<WHLeptonicTag> >();
         produces<vector<VHTagTruth> >();
     }
 
-    void VHLooseTagProducer::produce( Event &evt, const EventSetup & )
+    void WHLeptonicTagProducer::produce( Event &evt, const EventSetup & )
     {
 
         //Handle<View<flashgg::Jet> > theJets;
@@ -192,7 +192,7 @@ namespace flashgg {
         Handle<View<reco::GenParticle> > genParticles;
 
         //const PtrVector<flashgg::DiPhotonMVAResult>& mvaResultPointers = mvaResults->ptrVector();
-        std::auto_ptr<vector<VHLooseTag> > vhloosetags( new vector<VHLooseTag> );
+        std::auto_ptr<vector<WHLeptonicTag> > whleptonictags( new vector<WHLeptonicTag> );
 
         Handle<View<flashgg::Met> > METs;
         evt.getByToken( METToken_, METs );
@@ -334,8 +334,8 @@ namespace flashgg {
             edm::Ptr<flashgg::DiPhotonCandidate> dipho = diPhotons->ptrAt( diphoIndex );
             edm::Ptr<flashgg::DiPhotonMVAResult> mvares = mvaResults->ptrAt( diphoIndex );
 
-            VHLooseTag vhloosetags_obj( dipho, mvares );
-            vhloosetags_obj.includeWeights( *dipho );
+            WHLeptonicTag whleptonictags_obj( dipho, mvares );
+            whleptonictags_obj.includeWeights( *dipho );
             
             if( dipho->leadingPhoton()->pt() < ( dipho->mass() )*leadPhoOverMassThreshold_ ) { continue; }
             if( dipho->subLeadingPhoton()->pt() < ( dipho->mass() )*subleadPhoOverMassThreshold_ ) { continue; }
@@ -402,15 +402,15 @@ namespace flashgg {
             Ptr<flashgg::Met> theMET = METs->ptrAt( 0 );
             //tagMETs.push_back( theMET );            
             //std::cout << "------------------------loose has good met" << std::endl;
-            if( (tagJets.size() < jetsNumberThreshold_) && photonSelection && ( goodMuons.size() >= 1 || goodElectrons.size() >= 1 ) && theMET->getCorPt()<METThreshold_) {
-                vhloosetags_obj.setJets( tagJets );
-                vhloosetags_obj.setMuons( goodMuons );
-                vhloosetags_obj.setElectrons( goodElectrons );
-                vhloosetags_obj.setDiPhotonIndex( diphoIndex );
-                vhloosetags_obj.setSystLabel( systLabel_ );
-                //vhloosetags_obj.setMET( tagMETs );
-                vhloosetags_obj.setMET( theMET );
-                vhloosetags->push_back( vhloosetags_obj );
+            if( (tagJets.size() < jetsNumberThreshold_) && photonSelection && ( goodMuons.size() >= 1 || goodElectrons.size() >= 1 ) && theMET->getCorPt()>METThreshold_) {
+                whleptonictags_obj.setJets( tagJets );
+                whleptonictags_obj.setMuons( goodMuons );
+                whleptonictags_obj.setElectrons( goodElectrons );
+                whleptonictags_obj.setDiPhotonIndex( diphoIndex );
+                whleptonictags_obj.setSystLabel( systLabel_ );
+                //whleptonictags_obj.setMET( tagMETs );
+                whleptonictags_obj.setMET( theMET );
+                whleptonictags->push_back( whleptonic_obj );
                 if( ! evt.isRealData() ) 
                     {
                         VHTagTruth truth_obj;
@@ -424,17 +424,17 @@ namespace flashgg {
                         truth_obj.setVhasMissingLeptons( VhasMissingLeptons );
                         truth_obj.setVpt( Vpt );
                         truths->push_back( truth_obj );
-                        vhloosetags->back().setTagTruth( edm::refToPtr( edm::Ref<vector<VHTagTruth> >( rTagTruth, idx++ ) ) );
+                        whleptonictags->back().setTagTruth( edm::refToPtr( edm::Ref<vector<VHTagTruth> >( rTagTruth, idx++ ) ) );
                     }
             }
         }
-        evt.put( vhloosetags );
+        evt.put( whleptonictags );
         evt.put( truths );
     }
 
 }
-typedef flashgg::VHLooseTagProducer FlashggVHLooseTagProducer;
-DEFINE_FWK_MODULE( FlashggVHLooseTagProducer );
+typedef flashgg::WHLeptonicTagProducer FlashggWHLeptonicTagProducer;
+DEFINE_FWK_MODULE( FlashggWHLeptonicTagProducer );
 // Local Variables:
 // mode:c++
 // indent-tabs-mode:nil
