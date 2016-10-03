@@ -144,7 +144,7 @@ namespace flashgg {
         bool VhasHadrons=0;
         bool VhasMissingLeptons=0;
         float Vpt=0;
-        
+        std::cout << "starting vhhadronic" << std::endl;
         if( ! evt.isRealData() )
             {
                 evt.getByToken( genParticleToken_, genParticles );
@@ -208,7 +208,7 @@ namespace flashgg {
                             }
                     }
             }
-        
+
 
         edm::RefProd<vector<VHTagTruth> > rTagTruth = evt.getRefBeforePut<vector<VHTagTruth> >();
         unsigned int idx = 0;
@@ -216,7 +216,7 @@ namespace flashgg {
         assert( diPhotons->size() == mvaResults->size() );
         double idmva1 = 0.;
         double idmva2 = 0.;
-        
+        std::cout << "starting vhhadronic diphotons" << std::endl;
         for( unsigned int diphoIndex = 0; diphoIndex < diPhotons->size(); diphoIndex++ ) {
 
             edm::Ptr<flashgg::DiPhotonCandidate> dipho  = diPhotons->ptrAt( diphoIndex );
@@ -236,16 +236,13 @@ namespace flashgg {
             std::vector<edm::Ptr<flashgg::Jet> > goodJets;
             
             unsigned int jetCollectionIndex = diPhotons->ptrAt( diphoIndex )->jetCollectionIndex();
-                        //the line below if messing up.
-                                    
-                        
             for( size_t ijet = 0; ijet < Jets[jetCollectionIndex]->size(); ijet++ ) {
-                edm::Ptr<flashgg::Jet> thejet = Jets[jetCollectionIndex]->ptrAt( ijet );
 
+                edm::Ptr<flashgg::Jet> thejet = Jets[jetCollectionIndex]->ptrAt( ijet );
+                
                 if( !thejet->passesPuJetId( dipho ) )           { continue; }
                 if( fabs( thejet->eta() ) > jetEtaThreshold_ )  { continue; }
                 if( thejet->pt() < jetPtThreshold_ )            { continue; }
-
 
                 float dPhiJetToPhoL = deltaPhi( dipho->leadingPhoton()->phi(), thejet->phi() );
                 float dEtaJetToPhoL = dipho->leadingPhoton()->eta() - thejet->eta();
@@ -257,11 +254,13 @@ namespace flashgg {
 
                 if( abs( dRJetToPhoL ) < dRJetToPhoLThreshold_ )            { continue; }
                 if( abs( dRJetToPhoS ) < dRJetToPhoSThreshold_ )            { continue; }
+
                 goodJets.push_back( thejet );
             }
+            
             // *********************************************************************
             //            std::cout << "-----------------------------------------------------number of jets: " << goodJets.size() << std::endl;
-            if( goodJets.size() <=2 ) { continue; }
+            if( goodJets.size() >=2 ) { continue; }
 
             TLorentzVector jetl, jets, dijet, phol, phos, diphoton, vstar;
 
@@ -273,8 +272,7 @@ namespace flashgg {
             diphoton = phol + phos;
             dijet = jetl + jets;
             vstar = diphoton + dijet;
-            ///////
-            
+
             float invmass = dijet.M();
 
             if( invmass < dijetMassLowThreshold_ || invmass > dijetMassHighThreshold_ ) { continue; }  // go out of diphoton loop
@@ -289,7 +287,7 @@ namespace flashgg {
             vhhadtag_obj.setDiPhotonIndex( diphoIndex );
             vhhadtag_obj.setSystLabel( systLabel_ );
             vhhadtags->push_back( vhhadtag_obj );
-            
+
             if( ! evt.isRealData() ) {
                 VHTagTruth truth_obj;
                 truth_obj.setGenPV( higgsVtx );
@@ -304,12 +302,9 @@ namespace flashgg {
                 truths->push_back( truth_obj );
                 vhhadtags->back().setTagTruth( edm::refToPtr( edm::Ref<vector<VHTagTruth> >( rTagTruth, idx++ ) ) );
             }
-            
         }
-        
         evt.put( vhhadtags );
         evt.put( truths );
-        
     }
 
 
