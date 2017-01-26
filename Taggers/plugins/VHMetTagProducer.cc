@@ -164,7 +164,6 @@ namespace flashgg {
                             }
                     }
             }
-        
         std::vector<std::string> flashggFlagList {"flag_BadChargedCandidateFilter","flag_BadPFMuonFilter","flag_globalTightHalo2016Filter"};
         const edm::TriggerNames &flashggtriggerNames = evt.triggerNames( *triggerFLASHggMicroAOD );
         for( unsigned int i = 0; i < flashggtriggerNames.triggerNames().size(); i++ ) 
@@ -174,6 +173,7 @@ namespace flashgg {
                     {
                         if(flagList[j]==flashggtriggerNames.triggerName(i))
                             {
+                                std::cout << "skipped: " << flashggtriggerNames.triggerName(i) << std::endl;
                                 passMETfilters=0;
                                 break;
                             }
@@ -275,6 +275,7 @@ namespace flashgg {
             tag_obj.setDiPhotonIndex( candIndex );
             tag_obj.setSystLabel( systLabel_ );
             tag_obj.setMet( theMET );
+            tag_obj.setIsVtx0(dipho->vertexIndex()==0);
             if(tagJets.size())
                 tag_obj.setJet(tagJets[0]);
             //float newPhi=theMET->corPhi(pat::MET::Type1XY);  //xy-correction is worse | don't use newPhi

@@ -1,6 +1,5 @@
 minimalVariables = ["CMS_hgg_mass[160,100,180]:=diPhoton().mass",
-                    "dZ[40,-20.,20.]:=(tagTruth().genPV().z-diPhoton().vtx().z)", # store actual value
-                                                                               #when doing systematics, variables need to have a binning
+                                                                                                   #when doing systematics, variables need to have a binning
                                                                                #specified, otherwise the rooDataHist end up empty.
             								       #an assert in the code prevents you from doing this.
                     "centralObjectWeight[1,-999999.,999999.] := centralWeight"]
@@ -14,9 +13,8 @@ defaultVariables=["CMS_hgg_mass[160,100,180]:=diPhoton().mass",
                                     "subleadPt                :=diPhoton().subLeadingPhoton.pt",
                                     "diphoMVA                 :=diPhotonMVA().result",    
                                     "maxEta                   :=max(abs(diPhoton().leadingPhoton.superCluster.eta),abs(diPhoton().leadingPhoton.superCluster.eta))",
-                                    "genZ           :=tagTruth().genPV().z",
-                                    "vtxZ           :=diPhoton().vtx().z",
-                                    "dZ             :=(tagTruth().genPV().z-diPhoton().vtx().z)"]
+                                    "vtxZ           :=diPhoton().vtx().z"]
+                                    
 
 
 defaultHistograms=["CMS_hgg_mass>>mass(160,100,180)",

@@ -28,6 +28,7 @@ namespace flashgg {
         const bool VhasHadrons() const { return VhasHadrons_; }
         const bool VhasMissingLeptons() const { return VhasMissingLeptons_; }
         const float Vpt() const { return Vpt_; }
+        const float Vphi() const { return Vphi_; }
         //Setter methods
         void setAssociatedZ( const bool &val ) { associatedZ_ = val; }
         void setAssociatedW( const bool &val ) { associatedW_ = val; }
@@ -37,6 +38,7 @@ namespace flashgg {
         void setVhasHadrons( const bool &val ) { VhasHadrons_ = val; }
         void setVhasMissingLeptons( const bool &val ) { VhasMissingLeptons_ = val; }
         void setVpt( const float &val ) { Vpt_ = val; }
+        void setVphi( const float &val ) { Vphi_ = val; }
         
         //Counts
         //Clone
@@ -51,6 +53,7 @@ namespace flashgg {
         bool VhasHadrons_;
         bool VhasMissingLeptons_;
         float Vpt_;
+        float Vphi_;
 
         //edm::Ptr<reco::GenJet> closestGenJetToLeadingJet_;
         //edm::Ptr<reco::GenJet> subSubLeadingGenJet_;
