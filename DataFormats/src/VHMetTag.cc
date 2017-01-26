@@ -57,6 +57,11 @@ void VHMetTag::setMet( edm::Ptr<flashgg::Met> met )
     eleUnc = abs(met->shiftedPt(pat::MET::ElectronEnUp,pat::MET::Type1) - met->shiftedPt(pat::MET::ElectronEnDown,pat::MET::Type1))/2;
 }
 
+void VHMetTag::setJet( edm::Ptr<flashgg::Jet> jet )
+{
+    theJet_ = jet;
+}
+
 // Local Variables:
 // mode:c++
 // indent-tabs-mode:nil

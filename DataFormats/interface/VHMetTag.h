@@ -43,6 +43,7 @@ namespace flashgg {
         edm::Ptr<DiPhotonCandidate> theDiPhotonCandidate_;
         edm::Ptr<flashgg::Jet> theJet_;
         edm::Ptr<flashgg::Met> theMet_;
+        edm::Ptr<flashgg::Jet> theJet_;
     };
 
 }

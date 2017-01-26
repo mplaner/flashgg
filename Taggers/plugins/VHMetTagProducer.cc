@@ -285,8 +285,6 @@ namespace flashgg {
                 if(fabs(deltaPhi(dipho->phi(),tagJets[0]->phi()))>deltaPhiJetMetThreshold_)    {continue;}
             if(theMET->corPt()< metPtThreshold_ )   {continue;}
 
-            
-            
             vhettags->push_back( tag_obj );
             if( ! evt.isRealData() ) 
                 {

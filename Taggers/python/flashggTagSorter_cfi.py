@@ -16,7 +16,7 @@ flashggTagSorter = cms.EDProducer('FlashggTagSorter',
 #        cms.PSet(TagName = cms.InputTag('flashggVHEtTag')),
         cms.PSet(TagName = cms.InputTag('flashggVHMetTag')),
         cms.PSet(TagName = cms.InputTag('flashggVHHadronicTag')),
-         cms.PSet(TagName = cms.InputTag('flashggUntagged'))
+        cms.PSet(TagName = cms.InputTag('flashggUntagged'))
         ###                                                                 cms.PSet(TagName = cms.InputTag('flashggSigmaMoMpToMTag'))
         ),
                                   MassCutUpper=cms.double(180.),
