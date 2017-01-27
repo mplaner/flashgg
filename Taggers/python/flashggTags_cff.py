@@ -320,12 +320,8 @@ flashggZHLeptonicTag = cms.EDProducer("FlashggZHLeptonicTagProducer",
                                    METTag=cms.InputTag('flashggMets'),
                                    useVertex0only=cms.bool(False),
                                    GenParticleTag=cms.InputTag( "flashggPrunedGenParticles" ),
-<<<<<<< HEAD
-                                   leptonPtThreshold = cms.double(10),
-=======
 				   rhoTag = cms.InputTag('fixedGridRhoFastjetAll'),
                                    leptonPtThreshold = cms.double(20),
->>>>>>> 1df7226bc55c7215cf25d59bb125c9aee43b2ccc
                                    muonEtaThreshold = cms.double(2.4),
                                    leadPhoOverMassThreshold = cms.double(0.375),
                                    subleadPhoOverMassThreshold = cms.double(0.25),
