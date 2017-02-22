@@ -88,17 +88,21 @@ namespace flashgg {
                 bool bothTightMu = false;
                 if( leadmuIsTight && subleadmuIsTight ) { bothTightMu = true; }
                 dimu.setIfBothTightMu( bothTightMu );
-
+                
                 bool bothGlobalAndPF = false;
                 if( LeadMuon->isPFMuon() && LeadMuon->isGlobalMuon() && SubLeadMuon->isPFMuon() && SubLeadMuon->isGlobalMuon() ) { bothGlobalAndPF = true; }
                 dimu.setIfBothGlobalAndPF( bothGlobalAndPF );
-
+                
                 // store the dimuon into the collection
-                diMuonColl->push_back( dimu );
+
+                if(!dimu.IfBothTightMu())
+                    continue;
+                //std::cout << "both tight muons " << std::endl;                                                                                                                                                                                               
+                if(dimu.mass()>70&&dimu.mass()<110)
+                    diMuonColl->push_back( dimu );
             }
         }
         evt.put( diMuonColl );
-
     }
 }
 

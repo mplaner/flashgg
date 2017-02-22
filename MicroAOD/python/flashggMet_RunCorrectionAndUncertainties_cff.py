@@ -47,17 +47,19 @@ def runMETs(process,isMC):
         
         
         
-        runMetCorAndUncFromMiniAOD(process, metType="PF",
-                                   jetCollUnskimmed="slimmedJets",
-                                   electronColl="slimmedElectrons",
-                                   photonColl="slimmedPhotons",
-                                   muonColl="slimmedMuons",
-                                   tauColl="slimmedTaus",
-                                   #reclusterJets = False,
+        runMetCorAndUncFromMiniAOD(process, 
+                                   #metType="PF",
+                                   #jetCollUnskimmed="slimmedJets",
+                                   #electronColl="slimmedElectrons",
+                                   #photonColl="slimmedPhotons",
+                                   #muonColl="slimmedMuons",
+                                   #tauColl="slimmedTaus",
                                    recoMetFromPFCs=True,
-                                   pfCandColl = "packedPFCandidates",
-                                   postfix="",
-                                   isData=(not isMC),
+                                   #CHS = True,
+                                   #pfCandColl = "packedPFCandidates",
+                                   pfCandColl = "flashggPFcandsForMet:",
+                                   postfix="TEST",
+                                   isData=(not isMC)
                                    )
         
 #===========================================================================================================================#

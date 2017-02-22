@@ -7,7 +7,6 @@ microAODDefaultOutputCommand = cms.untracked.vstring("drop *",
                                                      "drop *_flashggPuppi*_*_*",
                                                      "drop *_flashggPhotons_*_*", # Only keep the copies with random numbers added
                                                      #
-                                                     ""
                                                      "drop patPackedCandidates_*_*_*", # for intermediate PFCHSLeg jet constituents
                                                      "drop *_flashggPrunedGenParticles_*_*",   
                                                      "keep recoGenParticles_flashggPrunedGenParticles_*_*", # this line, and preceding, drop unneded association object
@@ -25,13 +24,11 @@ microAODDefaultOutputCommand = cms.untracked.vstring("drop *",
                                                      "keep *_flashggDiPhotons_*_*", # STILL NEEDED
                                                      "keep *_slimmedAddPileupInfo_*_*", # Was huge in old MiniAod - hopefully better now
                                                      "keep *GsfElectronCore*_reducedEgamma_*_*", # needed by at least one Tag
-
                                                      "keep *_flashggSelected*_*_*",
                                                      # Drop intermediate collections in favor of selected/final collections
                                                      "drop *_flashgg*Jet*_*_*",
                                                      "drop *_flashggMuons_*_*",
                                                      "drop *_flashggElectrons_*_*",
-
                                                      "keep *_flashggFinalJets_*_*",
                                                      "keep *_flashggFinalPuppiJets_*_*",
 						     "drop floatedmValueMap_electronMVAValueMapProducer_*_*",
@@ -39,7 +36,9 @@ microAODDefaultOutputCommand = cms.untracked.vstring("drop *",
 						     "drop floatedmValueMap_photonMVAValueMapProducer_*_*",
                                                      "keep *_selectedPatTrigger_*_*",
                                                      "keep *_particleFlowEGammaGSFixed_dupECALClusters_*",
-                                                     "keep *_ecalMultiAndGSGlobalRecHitEB_hitsNotReplaced_*"
+                                                     "keep *_ecalMultiAndGSGlobalRecHitEB_hitsNotReplaced_*",
+                                                     'keep *_flashggMETs__*',
+                                                     'keep *_*packedCandidate*__*',
                                                      )
 
 # Should be included for now for ongoing studies, but to be removed some day

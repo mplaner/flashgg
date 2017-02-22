@@ -15,3 +15,8 @@ flashggMuons = cms.EDProducer('FlashggMuonProducer',
 		muminiso_ptThresh_phot = cms.double(1.0)
 		)
 
+flashggPFcandsForMet = cms.EDProducer('FlashggPatForMetProducer',
+                                      pfCandidatesTag = cms.InputTag("packedPFCandidates"),
+                                      diMuonTag = cms.InputTag("flashggDiMuons"),
+                                      GenParticleTag=cms.InputTag( "flashggPrunedGenParticles" )
+                                    )

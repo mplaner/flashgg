@@ -4,11 +4,11 @@ from flashgg.MicroAOD.flashggTkVtxMap_cfi import flashggVertexMapUnique,flashggV
 from flashgg.MicroAOD.flashggPhotons_cfi import flashggPhotons
 from flashgg.MicroAOD.flashggRandomizedPhotonProducer_cff import flashggRandomizedPhotons
 from flashgg.MicroAOD.flashggDiPhotons_cfi import flashggDiPhotons
+from flashgg.MicroAOD.flashggDiMuons_cfi import flashggDiMuons
 
 from flashgg.MicroAOD.flashggJets_cfi import flashggFinalJets,flashggFinalPuppiJets
 from flashgg.MicroAOD.flashggElectrons_cfi import flashggElectrons
-from flashgg.MicroAOD.flashggMuons_cfi import flashggMuons
-from flashgg.MicroAOD.flashggMets_cfi import flashggMets
+from flashgg.MicroAOD.flashggMuons_cfi import flashggMuons,flashggPFcandsForMet
 
 from flashgg.MicroAOD.flashggLeptonSelectors_cff import flashggSelectedMuons,flashggSelectedElectrons
 from flashgg.MicroAOD.flashggMicroAODGenSequence_cff import *
@@ -39,10 +39,10 @@ weightsCount = cms.EDProducer("WeightsCountProducer",
 flashggMicroAODSequence = cms.Sequence( eventCount+weightsCount
                                        +flashggVertexMapUnique+flashggVertexMapNonUnique
                                        +electronMVAValueMapProducer*egmGsfElectronIDs*flashggElectrons*flashggSelectedElectrons
-                                       +flashggMuons*flashggSelectedMuons
+                                       +flashggMuons*flashggSelectedMuons*flashggDiMuons
                                        +flashggMicroAODGenSequence
-                                       +photonMVAValueMapProducer * egmPhotonIDs * flashggPhotons * flashggRandomizedPhotons * flashggDiPhotons
+                                        +photonMVAValueMapProducer * egmPhotonIDs * flashggPhotons * flashggRandomizedPhotons * flashggDiPhotons
                                        +flashggVertexMapForCHS*flashggFinalJets
-                                       +flashggVertexMapForPUPPI*flashggFinalPuppiJets
-                                       +flashggMets
-                                       )
+                                        +flashggVertexMapForPUPPI*flashggFinalPuppiJets
+                                        +flashggPFcandsForMet
+                                        )
