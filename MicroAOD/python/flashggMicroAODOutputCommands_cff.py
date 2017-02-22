@@ -38,6 +38,7 @@ microAODDefaultOutputCommand = cms.untracked.vstring("drop *",
                                                      "keep *_particleFlowEGammaGSFixed_dupECALClusters_*",
                                                      "keep *_ecalMultiAndGSGlobalRecHitEB_hitsNotReplaced_*",
                                                      'keep *_flashggMETs__*',
+                                                     "keep patMETs_slimmedMETs__PAT",
                                                      'keep *_*packedCandidate*__*',
                                                      )
 
