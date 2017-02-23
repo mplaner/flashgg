@@ -22,7 +22,7 @@ isLEAD=False
 mylist = FileUtils.loadListFromFile ('/afs/cern.ch/user/m/mplaner/flashgg/CMSSW_8_0_8/src/flashgg/microAOD_hlt2016.txt')
 readFiles = cms.untracked.vstring( *mylist)
 if(isMC):
-    options['HLTProcessName']        = "TEST"
+    options['HLTProcessName']        = "HLT"
 else:
     options['HLTProcessName']        = "HLT"
 
@@ -34,7 +34,7 @@ options['DIPHOTON_COLL']         = "flashggDiPhotons"
 #options['PHOTON_TAG_CUTS']       = ""
 
 if(isMC):
-    options['TRIGGER_RES']            = "TriggerResults::TEST"
+    options['TRIGGER_RES']            = "TriggerResults::HLT"
     options['PAT_TRIG']               = "patTrigger"
 else:
     options['TRIGGER_RES']            = "TriggerResults::HLT"
@@ -63,31 +63,26 @@ options['SUBLEADING_PRESELECTION'] = ""
 from flashgg.Validation.treeMakerOptionsHLT_cfi import *
 
 if (isMC): #isMC
-    #options['INPUT_FILE_NAME']       = ('root://eoscms.cern.ch//eos/cms/store/group/phys_higgs/cmshgg/mplaner/flashgg/RunIIFall15-ReHLT-25ns/2016c/microAOD/GluGluHToGG_M-125_13TeV_powheg_pythia8/ReHLT-HLT_2016cmicroAOD-25ns-Hgg-RunIIFall15DR76-25nsFlat10to25TSG_76X_mcRun2_asymptotic_v12-v1/160418_085554/0000/testOpenHLT_Hgg_7.root')
-    options['INPUT_FILE_NAME']       = readFiles
-                                        #'file:/afs/cern.ch/work/m/mplaner/microAOD/dyM100-200.1.root'
-    options['OUTPUT_FILE_NAME']      = "TnPTree_mc.root"
-    #options['TnPPATHS']              = cms.vstring("HLT_Ele27_WPLoose_Gsf_v*")
-    #options['TnPHLTTagFilters']      = cms.vstring("hltEle27WPLooseGsfTrackIsoFilter")   
-    options['TnPPATHS']              = cms.vstring()
-    options['TnPHLTTagFilters']      = cms.vstring()   
+    options['INPUT_FILE_NAME']        = "/store/group/phys_higgs/cmshgg/sethzenz/flashgg/RunIISummer16-2_4_1-25ns_Moriond17/2_4_1/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/RunIISummer16-2_4_1-25ns_Moriond17-2_4_1-v0-RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6_ext2-v1/170212_190415/0000/myMicroAODOutputFile_10.root"
+    options['OUTPUT_FILE_NAME']      = "TnPTree_data.root"
+    
+    options['TnPPATHS']              = cms.vstring("HLT_Ele23_WPLoose_Gsf_v*")
+    options['TnPHLTTagFilters']      = cms.vstring("hltEle23WPLooseGsfTrackIsoFilter")   
     options['TnPHLTProbeFilters']    = cms.vstring()
+
     if(isLEAD):
         options['TagLeadMatchFilters']    = cms.vstring()  #lead eff only
-        #options['HLTFILTERTOMEASURE']    = cms.vstring("hltEG30LIso60CaloId15b35eHE12R9Id45b75eEcalIsoLastFilter", "hltEG30LR9Id85b90eHE12R9Id45b75eR9IdLastFilter")  #lead H/E filter
-        options['HLTFILTERTOMEASURE']    = cms.vstring("hltEG30LIso60CaloId15b35eHE12R9Id50b80eEcalIsoLastFilter", "hltEG30LR9Id85b90eHE12R9Id50b80eR9IdLastFilter")  #lead H/E filter
-        
-    else:
+        options['HLTFILTERTOMEASURE']    = cms.vstring("hltEG30LIso60CaloId15b35eHE12R9Id50b80eEcalIsoLastFilter", "hltEG30LR9Id85b90eHE12R9Id50b80eR9IdLastFilter")  #lead eff only
+    else:    
         options['TagLeadMatchFilters']    = cms.vstring("hltEG30LIso60CaloId15b35eHE12R9Id50b80eEcalIsoLastFilter", "hltEG30LR9Id85b90eHE12R9Id50b80eR9IdLastFilter")  #sublead eff only
-        #options['HLTFILTERTOMEASURE']    = cms.vstring("hltEG18Iso60CaloId15b35eHE12R9Id45b75eTrackIsoUnseededLastFilter", "hltEG18R9Id85b90eHE12R9Id45b75eR9UnseededLastFilter")  #sublead H/E
-        options['HLTFILTERTOMEASURE']    = cms.vstring("hltEG18Iso60CaloId15b35eHE12R9Id50b80eTrackIsoUnseededLastFilter", "hltEG18R9Id85b90eHE12R9Id50b80eR9UnseededLastFilter")  #sublead H/E
-    
-    options['GLOBALTAG']             = 'MCRUN2_74_V9'
+        options['HLTFILTERTOMEASURE']    = cms.vstring("hltEG18Iso60CaloId15b35eHE12R9Id50b80eTrackIsoUnseededLastFilter", "hltEG18R9Id85b90eHE12R9Id50b80eR9UnseededLastFilter")  #sublead eff only
+
+    options['GLOBALTAG']             = '80X_mcRun2_asymptotic_2016_TrancheIV_v7'
     options['EVENTSToPROCESS']       = cms.untracked.VEventRange()
 else: 
     #options['INPUT_FILE_NAME']       = ("file:myMicroAODOutputFile.root")
     #options['INPUT_FILE_NAME']       = ("/store/group/phys_higgs/cmshgg/mplaner/flashgg/2016hltData_v1/V1/SingleElectron/2016hltData_v1-Run2016B-PromptReco-v2/160518_081245/0000/myMicroAODOutputFile_168.root")
-    options['INPUT_FILE_NAME']        = readFiles
+    options['INPUT_FILE_NAME']        = "/store/group/phys_higgs/cmshgg/sethzenz/flashgg/ReMiniAOD-03Feb2017-2_5_0-test/2_5_0/DoubleEG/ReMiniAOD-03Feb2017-2_5_0-test-2_5_0-v0-Run2016F-03Feb2017-v1/170210_140557/0000/myMicroAODOutputFile_10.root"
     #                                    )
     #mylist =  FileUtils.loadListFromFile('testFileList.txt')
     #mylist =  FileUtils.loadListFromFile('tempFileList.txt')
@@ -107,7 +102,7 @@ else:
         options['TagLeadMatchFilters']    = cms.vstring("hltEG30LIso60CaloId15b35eHE12R9Id50b80eEcalIsoLastFilter", "hltEG30LR9Id85b90eHE12R9Id50b80eR9IdLastFilter")  #sublead eff only
         options['HLTFILTERTOMEASURE']    = cms.vstring("hltEG18Iso60CaloId15b35eHE12R9Id50b80eTrackIsoUnseededLastFilter", "hltEG18R9Id85b90eHE12R9Id50b80eR9UnseededLastFilter")  #sublead eff only
 
-    options['GLOBALTAG']             = '80X_dataRun2_Prompt_v8'
+    options['GLOBALTAG']             = '80X_dataRun2_2016SeptRepro_v7'
     options['EVENTSToPROCESS']       = cms.untracked.VEventRange()
 
 ###################################################################

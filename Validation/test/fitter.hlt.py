@@ -80,22 +80,28 @@ else:
 
 EfficiencyBins = cms.PSet(
     #probe_Pho_et = cms.vdouble( 30,90,300 ),
-    probe_Pho_et = cms.vdouble( 30., 33.3333, 35., 40., 45., 50., 60., 70., 90., 300. ),
+    probe_Pho_et = cms.vdouble( 30., 300. )
+    #probe_Pho_et = cms.vdouble( 30., 32.5, 35., 40., 45., 50., 60., 70., 90., 300. ),
+    #probe_Pho_et = cms.vdouble( 25., 27.5,30., 32.5, 35., 40., 45., 50., 60., 70., 90., 300. ),
     #probe_Pho_full5x5_r9 = cms.vdouble(0. ,0.5,0.55,0.6,0.65,0.7,0.75,0.8,0.85,0.875,0.9,0.925,0.95,0.975 ,1.),
     #probe_Pho_full5x5x_r9 = cms.vdouble(0.5,1.0),
     
-    #probe_sc_abseta = cms.vdouble(0.0, 1.479),    probe_Pho_full5x5x_r9 = cms.vdouble(0.85, 1.0), #cat 0
-    probe_sc_abseta = cms.vdouble( 1.566,2.5),  probe_Pho_full5x5x_r9 = cms.vdouble(0.90, 1.0), #cat 1
+    #probe_sc_eta = cms.vdouble(0.0, 1.479),    probe_Pho_full5x5x_r9 = cms.vdouble(0.85, 1.0), #cat 0
+    #probe_sc_abseta = cms.vdouble( 1.566,2.5),  probe_Pho_full5x5x_r9 = cms.vdouble(0.90, 1.0), #cat 1
     #probe_sc_abseta = cms.vdouble(0.0, 1.479),    probe_Pho_full5x5x_r9 = cms.vdouble(0.50, 0.85), #cat 2
     #probe_sc_abseta = cms.vdouble( 1.566,2.5),  probe_Pho_full5x5x_r9 = cms.vdouble(0.80, 0.9), #cat 3
     #probe_sc_abseta = cms.vdouble(0.0,0.2,0.4,0.8,1.0,1.2,1.479,1.7,1.9,2.1,2.3,2.5),
+    #probe_sc_eta = cms.vdouble(-2.5,-2.2,-1.9,-1.75,-1.566,-1.444,-1.2,-1.0,-0.8,-0.5,-0.25,0,0.25,0.5,0.8,1.0,1.2,1.444,1.566,1.75,1.9,2.2, 2.5),
+    #probe_Pho_et = cms.vdouble(41.67,300),
+    #probe_Pho_full5x5x_r9 = cms.vdouble(0.85,1.0),
     #probe_sc_abseta = cms.vdouble(1.479),
     #probe_sc_abseta = cms.vdouble(0.0, 1.479,1.566, 2.5),
     #probe_eta = cms.vdouble( -2.5, 2.5 ),
     )
 
 EfficiencyBinningSpecification = cms.PSet(
-    UnbinnedVariables = cms.vstring("mass", "totWeight"),
+#    UnbinnedVariables = cms.vstring("mass", "totWeight","probe_Pho_et","probe_Pho_full5x5x_r9"),
+    UnbinnedVariables = cms.vstring("mass"),
     BinnedVariables = cms.PSet(EfficiencyBins,
                                mcTrue = cms.vstring("false")
                                ),
@@ -103,7 +109,7 @@ EfficiencyBinningSpecification = cms.PSet(
     )
 
 if (not options.isMC):
-    EfficiencyBinningSpecification.UnbinnedVariables = cms.vstring("mass", "totWeight")
+    EfficiencyBinningSpecification.UnbinnedVariables = cms.vstring("mass")
     EfficiencyBinningSpecification.BinnedVariables = cms.PSet(EfficiencyBins)
         
 mcTruthModules = cms.PSet()
@@ -131,8 +137,9 @@ process.TnPMeasurement = cms.EDAnalyzer("TagProbeFitTreeAnalyzer",
                                         # defines all the real variables of the probes available in the input tree and intended for use in the efficiencies
                                         Variables = cms.PSet(mass = cms.vstring("Tag-Probe Mass", "60.0", "120.0", "GeV/c^{2}"),
                                                              probe_Pho_et = cms.vstring("Probe E_{T}", "0", "10000", "GeV/c"),
-                                                             probe_sc_abseta = cms.vstring("Probe #eta", "0", "2.5", ""), 
-                                                             probe_Pho_full5x5x_r9 = cms.vstring("Probe 5x5r9", "0.5", "1", ""), 
+                                                             #probe_sc_abseta = cms.vstring("Probe #eta", "0", "2.5", ""), 
+                                                             #probe_sc_eta = cms.vstring("Probe #eta", "-2.5", "2.5", ""), 
+                                                             #probe_Pho_full5x5x_r9 = cms.vstring("Probe 5x5r9", "0.5", "1", ""), 
                                                              totWeight = cms.vstring("totWeight", "-1000000", "100000000", ""), 
                                                              ),
                                         
@@ -146,11 +153,11 @@ process.TnPMeasurement = cms.EDAnalyzer("TagProbeFitTreeAnalyzer",
                                         #Cuts = cms.PSet(r9Cut = cms.vstring("probe_Pho_r9","0.5","above")),
                                         
                                         PDFs = cms.PSet(pdfSignalPlusBackground = cms.vstring(
-            "RooCBExGaussShape::signalResPass(mass,meanP[-0.0,-5.000,5.000],sigmaP[0.956,0.00,10.000],alphaP[0.999, 0.0,50.0],nP[1.402,0.000,50.000],sigmaP_2[1.000,0.500,15.00])",
-            "RooCBExGaussShape::signalResFail(mass,meanF[-0.0,-5.000,5.000],sigmaF[3.331,0.00,15.000],alphaF[1.586, 0.0,50.0],nF[0.464,0.000,20.00], sigmaF_2[1.675,0.500,15.000])",
+            "RooCBExGaussShape::signalResPass(mass,meanP[-0.10,-5.000,5.000],sigmaP[0.9345,0.00,10.000],alphaP[30, 0.0,50.0],nP[10.2,0.000,50.000],sigmaP_2[1.000,0.500,15.00])",
+            "RooCBExGaussShape::signalResFail(mass,meanF[-0.10,-5.000,5.000],sigmaF[3.322,0.00,15.000],alphaF[0.10, 0.0,50.0],nF[2.3,0.000,20.00], sigmaF_2[1.675,0.500,15.000])",
             "ZGeneratorLineShape::signalPhy(mass)",
-            "RooCMSShape::backgroundPass(mass, alphaPass[60.,50.,70.], betaPass[0.01, 0.,0.1], gammaPass[0.1, 0, 1], peakPass[90.0])",
-            "RooCMSShape::backgroundFail(mass, alphaFail[60.,50.,70.], betaFail[0.01, 0.,0.1], gammaFail[0.1, 0, 1], peakFail[90.0])",
+            "RooCMSShape::backgroundPass(mass, alphaPass[60.,50.,70.], betaPass[0.01, 0.,0.1], gammaPass[0.11, 0, 1], peakPass[90.0])",
+            "RooCMSShape::backgroundFail(mass, alphaFail[60.,50.,70.], betaFail[0.01, 0.,0.1], gammaFail[0.11, 0, 1], peakFail[90.0])",
             "FCONV::signalPass(mass, signalPhy, signalResPass)",
             "FCONV::signalFail(mass, signalPhy, signalResFail)",
             "efficiency[0.5,0,1]",
