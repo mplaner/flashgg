@@ -213,9 +213,11 @@ class MicroAODCustomize(object):
         from flashgg.MicroAOD.METcorr_multPhiCorr_80X_sumPt_cfi import multPhiCorr_MC_DY_80X
         setMetCorr(process,multPhiCorr_MC_DY_80X)
         from flashgg.MicroAOD.flashggMets_cfi import flashggMets
+        #from flashgg.MicroAOD.flashggMetMuon_cfi import flashggMuonMets    
         process.flashggMETs = flashggMets
+        #process.flashggMuonMETs = flashggMuonMets
         process.p *=process.fullPatMetSequenceTEST
-        process.p *=process.flashggMETs
+        process.p *=process.flashggMETs#*process.flashggMuonMETs
         if "sherpa" in self.datasetName:
             process.flashggGenPhotonsExtra.defaultType = 1
             
@@ -232,9 +234,11 @@ class MicroAODCustomize(object):
             from flashgg.MicroAOD.METcorr_multPhiCorr_80X_sumPt_cfi import multPhiCorr_Data_B_80X
             setMetCorr(process,multPhiCorr_Data_B_80X)
         from flashgg.MicroAOD.flashggMets_cfi import flashggMets
+        #from flashgg.MicroAOD.flashggMetMuon_cfi import flashggMuonMets    
+        #process.flashggMuonMETs = flashggMuonMets
         process.flashggMETs = flashggMets
         process.p *=process.fullPatMetSequenceTEST
-        process.p *=process.flashggMETs
+        process.p *=process.flashggMETs#*flashggMuonMETs
 
         for pathName in process.paths:
             path = getattr(process,pathName)

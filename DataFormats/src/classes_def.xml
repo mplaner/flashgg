@@ -239,6 +239,16 @@
 <class name="std::vector<flashgg::Jet>"/>
 <class name="edm::Ptr<flashgg::Jet>"/>
 
+<class name="flashgg::MuonMet"/>
+  
+<class name="std::vector<flashgg::MuonMet>"/>
+<class name="edm::Wrapper<std::vector<flashgg::MuonMet> >"/>
+<class name="std::vector<std::vector<flashgg::MuonMet> >"/>
+<class name="edm::Wrapper<std::vector<std::vector<flashgg::MuonMet> > >"/>
+<class name="edm::Ptr<flashgg::MuonMet>"/>
+<class name="std::vector<edm::Ptr<flashgg::MuonMet> >"/>
+<class name="edm::Wrapper<std::vector<edm::Ptr<flashgg::MuonMet> > >"/>
+
 <class name="flashgg::Met" ClassVersion="11">
   <version ClassVersion="10" checksum="2272826605"/>
   <version ClassVersion="11" checksum="1231550995"/>

@@ -14,6 +14,7 @@
 #include "flashgg/DataFormats/interface/GenPhotonExtra.h"
 #include "flashgg/DataFormats/interface/Jet.h"
 #include "flashgg/DataFormats/interface/Met.h"
+#include "flashgg/DataFormats/interface/MuonMet.h"
 #include "flashgg/DataFormats/interface/Photon.h"
 #include "flashgg/DataFormats/interface/SinglePhotonView.h"
 #include "flashgg/DataFormats/interface/SingleVertexView.h"
@@ -103,6 +104,15 @@ namespace  {
         std::vector<edm::Ptr<flashgg::MuMuGammaCandidate> >        vec_ptr_fgg_mmg;
         edm::Wrapper<std::vector<edm::Ptr<flashgg::MuMuGammaCandidate> > >   wrp_vec_ptr_fgg_mmg;
         //-----------J. Tao from IHEP-Beijing--------------
+
+        flashgg::MuonMet                                        fgg_mumet;
+        edm::Wrapper<flashgg::MuonMet>                      wrp_fgg_mumet;
+        std::vector<flashgg::MuonMet>                       vec_fgg_mumet;
+        edm::Wrapper<std::vector<flashgg::MuonMet> >    wrp_vec_fgg_mumet;
+        edm::Ptr<flashgg::MuonMet>                          ptr_fgg_mumet;
+        edm::Wrapper<edm::Ptr<flashgg::MuonMet> >       wrp_ptr_fgg_mumet;
+        std::vector<edm::Ptr<flashgg::MuonMet> >        vec_ptr_fgg_mumet;
+        edm::Wrapper<std::vector<edm::Ptr<flashgg::MuonMet> > >   wrp_vec_ptr_fgg_mumet;
 
         edm::Ptr<reco::Vertex>                                        ptr_rec_vtx;
         std::vector<edm::Ptr<reco::Vertex> >                      vec_ptr_rec_vtx;

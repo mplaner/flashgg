@@ -39,7 +39,7 @@ microAODDefaultOutputCommand = cms.untracked.vstring("drop *",
                                                      "keep *_ecalMultiAndGSGlobalRecHitEB_hitsNotReplaced_*",
                                                      'keep *_flashggMETs__*',
                                                      "keep patMETs_slimmedMETs__PAT",
-                                                     'keep *_*packedCandidate*__*',
+                                                     #'keep *_*packedCandidate*__*',
                                                      )
 
 # Should be included for now for ongoing studies, but to be removed some day

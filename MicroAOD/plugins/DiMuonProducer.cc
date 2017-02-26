@@ -53,7 +53,6 @@ namespace flashgg {
         evt.getByToken( muonToken_, muons );
         const std::vector<edm::Ptr<pat::Muon> > &muonPointers = muons->ptrs();
 
-
         auto_ptr<vector<flashgg::DiMuonCandidate> > diMuonColl( new vector<flashgg::DiMuonCandidate> );
         //    cout << "evt.id().event()= " << evt.id().event() << "\tevt.isRealData()= " << evt.isRealData() << "\tmuonPointers.size()= " << muonPointers.size() << "\tpvPointers.size()= " << pvPointers.size() << endl;
 
@@ -78,7 +77,7 @@ namespace flashgg {
                 DiMuonCandidate dimu( LeadMuon, SubLeadMuon );
                 int mu1_charge = muon1->charge();
                 int mu2_charge = muon2->charge();
-
+                
                 bool IsOPCharge = false;
                 if( mu1_charge * mu2_charge < 0 ) { IsOPCharge = true; }
                 dimu.setIsOSDiMuPair( IsOPCharge );

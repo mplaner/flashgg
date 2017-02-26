@@ -9,6 +9,8 @@ namespace flashgg {
     namespace fwlite {
         PLUGGABLE_ANALYZER( DiMuonDumper );
         PLUGGABLE_ANALYZER( CutBasedDiMuonDumper );
+        PLUGGABLE_ANALYZER( METDumper );
+        PLUGGABLE_ANALYZER( CutBasedMETDumper );
         PLUGGABLE_ANALYZER( MuMuGammaDumper );
         PLUGGABLE_ANALYZER( CutBasedMuMuGammaDumper );
     }

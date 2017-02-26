@@ -2,6 +2,7 @@
 #define flashgg_MuMuDumpers_h
 
 #include "flashgg/DataFormats/interface/DiMuonCandidate.h"
+#include "flashgg/DataFormats/interface/MuonMet.h"
 #include "flashgg/DataFormats/interface/MuMuGammaCandidate.h"
 
 #include "flashgg/Taggers/interface/CollectionDumper.h"
@@ -15,10 +16,11 @@ namespace flashgg {
             DiMuonCandidate,
             CutBasedClassifier<DiMuonCandidate> > CutBasedDiMuonDumper;
 
+    typedef CollectionDumper<std::vector<MuonMet> > METDumper;
+    typedef CollectionDumper<std::vector<MuonMet>,  MuonMet,  CutBasedClassifier<MuonMet> > CutBasedMETDumper;
+
     typedef CollectionDumper<std::vector<MuMuGammaCandidate> > MuMuGammaDumper;
-    typedef CollectionDumper<std::vector<MuMuGammaCandidate>,
-            MuMuGammaCandidate,
-            CutBasedClassifier<MuMuGammaCandidate> > CutBasedMuMuGammaDumper;
+    typedef CollectionDumper<std::vector<MuMuGammaCandidate>,  MuMuGammaCandidate, CutBasedClassifier<MuMuGammaCandidate> > CutBasedMuMuGammaDumper;
 
     //// namespace fwlite {
     //// 	typedef ::fwlite::AnalyzerWrapper<DiPhotonDumper> DiPhotonDumper;

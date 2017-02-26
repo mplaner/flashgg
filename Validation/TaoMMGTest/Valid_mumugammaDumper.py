@@ -15,7 +15,7 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 process.MessageLogger.cerr.FwkReport.reportEvery = cms.untracked.int32( 1000 )
 
 process.TFileService = cms.Service("TFileService",
-                                   fileName = cms.string("test_mmg.root")
+                                   fileName = cms.string("test_mumu.root")
 )
 
 

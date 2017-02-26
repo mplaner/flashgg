@@ -6,11 +6,19 @@
 
 typedef edm::AnalyzerWrapper<flashgg::DiMuonDumper> DiMuonDumper;
 typedef edm::AnalyzerWrapper<flashgg::CutBasedDiMuonDumper> CutBasedDiMuonDumper;
+
+typedef edm::AnalyzerWrapper<flashgg::METDumper> METDumper;
+typedef edm::AnalyzerWrapper<flashgg::CutBasedMETDumper> CutBasedMETDumper;
+
 typedef edm::AnalyzerWrapper<flashgg::MuMuGammaDumper> MuMuGammaDumper;
 typedef edm::AnalyzerWrapper<flashgg::CutBasedMuMuGammaDumper> CutBasedMuMuGammaDumper;
 
 DEFINE_FWK_MODULE( DiMuonDumper );
 DEFINE_FWK_MODULE( CutBasedDiMuonDumper );
+
+DEFINE_FWK_MODULE( METDumper );
+DEFINE_FWK_MODULE( CutBasedMETDumper );
+
 DEFINE_FWK_MODULE( MuMuGammaDumper );
 DEFINE_FWK_MODULE( CutBasedMuMuGammaDumper );
 
