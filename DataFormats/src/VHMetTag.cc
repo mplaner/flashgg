@@ -39,10 +39,7 @@ double VHMetTag::getMetUnc( string type )
         }
     }
 
-void VHMetTag::setJet( edm::Ptr<flashgg::Jet> jet )
-{
-    theJet_ = jet;
-}
+
 void VHMetTag::setMet( edm::Ptr<flashgg::Met> met )
 {
     //(pat::MET::UnclusteredEnUp,pat::MET::Type1XY)>y.shiftedPt(pat::MET::UnclusteredEnDown,pat::MET::Type1XY)

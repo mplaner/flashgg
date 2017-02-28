@@ -41,7 +41,6 @@ namespace flashgg {
     private:
         bool isVtx0_;
         edm::Ptr<DiPhotonCandidate> theDiPhotonCandidate_;
-        edm::Ptr<flashgg::Jet> theJet_;
         edm::Ptr<flashgg::Met> theMet_;
         edm::Ptr<flashgg::Jet> theJet_;
     };

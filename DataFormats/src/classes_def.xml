@@ -130,7 +130,8 @@
   <version ClassVersion="10" checksum="1025135485"/>
 </class>
 
-<class name="flashgg::VHTagTruth" ClassVersion="11">
+<class name="flashgg::VHTagTruth" ClassVersion="12">
+  <version ClassVersion="12" checksum="3956963256"/>
   <version ClassVersion="11" checksum="769932465"/>
   <version ClassVersion="10" checksum="2764404041"/>
 </class>
