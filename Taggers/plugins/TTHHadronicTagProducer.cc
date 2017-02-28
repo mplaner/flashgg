@@ -51,6 +51,8 @@ namespace flashgg {
         EDGetTokenT<View<reco::Vertex> > vertexToken_;
         EDGetTokenT<View<DiPhotonMVAResult> > mvaResultToken_;
         EDGetTokenT<View<reco::GenParticle> > genParticleToken_;
+        EDGetTokenT<int> stage0catToken_, stage1catToken_, njetsToken_;
+        EDGetTokenT<float> pTHToken_,pTVToken_;
         EDGetTokenT<double> rhoTag_;
         string systLabel_;
 
@@ -136,7 +138,12 @@ namespace flashgg {
         systLabel_( iConfig.getParameter<string> ( "SystLabel" ) ),
         _MVAMethod( iConfig.getParameter<string> ( "MVAMethod" ) )
     {
-
+        ParameterSet HTXSps = iConfig.getParameterSet( "HTXSTags" );
+        stage0catToken_ = consumes<int>( HTXSps.getParameter<InputTag>("stage0cat") );
+        stage1catToken_ = consumes<int>( HTXSps.getParameter<InputTag>("stage1cat") );
+        njetsToken_ = consumes<int>( HTXSps.getParameter<InputTag>("njets") );
+        pTHToken_ = consumes<float>( HTXSps.getParameter<InputTag>("pTH") );
+        pTVToken_ = consumes<float>( HTXSps.getParameter<InputTag>("pTV") );
 
         MVAThreshold_ = iConfig.getParameter<double>( "MVAThreshold");
         MVATTHHMVAThreshold_ = iConfig.getParameter<double>( "MVATTHHMVAThreshold");
@@ -196,7 +203,7 @@ namespace flashgg {
 
         if (_MVAMethod != ""){
             TThMva_.reset( new TMVA::Reader( "!Color:Silent" ) );
-            TThMva_->AddVariable( "nJetsTTH", &nJets_);
+            TThMva_->AddVariable( "nJets", &nJets_);
             TThMva_->AddVariable( "maxBTagVal",&maxBTagVal_);
             TThMva_->AddVariable( "secondMaxBTagVal", &secondMaxBTagVal_);
             TThMva_->AddVariable( "leadJetPt", &leadJetPt_);
@@ -216,6 +223,14 @@ namespace flashgg {
 
     void TTHHadronicTagProducer::produce( Event &evt, const EventSetup & )
     {
+
+        Handle<int> stage0cat, stage1cat, njets;
+        Handle<float> pTH, pTV;
+        evt.getByToken(stage0catToken_, stage0cat);
+        evt.getByToken(stage1catToken_,stage1cat);
+        evt.getByToken(njetsToken_,njets);
+        evt.getByToken(pTHToken_,pTH);
+        evt.getByToken(pTVToken_,pTV);
 
         //Handle<View<flashgg::Jet> > theJets;
         //evt.getByToken( thejetToken_, theJets );
@@ -356,7 +371,7 @@ namespace flashgg {
             for( unsigned int jetIndex = 0; jetIndex < Jets[jetCollectionIndex]->size() ; jetIndex++ ) {
                 edm::Ptr<flashgg::Jet> thejet = Jets[jetCollectionIndex]->ptrAt( jetIndex );
                 if( fabs( thejet->eta() ) > jetEtaThreshold_ ) { continue; }
-                
+                if(!thejet->passesJetID  ( flashgg::Loose ) ) { continue; }
                 float dRPhoLeadJet = deltaR( thejet->eta(), thejet->phi(), dipho->leadingPhoton()->superCluster()->eta(), dipho->leadingPhoton()->superCluster()->phi() ) ;
                 float dRPhoSubLeadJet = deltaR( thejet->eta(), thejet->phi(), dipho->subLeadingPhoton()->superCluster()->eta(),
                                                 dipho->subLeadingPhoton()->superCluster()->phi() );
@@ -465,6 +480,15 @@ namespace flashgg {
                 if( ! evt.isRealData() ) {
                     TagTruthBase truth_obj;
                     truth_obj.setGenPV( higgsVtx );
+                    if ( stage0cat.isValid() ) {
+                        truth_obj.setHTXSInfo( *( stage0cat.product() ),
+                                               *( stage1cat.product() ),
+                                               *( njets.product() ),
+                                               *( pTH.product() ),
+                                               *( pTV.product() ) );
+                    } else {
+                        truth_obj.setHTXSInfo( 0, 0, 0, 0., 0. );
+                    }
                     truths->push_back( truth_obj );
                     tthhtags->back().setTagTruth( edm::refToPtr( edm::Ref<vector<TagTruthBase> >( rTagTruth, idx++ ) ) );
                 }

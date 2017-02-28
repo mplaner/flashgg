@@ -35,6 +35,7 @@ VHTagTruth *VHTagTruth::clone() const
     result->setVhasMissingLeptons( VhasMissingLeptons() );
     result->setVpt( Vpt() );
     result->setVphi( Vphi() );
+    result->copyBaseInfo( *this );
     return result;
 
 }

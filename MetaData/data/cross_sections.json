@@ -14,6 +14,7 @@
 	"DYToEE_NNPDF30_13TeV-powheg-pythia8"                           : { "xs" : 1921.8 },
         "DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8"       : { "xs" : 5765.4, "itype":20                    },
 	"DYJetsToLL_M-50_TuneCUETP8M1_13TeV-madgraphMLM-pythia8"        : { "xs" : 5765.4, "itype":20                    },
+	"DYJetsToLL_M-50_TuneCUETP8M1_13TeV-madgraphMLM-herwigpp_30M"   : { "xs" : 5765.4, "itype":20                    },
         "GJet_Pt40_doubleEMEnriched_TuneZ2star_13TeV-pythia6"           : { "xs" : 17180.0,  "br" : 0.0379,   "kf" : 1.0 },
         "GJet_Pt20to40_doubleEMEnriched_TuneZ2star_13TeV-pythia6"       : { "xs" : 145400.0, "br" : 0.001776, "kf" : 1.0 },
 	"DoubleEG"                                                      : { "xs" : 0.0, "itype" :0                       },
@@ -136,7 +137,15 @@
         "GJets_HT-100To200_TuneCUETP8M1_13TeV-madgraphMLM-pythia8" : { "xs" : 9110.0,  "itype" : 5 },
         "GJets_HT-200To400_TuneCUETP8M1_13TeV-madgraphMLM-pythia8" : { "xs" : 2280.0,  "itype" : 6 },
         "GJets_HT-400To600_TuneCUETP8M1_13TeV-madgraphMLM-pythia8" : { "xs" :273.0 , "itype" : 7 },
-        "GJets_HT-600ToInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8" : { "xs" :94.5 , "itype" : 8 }
+        "GJets_HT-600ToInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8" : { "xs" :94.5 , "itype" : 8 },
+        "TTJets_TuneCUETP8M1_13TeV-madgraphMLM-pythia8" : { "xs" : 665 },
+        "TTGJets_TuneCUETP8M1_13TeV-amcatnloFXFX-madspin-pythia8" : { "xs" : 3.819 },
+        "TTGG_0Jets_TuneCUETP8M1_13TeV_amcatnlo_madspin_pythia8" : { "xs" : 0.01731 },
+        "TGJets_TuneCUETP8M1_13TeV_amcatnlo_madspin_pythia8" : { "xs" : 2.967 },
+        "THQ_HToGG_13TeV-madgraph-pythia8_TuneCUETP8M1" : { "xs" : 0.07096,   "br" : 0.00227 },
+        "THW_HToGG_13TeV-madgraph-pythia8_TuneCUETP8M1" : { "xs" : 0.01561,   "br" : 0.00227 },
+        "bbHToGG_M-125_4FS_yb2_13TeV_amcatnlo" : { "xs" : 0.532892,   "br" : 0.00227 },
+        "bbHToGG_M-125_4FS_ybyt_13TeV_amcatnlo" : { "xs" : 0.0448916,   "br" : 0.00227 }
 
 
 }

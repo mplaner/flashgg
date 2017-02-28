@@ -25,7 +25,7 @@ elif os.environ["CMSSW_VERSION"].count("CMSSW_8_0"):
 else:
     raise Exception,"Could not find a sensible CMSSW_VERSION for default globaltag"
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(300) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1000) )
 process.MessageLogger.cerr.FwkReport.reportEvery = cms.untracked.int32( 100 )
 
 from flashgg.Systematics.SystematicsCustomize import *
@@ -43,6 +43,18 @@ elesystlabels = []
 musystlabels = []
 
 from flashgg.MetaData.JobConfig import customize
+customize.options.register('tthTagsOnly',
+                           False,
+                           VarParsing.VarParsing.multiplicity.singleton,
+                           VarParsing.VarParsing.varType.bool,
+                           'tthTagsOnly'
+                           )
+customize.options.register('doMuFilter',
+                           True,
+                           VarParsing.VarParsing.multiplicity.singleton,
+                           VarParsing.VarParsing.varType.bool,
+                           'doMuFilter'
+                           )
 customize.options.register('doFiducial',
                            False,
                            VarParsing.VarParsing.multiplicity.singleton,
@@ -84,12 +96,16 @@ customize.options.register('dumpWorkspace',
 print "Printing defaults"
 print 'doFiducial '+str(customize.doFiducial)
 print 'acceptance '+str(customize.acceptance)
+print 'tthTagsOnly '+str(customize.tthTagsOnly)
 # import flashgg customization to check if we have signal or background
 from flashgg.MetaData.JobConfig import customize
 customize.parse()
 print "Printing options"
 print 'doFiducial '+str(customize.doFiducial)
 print 'acceptance '+str(customize.acceptance)
+print 'tthTagsOnly '+str(customize.tthTagsOnly)
+print 'doMuFilter '+str(customize.doMuFilter)
+
 
 if customize.doFiducial:
     import flashgg.Systematics.fiducialCrossSectionsCustomize as fc
@@ -133,6 +149,16 @@ if customize.doFiducial:
     process.flashggTagSequence.remove(process.flashggVHHadronicTag)
     process.flashggTagSequence.replace(process.flashggUntagged, process.flashggSigmaMoMpToMTag)
 
+if customize.tthTagsOnly:
+    process.flashggTagSequence.remove(process.flashggVBFTag)
+    process.flashggTagSequence.remove(process.flashggVHMetTag)
+    process.flashggTagSequence.remove(process.flashggWHLeptonicTag)
+    process.flashggTagSequence.remove(process.flashggZHLeptonicTag)
+    process.flashggTagSequence.remove(process.flashggVHLeptonicLooseTag)
+    process.flashggTagSequence.remove(process.flashggVHHadronicTag)
+    process.flashggTagSequence.remove(process.flashggUntagged)
+    process.flashggTagSequence.remove(process.flashggVBFMVA)
+    process.flashggTagSequence.remove(process.flashggVBFDiPhoDiJetMVA)
 
 print 'here we print the tag sequence after'
 print process.flashggTagSequence
@@ -141,7 +167,9 @@ if customize.doFiducial:
     print 'we do fiducial and we change tagsorter'
     process.flashggTagSorter.TagPriorityRanges = cms.VPSet(     cms.PSet(TagName = cms.InputTag('flashggSigmaMoMpToMTag')) )
 
-
+if customize.tthTagsOnly:
+    process.flashggTagSorter.TagPriorityRanges = cms.VPSet(     cms.PSet(TagName = cms.InputTag('flashggTTHLeptonicTag')),
+        cms.PSet(TagName = cms.InputTag('flashggTTHHadronicTag')) )
 
 print "customize.processId:",customize.processId
 # load appropriate scale and smearing bins here
@@ -174,7 +202,7 @@ if customize.processId.count("h_") or customize.processId.count("vbf_") or custo
             phosystlabels.append("FNUFEE%s01sigma" % direction)
             jetsystlabels.append("JEC%s01sigma" % direction)
             jetsystlabels.append("JER%s01sigma" % direction)
-            jetsystlabels.append("RMSShift%s01sigma" % direction)
+            jetsystlabels.append("PUJIDShift%s01sigma" % direction)
             #metsystlabels.append("metUncertainty%s01sigma" % direction)
             variablesToUse.append("UnmatchedPUWeight%s01sigma[1,-999999.,999999.] := weight(\"UnmatchedPUWeight%s01sigma\")" % (direction,direction))
             variablesToUse.append("MvaLinearSyst%s01sigma[1,-999999.,999999.] := weight(\"MvaLinearSyst%s01sigma\")" % (direction,direction))
@@ -186,6 +214,7 @@ if customize.processId.count("h_") or customize.processId.count("vbf_") or custo
             variablesToUse.append("ElectronWeight%s01sigma[1,-999999.,999999.] := weight(\"ElectronWeight%s01sigma\")" % (direction,direction))
             variablesToUse.append("MuonWeight%s01sigma[1,-999999.,999999.] := weight(\"MuonWeight%s01sigma\")" % (direction,direction))
             variablesToUse.append("JetBTagCutWeight%s01sigma[1,-999999.,999999.] := weight(\"JetBTagCutWeight%s01sigma\")" % (direction,direction))
+            variablesToUse.append("JetBTagReshapeWeight%s01sigma[1,-999999.,999999.] := weight(\"JetBTagReshapeWeight%s01sigma\")" % (direction,direction))
             for r9 in ["HighR9","LowR9"]:
                 for region in ["EB","EE"]:
                     phosystlabels.append("ShowerShape%s%s%s01sigma"%(r9,region,direction))
@@ -234,6 +263,7 @@ process.source = cms.Source ("PoolSource",
                              fileNames = cms.untracked.vstring(
 "root://eoscms.cern.ch//eos/cms/store/group/phys_higgs/cmshgg/sethzenz/flashgg/RunIISummer16-2_4_1-25ns_Moriond17/2_4_1/VHToGG_M125_13TeV_amcatnloFXFX_madspin_pythia8/RunIISummer16-2_4_1-25ns_Moriond17-2_4_1-v0-RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/170114_094103/0000/myMicroAODOutputFile_1.root"
 #"/store/group/phys_higgs/cmshgg/ferriff/flashgg/RunIISpring16DR80X-2_3_0-25ns_Moriond17_MiniAODv2/2_3_0/VHToGG_M125_13TeV_amcatnloFXFX_madspin_pythia8/RunIISpring16DR80X-2_3_0-25ns_Moriond17_MiniAODv2-2_3_0-v0-RunIISpring16MiniAODv1-PUSpring16RAWAODSIM_80X_mcRun2_asymptotic_2016_v3-v1/161114_134042/0000/myMicroAODOutputFile_1.root"
+
 
 #"file:/afs/cern.ch/work/s/sethzenz/fromscratch107/CMSSW_8_0_8_patch1/src/flashgg/myMicroAODOutputFile.root"
 #"root://eoscms.cern.ch//eos/cms/store/group/phys_higgs/cmshgg/ferriff/flashgg/RunIISpring16DR80X-2_0_0-25ns/2_0_0/VBFHToGG_M-125_13TeV_powheg_pythia8/RunIISpring16DR80X-2_0_0-25ns-2_0_0-v0-RunIISpring16MiniAODv1-PUSpring16RAWAODSIM_80X_mcRun2_asymptotic_2016_v3-v1/160524_093752/0000/myMicroAODOutputFile_1.root"
@@ -286,12 +316,18 @@ if(customize.doFiducial):
 ##["TTHLeptonicTag",0]
 #]
 
+
 if customize.doFiducial:
     tagList=[["SigmaMpTTag",3]]
+elif customize.tthTagsOnly:
+    tagList=[
+        ["TTHHadronicTag",0],
+        ["TTHLeptonicTag",0]
+        ]
 else:
     tagList=[
         ["UntaggedTag",4],
-        ["VBFTag",2],
+        ["VBFTag",3],
         ["ZHLeptonicTag",0],
         ["WHLeptonicTag",0],
         ["VHLeptonicLooseTag",0],
@@ -362,13 +398,14 @@ process.load('RecoMET.METFilters.eeBadScFilter_cfi')
 process.eeBadScFilter.EERecHitSource = cms.InputTag("reducedEgamma","reducedEERecHits") # Saved MicroAOD Collection (data only)
 # Bad Muon filter
 process.load('RecoMET.METFilters.badGlobalMuonTaggersMiniAOD_cff')
-process.badGlobalMuonTagger.muons = cms.InputTag("flashggSelectedMuons")
-process.cloneGlobalMuonTagger.muons = cms.InputTag("flashggSelectedMuons")
+process.badGlobalMuonTaggerMAOD.muons = cms.InputTag("flashggSelectedMuons")
+process.cloneGlobalMuonTaggerMAOD.muons = cms.InputTag("flashggSelectedMuons")
 process.dataRequirements = cms.Sequence()
 if customize.processId == "Data":
         process.dataRequirements += process.hltHighLevel
         process.dataRequirements += process.eeBadScFilter
-        process.dataRequirements += process.noBadGlobalMuons
+        if customize.doMuFilter:
+            process.dataRequirements += process.noBadGlobalMuonsMAOD
 
 # Split WH and ZH
 process.genFilter = cms.Sequence()
@@ -490,7 +527,7 @@ process.flashggTagSorter.BlindedSelectionPrintout = True
 #print >> processDumpFile, process.dumpPython()
 
 # set default options if needed
-customize.setDefault("maxEvents",300)
+customize.setDefault("maxEvents",1000)
 customize.setDefault("targetLumi",1.00e+3)
 # call the customization
 customize(process)
