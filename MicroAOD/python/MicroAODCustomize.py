@@ -183,6 +183,8 @@ class MicroAODCustomize(object):
         runMETs(process,True) #isMC
         from flashgg.MicroAOD.METcorr_multPhiCorr_80X_sumPt_cfi import multPhiCorr_MC_DY_80X
         setMetCorr(process,multPhiCorr_MC_DY_80X)
+        process.p *=process.flashggMetSequence
+        
         process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
         process.rivetProducerHTXS = cms.EDProducer('HTXSRivetProducer',
                                                    HepMCCollection = cms.InputTag('myGenerator','unsmeared'),
@@ -214,6 +216,8 @@ class MicroAODCustomize(object):
         setMetCorr(process,multPhiCorr_MC_DY_80X)
         if "sherpa" in self.datasetName:
             process.flashggGenPhotonsExtra.defaultType = 1
+        process.p *=process.flashggMetSequence
+
             
     # data specific customization
     def customizeData(self,process):
@@ -227,8 +231,8 @@ class MicroAODCustomize(object):
         else:    
             from flashgg.MicroAOD.METcorr_multPhiCorr_80X_sumPt_cfi import multPhiCorr_Data_B_80X
             setMetCorr(process,multPhiCorr_Data_B_80X)
-        process.p *= process.fullPatMetSequence*process.egcorrMET
-            
+        process.p *= process.fullPatMetSequence*process.egcorrMET*process.flashggMetSequence
+        
         for pathName in process.paths:
             path = getattr(process,pathName)
             for mod in modules:
