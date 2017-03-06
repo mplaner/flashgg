@@ -76,9 +76,10 @@
 </class>
 <class name="std::vector<flashgg::TTHHadronicTag>"/>
 <class name="edm::Wrapper<std::vector<flashgg::TTHHadronicTag> >"/>
-<class name="flashgg::VHMetTag" ClassVersion="11">
-   <version ClassVersion="10" checksum="3643272763"/>
+<class name="flashgg::VHMetTag" ClassVersion="12">
+   <version ClassVersion="12" checksum="2853148657"/>
    <version ClassVersion="11" checksum="619869289"/>
+   <version ClassVersion="10" checksum="3643272763"/>
 </class>
 <class name="std::vector<flashgg::VHMetTag>"/>
 <class name="edm::Wrapper<std::vector<flashgg::VHMetTag> >"/>
@@ -128,7 +129,8 @@
   <version ClassVersion="10" checksum="1025135485"/>
 </class>
 
-<class name="flashgg::VHTagTruth" ClassVersion="11">
+<class name="flashgg::VHTagTruth" ClassVersion="12">
+ <version ClassVersion="12" checksum="3956963256"/>
  <version ClassVersion="11" checksum="641304440"/>
   <version ClassVersion="10" checksum="2764404041"/>
 </class>

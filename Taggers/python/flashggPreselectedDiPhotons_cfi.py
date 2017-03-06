@@ -59,6 +59,55 @@ rediscoveryHLTcutsV1 = cms.VPSet(
              )
     )
 
+
+InvertedPVcutsV1 = cms.VPSet(
+    cms.PSet(cut=cms.string("isEB && full5x5_r9>0.85"), ##EB high R9
+             selection = cms.VPSet(
+            cms.PSet(max=cms.string("100000.0"), 
+                     rhocorr=phoEffArea,
+                     ),
+            cms.PSet(max=cms.string("100000.0")),
+            cms.PSet(max=cms.string("100000.0")),
+            cms.PSet(min=cms.string("0.5")),
+            cms.PSet(max=cms.string("0.5"))
+            ),
+             ),
+    
+    cms.PSet(cut=cms.string("isEE && full5x5_r9>0.90"),  ##EE high R9
+             selection = cms.VPSet(
+            cms.PSet(max=cms.string("100000.0"), 
+                     rhocorr=phoEffArea,
+                     ),
+            cms.PSet(max=cms.string("100000.0")),
+            cms.PSet(max=cms.string("100000.0")),
+            cms.PSet(min=cms.string("0.8")),
+            cms.PSet(max=cms.string("0.5"))
+            ),
+             ),
+    cms.PSet(cut=cms.string("isEB && full5x5_r9<=0.85"),  #EB low R9
+             selection = cms.VPSet(
+            cms.PSet(max=cms.string("4.0"), 
+                     rhocorr=phoEffArea,
+                     ),
+            cms.PSet(max=cms.string("6.0")),
+            cms.PSet(max=cms.string("0.015")),
+            cms.PSet(min=cms.string("0.5")),
+            cms.PSet(max=cms.string("0.5"))
+            ),       
+             ),       
+    cms.PSet(cut=cms.string("isEE && full5x5_r9<=0.90"),  ##EE low R9
+             selection = cms.VPSet(
+            cms.PSet(max=cms.string("4.0"), 
+                     rhocorr=phoEffArea,
+                     ),
+            cms.PSet(max=cms.string("6.0")),
+            cms.PSet(max=cms.string("0.035")),
+            cms.PSet(min=cms.string("0.8")),
+            cms.PSet(max=cms.string("0.5"))
+            ),
+             )
+    )
+
 #cuts here mimic the miniAOD photon cuts and the non-category based trigger cuts
 #Also included: the super-loose ID MVA cuts
 flashggPreselectedDiPhotons = cms.EDFilter(
@@ -78,6 +127,7 @@ flashggPreselectedDiPhotons = cms.EDFilter(
 #        " && (leadingPhoton.passElectronVeto) && (subLeadingPhoton.passElectronVeto)"
         ),
     variables = rediscoveryHLTvariables,
-    categories = rediscoveryHLTcutsV1
+    categories = rediscoveryHLTcutsV1 #standard cuts
+    #categories = InvertedPVcutsV1  #inverted PV
     )
 
