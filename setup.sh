@@ -109,6 +109,7 @@ git cms-merge-topic ikrav:egm_id_80X_v3_photons
 
 echo "grabbing MET topic updates..."
 git cms-merge-topic cms-met:METRecipe_8020
+git cms-merge-topic cms-met:METRecipe_80X_part2
 
 echo "Setting up QGL..."
 git cms-addpkg RecoJets/JetProducers
