@@ -26,8 +26,10 @@ microAODDefaultOutputCommand = cms.untracked.vstring("drop *",
                                                      "keep *_flashggDiPhotons_*_*", # STILL NEEDED
                                                      "keep *_slimmedAddPileupInfo_*_*", # Was huge in old MiniAod - hopefully better now
                                                      "keep *GsfElectronCore*_reducedEgamma_*_*", # needed by at least one Tag
-
+                                                     
                                                      "keep *_flashggSelected*_*_*",
+                                                     "keep *_flashggMets*_*_*",
+                                                     #"keep *_slimmedMETs*_*_*",
                                                      # Drop intermediate collections in favor of selected/final collections
                                                      "drop *_flashgg*Jet*_*_*",
                                                      "drop *_flashggMuons_*_*",

@@ -227,7 +227,8 @@ class MicroAODCustomize(object):
         else:    
             from flashgg.MicroAOD.METcorr_multPhiCorr_80X_sumPt_cfi import multPhiCorr_Data_B_80X
             setMetCorr(process,multPhiCorr_Data_B_80X)
-
+        process.p *= process.fullPatMetSequence*process.egcorrMET
+            
         for pathName in process.paths:
             path = getattr(process,pathName)
             for mod in modules:
