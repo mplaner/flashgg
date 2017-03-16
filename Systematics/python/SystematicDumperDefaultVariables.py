@@ -12,13 +12,15 @@ minimalNonSignalVariables = ["CMS_hgg_mass[160,100,180]:=diPhoton().mass"]#,"cen
 minimalVariablesHTXS = minimalVariables+["stage0cat[72,9.5,81.5] := tagTruth().HTXSstage0cat"]
 
 defaultVariables=["CMS_hgg_mass[160,100,180]:=diPhoton().mass", 
-                                    "leadPt                   :=diPhoton().leadingPhoton.pt",
-                                    "subleadPt                :=diPhoton().subLeadingPhoton.pt",
-                                    "diphoMVA                 :=diPhotonMVA().result",    
-                                    "maxEta                   :=max(abs(diPhoton().leadingPhoton.superCluster.eta),abs(diPhoton().leadingPhoton.superCluster.eta))",
-                                    "genZ           :=tagTruth().genPV().z",
-                                    "vtxZ           :=diPhoton().vtx().z",
-                                    "dZ             :=(tagTruth().genPV().z-diPhoton().vtx().z)"]
+                  "leadPt                   :=diPhoton().leadingPhoton.pt",
+                  "subleadPt                :=diPhoton().subLeadingPhoton.pt",
+                  "leadEta                   :=diPhoton().leadingPhoton.superCluster.eta",
+                  "subleadEta                :=diPhoton().subLeadingPhoton.superCluster.eta",
+                  "diphoMVA                 :=diPhotonMVA().result",    
+                  "maxEta                   :=max(abs(diPhoton().leadingPhoton.superCluster.eta),abs(diPhoton().leadingPhoton.superCluster.eta))",
+                  #"genZ           :=tagTruth().genPV().z",
+                  "vtxZ           :=diPhoton().vtx().z"]
+                                    #"dZ             :=(tagTruth().genPV().z-diPhoton().vtx().z)"]
 
 
 defaultHistograms=["CMS_hgg_mass>>mass(160,100,180)",

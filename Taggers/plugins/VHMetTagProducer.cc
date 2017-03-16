@@ -7,7 +7,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 
-
+#include "flashgg/DataFormats/interface/Photon.h"
 #include "FWCore/Common/interface/TriggerNames.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "flashgg/DataFormats/interface/DiPhotonCandidate.h"
@@ -44,6 +44,8 @@ namespace flashgg {
         //EDGetTokenT<View<pat::MET> > METToken_;
         std::vector<edm::InputTag> inputTagJets_;
         EDGetTokenT<View<flashgg::Met> > METToken_;
+        EDGetTokenT<View<flashgg::Met> > METMuonToken_;
+        EDGetTokenT<View<flashgg::Met> > METUncorToken_;
         EDGetTokenT<View<reco::GenParticle> > genParticleToken_;
         string systLabel_;
         edm::InputTag photonCollection_;
@@ -74,9 +76,10 @@ namespace flashgg {
     VHMetTagProducer::VHMetTagProducer( const ParameterSet &iConfig ) :
         diPhotonToken_( consumes<View<flashgg::DiPhotonCandidate> >( iConfig.getParameter<InputTag> ( "DiPhotonTag" ) ) ),
         mvaResultToken_( consumes<View<flashgg::DiPhotonMVAResult> >( iConfig.getParameter<InputTag> ( "MVAResultTag" ) ) ),
-        //METToken_( consumes<View<pat::MET> >( iConfig.getParameter<InputTag> ( "METTag" ) ) ),
         inputTagJets_( iConfig.getParameter<std::vector<edm::InputTag> >( "inputTagJets" ) ),
         METToken_( consumes<View<flashgg::Met> >( iConfig.getParameter<InputTag> ( "METTag" ) ) ),
+        METMuonToken_( consumes<View<flashgg::Met> >( iConfig.getParameter<InputTag> ( "METMuonTag" ) ) ),
+        METUncorToken_( consumes<View<flashgg::Met> >( iConfig.getParameter<InputTag> ( "METUncorTag" ) ) ),
         genParticleToken_( consumes<View<reco::GenParticle> >( iConfig.getParameter<InputTag> ( "GenParticleTag" ) ) ),
         systLabel_( iConfig.getParameter<string> ( "SystLabel" ) ),
         triggerRECO_( consumes<edm::TriggerResults>(iConfig.getParameter<InputTag>("RECOfilters") ) ),
@@ -139,8 +142,25 @@ namespace flashgg {
         evt.getByToken( METToken_, METs );
         if( METs->size() != 1 )
         { std::cout << "WARNING number of MET is not equal to 1" << std::endl; }
-        Ptr<flashgg::Met> theMET = METs->ptrAt( 0 );
-        //Ptr<pat::MET> theMET = METs->ptrAt( 0 );
+        Handle<View<flashgg::Met> > METMuons;        
+        Handle<View<flashgg::Met> > METUncors;
+        Ptr<flashgg::Met> theMETUncor;
+        Ptr<flashgg::Met> theMETMuon; 
+        Ptr<flashgg::Met> theMET;
+        theMET = METs->ptrAt( 0 );
+        if( evt.isRealData())  //load extra collections for reMINIAOD fix
+            {
+                evt.getByToken( METMuonToken_, METMuons );
+                if( METMuons->size() != 1 )
+                    { std::cout << "WARNING number of MET is not equal to 1" << std::endl; }
+                evt.getByToken( METUncorToken_, METUncors );
+                if( METUncors->size() != 1 )
+                    { std::cout << "WARNING number of MET is not equal to 1" << std::endl; }
+                theMETUncor = METUncors->ptrAt( 0 );
+                theMETMuon = METMuons->ptrAt( 0 );
+            }
+        
+            
 
         Handle<View<reco::GenParticle> > genParticles;
 
@@ -292,6 +312,16 @@ namespace flashgg {
             tag_obj.includeWeights( *dipho );
             tag_obj.setDiPhotonIndex( candIndex );
             tag_obj.setSystLabel( systLabel_ );
+            if( evt.isRealData())  //load extra collections for reMINIAOD fix
+                {
+                    tag_obj.setMetUncor( theMETUncor );
+                    tag_obj.setMetMuon( theMETMuon );
+                }
+            else
+                {
+                    tag_obj.setMetUncor( theMET );
+                    tag_obj.setMetMuon( theMET );
+                }
             tag_obj.setMet( theMET );
             if(tagJets.size())
                 tag_obj.setJet(tagJets[0]);
@@ -300,10 +330,19 @@ namespace flashgg {
             if(fabs(deltaPhi(theMET->corPhi(),dipho->phi()))<dPhiDiphotonMetThreshold_)   { continue;}
             if(tagJets.size())
                 if(fabs(deltaPhi(dipho->phi(),tagJets[0]->phi()))>deltaPhiJetMetThreshold_)    {continue;}
+            //if(theMET->corPt()< metPtThreshold_ )   {continue;}
+            //if(theMETUncor->corPt()< metPtThreshold_ )   {continue;}
+            
             if(theMET->getCorPt()< metPtThreshold_ )   {continue;}
 
+            //fixme: skip events with no gainswitch flag to save space
             
-            
+            //if(!diPhotons->ptrAt( candIndex )->subLeadingPhoton()->checkStatusFlag(flashgg::Photon::rechitSummaryFlags_t::kHasSwitchToGain1)
+            //  &&!diPhotons->ptrAt( candIndex )->subLeadingPhoton()->checkStatusFlag(flashgg::Photon::rechitSummaryFlags_t::kHasSwitchToGain6)
+            //  &&!diPhotons->ptrAt( candIndex )->leadingPhoton()->checkStatusFlag(flashgg::Photon::rechitSummaryFlags_t::kHasSwitchToGain1)
+            //  &&!diPhotons->ptrAt( candIndex )->leadingPhoton()->checkStatusFlag(flashgg::Photon::rechitSummaryFlags_t::kHasSwitchToGain6))
+            //   continue;
+                        
             vhettags->push_back( tag_obj );
             if( ! evt.isRealData() ) 
                 {

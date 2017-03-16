@@ -20,16 +20,34 @@ namespace flashgg {
         VHMetTag *clone() const override { return ( new VHMetTag( *this ) ); }
 
         const edm::Ptr<flashgg::Met> met() const {return theMet_;}
+        const edm::Ptr<flashgg::Met> metMuon() const {return theMetMuon_;}
+        const edm::Ptr<flashgg::Met> metUncor() const {return theMetUncor_;}
         const edm::Ptr<flashgg::Jet> jet() const {return theJet_;}
         const edm::Ptr<DiPhotonCandidate> diPhotonCandidate() const { return theDiPhotonCandidate_;}
         void setMet( edm::Ptr<flashgg::Met> );
-        void setJet( edm::Ptr<flashgg::Jet> );
+        void setMetMuon( edm::Ptr<flashgg::Met> );
+        void setMetUncor( edm::Ptr<flashgg::Met> );
         
+        const bool isVtx0() const { return isVtx0_; }
+        void setIsVtx0( bool val );
+        void setJet( edm::Ptr<flashgg::Jet> );
+        double getMetUnc(string type);
+        double metPt;
+        double metPhi;
+        double jerUnc;
+        double jenUnc;
+        double phoUnc;
+        double uncUnc;
+        double eleUnc;
+
         DiPhotonTagBase::tag_t tagEnum() const override {return DiPhotonTagBase::kVHMet; }
 
     private:
+        bool isVtx0_;
         edm::Ptr<DiPhotonCandidate> theDiPhotonCandidate_;
         edm::Ptr<flashgg::Met> theMet_;
+        edm::Ptr<flashgg::Met> theMetMuon_;
+        edm::Ptr<flashgg::Met> theMetUncor_;
         edm::Ptr<flashgg::Jet> theJet_;
     };
 
