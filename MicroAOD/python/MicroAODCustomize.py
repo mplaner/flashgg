@@ -223,15 +223,16 @@ class MicroAODCustomize(object):
     def customizeData(self,process):
         ## remove MC-specific modules
         modules = process.flashggMicroAODGenSequence.moduleNames()
-        from flashgg.MicroAOD.flashggMet_RunCorrectionAndUncertainties_cff import runMETs,setMetCorr
-        runMETs(process,False) #!isMC
-        if "2016G" in customize.datasetName or "2016H" in customize.datasetName:
-            from flashgg.MicroAOD.METcorr_multPhiCorr_80X_sumPt_cfi import multPhiCorr_Data_G_80X
-            setMetCorr(process,multPhiCorr_Data_G_80X)
-        else:    
-            from flashgg.MicroAOD.METcorr_multPhiCorr_80X_sumPt_cfi import multPhiCorr_Data_B_80X
-            setMetCorr(process,multPhiCorr_Data_B_80X)
-        process.p *=process.flashggMetSequence
+        
+        #from flashgg.MicroAOD.flashggMet_RunCorrectionAndUncertainties_cff import runMETs,setMetCorr
+        #runMETs(process,False) #!isMC
+        #if "2016G" in customize.datasetName or "2016H" in customize.datasetName:
+        #    from flashgg.MicroAOD.METcorr_multPhiCorr_80X_sumPt_cfi import multPhiCorr_Data_G_80X
+        #    setMetCorr(process,multPhiCorr_Data_G_80X)
+        #else:    
+        #    from flashgg.MicroAOD.METcorr_multPhiCorr_80X_sumPt_cfi import multPhiCorr_Data_B_80X
+        #    setMetCorr(process,multPhiCorr_Data_B_80X)
+        #process.p *=process.flashggMetSequence
         for pathName in process.paths:
             path = getattr(process,pathName)
             for mod in modules:
@@ -254,7 +255,7 @@ class MicroAODCustomize(object):
         process.load('EgammaAnalysis.ElectronTools.regressionApplication_cff')
         process.p.insert(0,process.regressionApplication)
         process.electronMVAValueMapProducer.srcMiniAOD = cms.InputTag("slimmedElectrons")
-        process.photonMVAValueMapProducer.srcMiniAOD = cms.InputTag("slimmedPhotons")
+        process.photonMVAValueMapProducer.srcMiniAOD = cms.InputTag("slimmedPhotonsa")
         process.photonIDValueMapProducer.srcMiniAOD = cms.InputTag("slimmedPhotons")
 
     def customizeSpring15EleID(self,process):

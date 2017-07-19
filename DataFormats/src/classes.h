@@ -46,7 +46,7 @@
 #include <map>
 
 namespace  {
-    struct dictionary {
+    struct flashggdictionary {
         flashgg::WeightedObject                                             fgg_obj;
         
         flashgg::PDFWeightObject                                             fgg_pobj;
