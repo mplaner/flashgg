@@ -10,7 +10,7 @@ def setModules(process, options):
     process.hltFilter.throw = cms.bool(False)
     process.hltFilter.HLTPaths = options['TnPPATHS']
     
-    from PhysicsTools.TagAndProbe.pileupConfiguration_cfi import pileupProducer
+    from EgammaAnalysis.TnPTreeProducer.pileupConfiguration_cfi import pileupProducer
     process.pileupReweightingProducer = pileupProducer.clone()    
 
     ###################################################################

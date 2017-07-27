@@ -15,19 +15,18 @@
 #include <TTree.h>
 
 namespace tnp {
-  class FlashggSampleInfoTree : public edm::one::EDProducer<edm::one::WatchLuminosityBlocks, 
-    edm::EndLuminosityBlockProducer> {
+  class FlashggSampleInfoTree : public edm::one::EDProducer<edm::one::WatchLuminosityBlocks, edm::EndLuminosityBlockProducer> {
   public:
     explicit FlashggSampleInfoTree(const edm::ParameterSet& config);
     ~FlashggSampleInfoTree() {};
-
+    
     virtual void beginLuminosityBlock(const edm::LuminosityBlock &, const edm::EventSetup&) override;
     virtual void endLuminosityBlock(edm::LuminosityBlock const&, const edm::EventSetup&) override;
     virtual void endLuminosityBlockProduce(edm::LuminosityBlock &, const edm::EventSetup&) override;
     
     virtual void produce(edm::Event &, const edm::EventSetup&) override;
     void endJob();
-
+    
   private:
     //edm::EDGetTokenT<GenEventInfoProduct> weightSrcToken_;
     //edm::EDGetTokenT<reco::VertexCollection> recVtxsToken_;

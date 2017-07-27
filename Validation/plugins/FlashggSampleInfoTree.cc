@@ -37,7 +37,7 @@ void tnp::FlashggSampleInfoTree::endLuminosityBlock(edm::LuminosityBlock const& 
   iLumi.getByToken(weightToken_, totWeight);
   if (totWeight.isValid())
     sumWeight_ += (double)totWeight->value;
-
+  
   edm::Handle<edm::MergeableCounter> nEventsH;
   iLumi.getByToken(eventToken_, nEventsH);
   if (nEventsH.isValid())
