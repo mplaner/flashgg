@@ -11,8 +11,8 @@ process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 from Configuration.AlCa.GlobalTag import GlobalTag
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32( 100) )
-process.MessageLogger.cerr.FwkReport.reportEvery = cms.untracked.int32( 1000 )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32( 3000) )
+process.MessageLogger.cerr.FwkReport.reportEvery = cms.untracked.int32( 200 )
 
 import os
 if os.environ["CMSSW_VERSION"].count("CMSSW_8_0"):
@@ -20,7 +20,8 @@ if os.environ["CMSSW_VERSION"].count("CMSSW_8_0"):
     process.source = cms.Source("PoolSource",fileNames=cms.untracked.vstring("/store/mc/RunIISummer16MiniAODv2/GluGluHToGG_M-125_13TeV_powheg_pythia8/MINIAODSIM/PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/60000/024E4FA3-8BBC-E611-8E3D-00266CFFBE88.root"))
 elif os.environ["CMSSW_VERSION"].count("CMSSW_9_2"):
     process.GlobalTag = GlobalTag(process.GlobalTag,'92X_dataRun2_Prompt_v4','')
-    process.source = cms.Source("PoolSource",fileNames=cms.untracked.vstring("/store/data/Run2017A/DoubleEG/MINIAOD/PromptReco-v2/000/296/173/00000/C24ABCFB-644C-E711-8A5E-02163E01A21C.root"))
+#    process.source = cms.Source("PoolSource",fileNames=cms.untracked.vstring("/store/data/Run2017A/DoubleEG/MINIAOD/PromptReco-v2/000/296/173/00000/C24ABCFB-644C-E711-8A5E-02163E01A21C.root"))
+    process.source = cms.Source("PoolSource",fileNames=cms.untracked.vstring("/store/data/Run2017B/DoubleEG/MINIAOD/PromptReco-v1/000/297/056/00000/B882BCBB-6756-E711-BF27-02163E013634.root"))
 else:
     raise Exception,"The default setup for microAODstd.py does not support releases other than 80X"
 
@@ -28,6 +29,14 @@ process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService
 process.RandomNumberGeneratorService.flashggRandomizedPhotons = cms.PSet(
           initialSeed = cms.untracked.uint32(16253245)
         )
+
+import FWCore.PythonUtilities.LumiList as LumiList
+import FWCore.ParameterSet.Types as CfgTypes
+process.source.lumisToProcess = CfgTypes.untracked(CfgTypes.VLuminosityBlockRange())
+JSONfile = '/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions17/13TeV/PromptReco/Cert_294927-297723_13TeV_PromptReco_Collisions17_JSON.txt'
+myLumis = LumiList.LumiList(filename = JSONfile).getCMSSWString().split(',')
+process.source.lumisToProcess.extend(myLumis)
+
 
 # 2017 Data
 #process.source = cms.Source("PoolSource",fileNames=cms.untracked.vstring("/store/data/Run2017A/DoubleEG/MINIAOD/PromptReco-v2/000/296/173/00000/C24ABCFB-644C-E711-8A5E-02163E01A21C.root"))

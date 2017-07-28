@@ -28,6 +28,7 @@ microAODDefaultOutputCommand = cms.untracked.vstring("drop *",
                                                      "keep *GsfElectronCore*_reducedEgamma_*_*", # needed by at least one Tag
 
                                                      "keep *_flashggSelected*_*_*",
+                                                     "keep *_slimmedMETs_*_*",
                                                      "keep *_flashggMets*_*_*",
                                                      # Drop intermediate collections in favor of selected/final collections
                                                      "drop *_flashgg*Jet*_*_*",
@@ -39,6 +40,7 @@ microAODDefaultOutputCommand = cms.untracked.vstring("drop *",
 						     "drop floatedmValueMap_electronMVAValueMapProducer_*_*",
 						     "drop intedmValueMap_electronMVAValueMapProducer_*_*",
 						     "drop floatedmValueMap_photonMVAValueMapProducer_*_*",
+                                                     "keep *_slimmedPatTrigger_*_*",
                                                      "keep *_selectedPatTrigger_*_*",
                                                      "keep *_particleFlowEGammaGSFixed_dupECALClusters_*",
                                                      "keep *_ecalMultiAndGSGlobalRecHitEB_hitsNotReplaced_*"

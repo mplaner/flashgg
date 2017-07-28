@@ -1,5 +1,5 @@
-#include "PhysicsTools/TagAndProbe/plugins/MiniAODL1CandProducer.h"
-#include "PhysicsTools/TagAndProbe/plugins/MiniAODL1Stage2CandProducer.h"
+#include "EgammaAnalysis/TnPTreeProducer/plugins/MiniAODL1CandProducer.h"
+#include "EgammaAnalysis/TnPTreeProducer/plugins/MiniAODL1Stage2CandProducer.h"
 
 #include "flashgg/DataFormats/interface/Photon.h"
 
