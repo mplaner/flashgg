@@ -24,6 +24,7 @@ elif os.environ["CMSSW_VERSION"].count("CMSSW_9_2"):
     process.source = cms.Source("PoolSource",fileNames=cms.untracked.vstring("/store/data/Run2017B/DoubleEG/MINIAOD/PromptReco-v1/000/297/056/00000/B882BCBB-6756-E711-BF27-02163E013634.root"))
 else:
     raise Exception,"The default setup for microAODstd.py does not support releases other than 80X"
+#process.source = cms.Source("PoolSource",fileNames = cms.untracked.vstring(options.inputFiles))
 
 process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService")
 process.RandomNumberGeneratorService.flashggRandomizedPhotons = cms.PSet(
@@ -73,7 +74,9 @@ process.load("flashgg/MicroAOD/flashggMicroAODSequence_cff")
 #process.weightsCount.pileupInfo = "addPileupInfo"
 
 from flashgg.MicroAOD.flashggMicroAODOutputCommands_cff import microAODDefaultOutputCommand
-process.out = cms.OutputModule("PoolOutputModule", fileName = cms.untracked.string('myMicroAODOutputFile.root'),
+process.out = cms.OutputModule("PoolOutputModule", 
+                               fileName = cms.untracked.string('myMicroAODOutputFile.root'),
+                               #fileName = cms.untracked.string (options.outputFile),
                                outputCommands = microAODDefaultOutputCommand
                                )
 
@@ -116,3 +119,7 @@ customize(process)
 
 if "DY" in customize.datasetName or "SingleElectron" in customize.datasetName or "DoubleEG" in customize.datasetName:
   customize.customizeHLT(process)
+
+outfile = open('ConfigDump.py','w')
+print >> outfile,process.dumpPython()
+outfile.close()
